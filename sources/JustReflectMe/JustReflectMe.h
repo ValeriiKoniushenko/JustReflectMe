@@ -25,8 +25,10 @@
  */
 
 #pragma once
+#include <filesystem>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace JRM
 {
@@ -50,10 +52,21 @@ namespace JRM
             ProjectDir
         };
 
+        struct FileRawData
+        {
+            std::filesystem::path path;
+            std::string data;
+        };
+
     private:
         [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
                                                                                 char** argv) const;
+        [[nodiscard]] std::vector<FileRawData> getFilesToReflect() const;
+
         void printHelp();
+
+    private:
+        std::filesystem::path _projectPath;
     };
 
 } // namespace JRM

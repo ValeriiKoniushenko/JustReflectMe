@@ -26,9 +26,9 @@
 
 #include "JustReflectMe.h"
 
+#include <filesystem>
 #include <iostream>
-#include <pstl/glue_execution_defs.h>
-#include <vector>
+#include <unordered_map>
 
 namespace JRM
 {
@@ -43,6 +43,16 @@ namespace JRM
         try
         {
             const auto args = parseInputArgs(argc, argv);
+            if (args.find(InputArgs::ProjectDir) == args.end())
+            {
+                throw std::runtime_error("Project directory is not specified!");
+            }
+
+            _projectPath = args.find(InputArgs::ProjectDir)->second;
+            if (!std::filesystem::exists(_projectPath))
+            {
+                throw std::runtime_error("Project directory does not exist!");
+            }
         }
         catch (const std::exception& er)
         {
@@ -69,6 +79,13 @@ namespace JRM
         std::unordered_map<InputArgs, std::string> out;
 
         out.emplace(InputArgs::ProjectDir, argv[1]);
+
+        return out;
+    }
+
+    std::vector<JustReflectMe::FileRawData> JustReflectMe::getFilesToReflect() const
+    {
+        std::vector<JustReflectMe::FileRawData> out;
 
         return out;
     }
