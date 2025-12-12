@@ -25,11 +25,13 @@
  */
 
 #pragma once
+#include <string>
+#include <unordered_map>
 
 namespace JRM
 {
 
-    class JustReflectMe
+    class JustReflectMe final
     {
     public:
         JustReflectMe() = default;
@@ -42,11 +44,16 @@ namespace JRM
         [[nodiscard]] bool setArgs(int argc, char** argv);
         [[nodiscard]] int run();
 
-    protected:
+    private:
+        enum class InputArgs
+        {
+            ProjectDir
+        };
 
     private:
+        [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
+                                                                                char** argv) const;
         void printHelp();
-
     };
 
 } // namespace JRM

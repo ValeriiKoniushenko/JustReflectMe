@@ -27,6 +27,8 @@
 #include "JustReflectMe.h"
 
 #include <iostream>
+#include <pstl/glue_execution_defs.h>
+#include <vector>
 
 namespace JRM
 {
@@ -34,13 +36,46 @@ namespace JRM
     {
         if (argc < 2)
         {
-
+            std::cerr << "Not enough arguments!" << std::endl;
             return false;
         }
+
+        try
+        {
+            const auto args = parseInputArgs(argc, argv);
+        }
+        catch (const std::exception& er)
+        {
+            std::cerr << er.what() << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    int JustReflectMe::run()
+    {
+        return 0;
+    }
+
+    std::unordered_map<JustReflectMe::InputArgs, std::string> JustReflectMe::parseInputArgs(
+        int argc, char** argv) const
+    {
+        if (argc < 2)
+        {
+            throw std::runtime_error("Not enough arguments!");
+        }
+
+        std::unordered_map<InputArgs, std::string> out;
+
+        out.emplace(InputArgs::ProjectDir, argv[1]);
+
+        return out;
     }
 
     void JustReflectMe::printHelp()
     {
+        std::cout << "usage: JustReflectMe <project_dir>" << std::endl;
     }
 
 } // namespace JRM
