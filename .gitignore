@@ -1,0 +1,8 @@
+.vs
+.vscode
+.idea
+cmake-build-*/
+build
+out
+scripts/__pycache__
+*.output
