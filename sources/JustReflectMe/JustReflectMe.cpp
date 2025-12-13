@@ -27,6 +27,7 @@
 #include "JustReflectMe.h"
 
 #include "FileProcessor.h"
+#include "Reflectors/EnumClassReflector.h"
 
 #include <filesystem>
 #include <iostream>
@@ -90,6 +91,7 @@ namespace JRM
                 {
                     FileProcessor processor;
                     processor.setFilePath(path);
+                    processor.registerReflector<EnumClassReflector>();
                     processor.run();
                 }
                 catch (const std::exception& er)

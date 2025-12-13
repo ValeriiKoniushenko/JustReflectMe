@@ -27,9 +27,53 @@
 #include "FileProcessor.h"
 
 #include <filesystem>
+#include <fstream>
+
+namespace
+{
+    [[nodiscard]] std::string ReadFile(const std::string& filename)
+    {
+        std::ifstream file(filename);
+        if (!file)
+        {
+            throw std::runtime_error("Cannot open file");
+        }
+
+        const std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        std::string buffer;
+        buffer.reserve(size);
+        buffer.resize(size);
+
+        if (!file.read(buffer.data(), size)) [[unlikely]]
+        {
+            throw std::runtime_error("Error reading file");
+        }
+
+        return buffer;
+    }
+} // namespace
 
 namespace JRM
 {
+
+    bool FileProcessor::TokenEntry::isValid() const noexcept
+    {
+        return begin != invalidPosition && end != invalidPosition && begin < end
+               && processableReflectorTypeHash != 0;
+    }
+
+    std::vector<FileProcessor::TokenEntry> FileProcessor::findAllEntryPoints() const
+    {
+        std::string fileContent = ReadFile(_filePath);
+
+        std::vector<FileProcessor::TokenEntry> out;
+
+
+
+        return out;
+    }
 
     void FileProcessor::setFilePath(const std::string& path)
     {

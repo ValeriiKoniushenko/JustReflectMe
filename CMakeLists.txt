@@ -22,5 +22,8 @@ JRF_InstallCXXStandardVersion()
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FetchDependencies.cmake)
 
 # Adding core
-add_subdirectory(tests)
+if (NOT JRM_DISABLE_TESTS)
+    add_subdirectory(tests)
+endif ()
+
 add_subdirectory(sources)

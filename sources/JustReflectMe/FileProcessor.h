@@ -26,7 +26,18 @@
 
 #pragma once
 
+#include "Reflectors/BaseReflector.h"
+
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <ostream>
 #include <string>
+#include <vector>
+
+#if defined(JRM_ENABLE_TESTS)
+    #include "gtest/gtest_prod.h"
+#endif
 
 namespace JRM
 {
@@ -35,17 +46,66 @@ namespace JRM
     {
     public:
         FileProcessor() = default;
-        FileProcessor(const FileProcessor&) = default;
-        FileProcessor& operator=(const FileProcessor&) = default;
-        FileProcessor(FileProcessor&&) noexcept = default;
-        FileProcessor& operator=(FileProcessor&&) noexcept = default;
+        FileProcessor(const FileProcessor&) = delete;
+        FileProcessor& operator=(const FileProcessor&) = delete;
+        FileProcessor(FileProcessor&&) noexcept = delete;
+        FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
         void setFilePath(const std::string& path);
         void run();
 
+        template<typename T>
+            requires std::is_base_of_v<BaseReflector, T>
+        void registerReflector()
+        {
+#if defined(NDEBUG)
+            if (hasReflector<T>())
+            {
+                std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!" << std::endl;
+                return;
+            }
+#endif
+
+            _reflectors.emplace_back(std::make_unique<T>());
+        }
+        template<typename T>
+            requires std::is_base_of_v<BaseReflector, T>
+        [[nodiscard]] bool hasReflector()
+        {
+            for (auto&& reflector : _reflectors)
+            {
+                if (typeid(*reflector) == typeid(T))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+    private:
+        struct TokenEntry final
+        {
+            static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
+            std::size_t begin = invalidPosition;
+            std::size_t end = invalidPosition;
+
+            std::size_t processableReflectorTypeHash = 0;
+
+            [[nodiscard]] bool isValid() const noexcept;
+        };
+
+    private:
+        [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints() const;
+
     protected:
+        std::vector<std::unique_ptr<BaseReflector>> _reflectors;
         std::string _filePath;
+
+#if defined(JRM_ENABLE_TESTS)
+        FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);
+#endif
     };
 
 } // namespace JRM

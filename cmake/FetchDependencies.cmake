@@ -7,15 +7,17 @@ function(JRF_SuppressAllSubmoduleWarnings Target)
     )
 endfunction()
 
+if (NOT JRM_DISABLE_TESTS)
 
-FetchContent_Declare(PCRE2
-        GIT_REPOSITORY https://github.com/PCRE2Project/pcre2.git
-        GIT_TAG pcre2-10.45
+    FetchContent_Declare(GoogleTest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.17.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-)
-set(PCRE2_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(PCRE2_BUILD_PCRE2GREP OFF CACHE BOOL "" FORCE)
+    )
+    set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(PCRE2)
-JRF_SuppressAllSubmoduleWarnings(pcre2-8-static)
+    FetchContent_MakeAvailable(GoogleTest)
+    JRF_SuppressAllSubmoduleWarnings(gtest)
+
+endif ()

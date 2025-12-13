@@ -4,8 +4,8 @@ function(JRFCoreAddCompileOptionsTo Target)
     target_compile_definitions(${Target} PRIVATE NOMINMAX=1)
 
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_compile_definitions(${Target} PUBLIC
-            UTILS_DEBUG=1
+        target_compile_definitions(${Target} PRIVATE
+            NDEBUG=1
         )
     endif ()
 
@@ -51,18 +51,6 @@ function(JRFCoreAddCompileOptionsTo Target)
 
             "$<$<CONFIG:RELEASE>:-O3>"
         )
-
-        if (BUILD_UTILS_WITH_TEST_COVERAGE)
-            target_compile_options(${Target} PRIVATE
-                "$<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fprofile-instr-generate>"
-                "$<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fcoverage-mapping>"
-            )
-
-            target_link_options(${Target} PRIVATE
-                "$<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fprofile-instr-generate>"
-                "$<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fcoverage-mapping>"
-            )
-        endif ()
 
     endif ()
 endfunction()
