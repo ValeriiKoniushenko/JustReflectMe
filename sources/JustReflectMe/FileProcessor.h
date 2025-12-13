@@ -1,3 +1,5 @@
+
+
 /*
  * MIT License
  *
@@ -22,19 +24,28 @@
  * SOFTWARE.
  */
 
-#include "JustReflectMe/JustReflectMe.h"
+#pragma once
 
-#include <iostream>
-#include <ostream>
+#include <string>
 
-int main(int argc, char** argv)
+namespace JRM
 {
-    JRM::JustReflectMe obj;
-    if (!obj.setArgs(argc, argv))
-    {
-        obj.printHelp();
-        return -1;
-    }
 
-    return obj.run();
-}
+    class FileProcessor
+    {
+    public:
+        FileProcessor() = default;
+        FileProcessor(const FileProcessor&) = default;
+        FileProcessor& operator=(const FileProcessor&) = default;
+        FileProcessor(FileProcessor&&) noexcept = default;
+        FileProcessor& operator=(FileProcessor&&) noexcept = default;
+        virtual ~FileProcessor() = default;
+
+        void setFilePath(const std::string& path);
+        void run();
+
+    protected:
+        std::string _filePath;
+    };
+
+} // namespace JRM

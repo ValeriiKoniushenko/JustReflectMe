@@ -43,6 +43,7 @@ namespace JRM
         JustReflectMe& operator=(JustReflectMe&&) noexcept = delete;
         ~JustReflectMe() = default;
 
+        void printHelp();
         [[nodiscard]] bool setArgs(int argc, char** argv);
         [[nodiscard]] int run();
 
@@ -52,21 +53,15 @@ namespace JRM
             ProjectDir
         };
 
-        struct FileRawData
-        {
-            std::filesystem::path path;
-            std::string data;
-        };
-
     private:
         [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
                                                                                 char** argv) const;
-        [[nodiscard]] std::vector<FileRawData> getFilesToReflect() const;
-
-        void printHelp();
+        [[nodiscard]] bool isParseableEntry(const std::filesystem::directory_entry& entry) const;
 
     private:
-        std::filesystem::path _projectPath;
+        std::filesystem::path _sourcePath;
+        std::vector<std::string> _parseableFileExtensions
+            = { ".h", ".cpp", ".cxx", ".cc", ".c++", ".hpp", ".hxx", ".hh", ".h++", ".inl" };
     };
 
 } // namespace JRM

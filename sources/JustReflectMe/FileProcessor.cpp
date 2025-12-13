@@ -1,3 +1,5 @@
+
+
 /*
  * MIT License
  *
@@ -22,19 +24,25 @@
  * SOFTWARE.
  */
 
-#include "JustReflectMe/JustReflectMe.h"
+#include "FileProcessor.h"
 
-#include <iostream>
-#include <ostream>
+#include <filesystem>
 
-int main(int argc, char** argv)
+namespace JRM
 {
-    JRM::JustReflectMe obj;
-    if (!obj.setArgs(argc, argv))
+
+    void FileProcessor::setFilePath(const std::string& path)
     {
-        obj.printHelp();
-        return -1;
+        _filePath = path;
+
+        if (!std::filesystem::exists(_filePath))
+        {
+            throw std::runtime_error("File does not exist: '" + _filePath + "'");
+        }
     }
 
-    return obj.run();
-}
+    void FileProcessor::run()
+    {
+    }
+
+} // namespace JRM

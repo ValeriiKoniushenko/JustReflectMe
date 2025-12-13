@@ -26,6 +26,8 @@
 
 #include "JustReflectMe.h"
 
+#include "FileProcessor.h"
+
 #include <filesystem>
 #include <iostream>
 #include <unordered_map>
@@ -48,15 +50,15 @@ namespace JRM
                 throw std::runtime_error("Project directory is not specified!");
             }
 
-            _projectPath = args.find(InputArgs::ProjectDir)->second;
-            if (!std::filesystem::exists(_projectPath))
+            _sourcePath = args.find(InputArgs::ProjectDir)->second;
+            if (!std::filesystem::exists(_sourcePath))
             {
                 throw std::runtime_error("Project directory does not exist!");
             }
         }
         catch (const std::exception& er)
         {
-            std::cerr << er.what() << std::endl;
+            std::cerr << "Error: " << er.what() << std::endl;
             return false;
         }
 
@@ -65,15 +67,57 @@ namespace JRM
 
     int JustReflectMe::run()
     {
+        std::cout << "Finding all files with extensions: ";
+        for (auto&& ext : _parseableFileExtensions)
+        {
+            std::cout << ext << " ";
+        }
+        std::cout << "\n";
+
+        try
+        {
+            for (auto&& entry : std::filesystem::recursive_directory_iterator(_sourcePath))
+            {
+                if (!isParseableEntry(entry))
+                {
+                    continue;
+                }
+
+                auto&& path = entry.path().generic_string();
+                std::cout << "Processing: " << path << "\n";
+
+                try
+                {
+                    FileProcessor processor;
+                    processor.setFilePath(path);
+                    processor.run();
+                }
+                catch (const std::exception& er)
+                {
+                    std::cerr << "Error while processing the source file: " << path
+                              << " Message: " << er.what() << std::endl;
+                }
+            }
+        }
+        catch (const std::exception& er)
+        {
+            std::cerr << "Error while processing the source tree: " << er.what() << std::endl;
+        }
+
         return 0;
     }
 
     std::unordered_map<JustReflectMe::InputArgs, std::string> JustReflectMe::parseInputArgs(
         int argc, char** argv) const
     {
+        if (!argv)
+        {
+            throw std::runtime_error("Invalid arguments: nullptr");
+        }
+
         if (argc < 2)
         {
-            throw std::runtime_error("Not enough arguments!");
+            throw std::runtime_error("Not enough arguments");
         }
 
         std::unordered_map<InputArgs, std::string> out;
@@ -83,16 +127,34 @@ namespace JRM
         return out;
     }
 
-    std::vector<JustReflectMe::FileRawData> JustReflectMe::getFilesToReflect() const
+    bool JustReflectMe::isParseableEntry(const std::filesystem::directory_entry& entry) const
     {
-        std::vector<JustReflectMe::FileRawData> out;
+        if (!entry.is_regular_file())
+        {
+            return false;
+        }
 
-        return out;
+        auto&& ext = entry.path().extension().generic_string();
+
+        if (ext.empty())
+        {
+            return false;
+        }
+
+        for (const auto& validExt : _parseableFileExtensions)
+        {
+            if (ext == validExt)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void JustReflectMe::printHelp()
     {
-        std::cout << "usage: JustReflectMe <project_dir>" << std::endl;
+        std::cout << "usage: jrm <source_path>" << std::endl;
     }
 
 } // namespace JRM

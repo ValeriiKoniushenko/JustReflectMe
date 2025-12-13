@@ -15,9 +15,9 @@ target_link_libraries(_JustReflectMe_Core PRIVATE
     JustReflectMe::Adapter
 )
 
-add_executable(JustReflectMe main.cpp)
-target_link_directories(JustReflectMe PUBLIC .)
-target_link_libraries(JustReflectMe PRIVATE
+add_executable(jrm main.cpp)
+target_link_directories(jrm PUBLIC .)
+target_link_libraries(jrm PRIVATE
     JustReflectMe::Adapter
     JustReflectMe::Core
 )
