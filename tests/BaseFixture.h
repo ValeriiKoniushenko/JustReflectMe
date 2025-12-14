@@ -22,28 +22,19 @@
  * SOFTWARE.
  */
 
-#include "JustReflectMe/FileProcessor.h"
-#include "JustReflectMe/Reflectors/EnumClassReflector.h"
+#pragma once
 
-#include "gtest/gtest.h"
+#include <string>
 
-class FileProcessorTests : public testing::Test
+class BaseFixture
 {
 public:
-    JRM::FileProcessor processor;
+    BaseFixture() = default;
+    BaseFixture(const BaseFixture&) = default;
+    BaseFixture& operator=(const BaseFixture&) = default;
+    BaseFixture(BaseFixture&&) noexcept = default;
+    BaseFixture& operator=(BaseFixture&&) noexcept = default;
+    virtual ~BaseFixture() = default;
 
-public:
-    FileProcessorTests() = default;
-    ~FileProcessorTests() override = default;
-
-    void SetUp() override {}
-    void TearDown() override {}
+    [[nodiscard]] std::string getFileFromResources(const std::string& filename) const;
 };
-
-TEST_F(FileProcessorTests, FindAllEntryPoints)
-{
-    processor.registerReflector<JRM::EnumClassReflector>();
-    processor.setFilePath("test.cpp");
-
-    processor.run();
-}

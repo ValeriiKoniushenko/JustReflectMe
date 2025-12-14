@@ -1,3 +1,5 @@
+
+
 /*
  * MIT License
  *
@@ -22,28 +24,28 @@
  * SOFTWARE.
  */
 
-#include "JustReflectMe/FileProcessor.h"
-#include "JustReflectMe/Reflectors/EnumClassReflector.h"
+#include "BaseFixture.h"
 
-#include "gtest/gtest.h"
+#include <fstream>
 
-class FileProcessorTests : public testing::Test
+std::string BaseFixture::getFileFromResources(const std::string& filename) const
 {
-public:
-    JRM::FileProcessor processor;
+    std::ifstream file(filename, std::ios::ate);
+    if (!file)
+    {
+        throw std::runtime_error("Cannot open file");
+    }
 
-public:
-    FileProcessorTests() = default;
-    ~FileProcessorTests() override = default;
+    const std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
 
-    void SetUp() override {}
-    void TearDown() override {}
-};
+    std::string buffer;
+    buffer.resize(size);
 
-TEST_F(FileProcessorTests, FindAllEntryPoints)
-{
-    processor.registerReflector<JRM::EnumClassReflector>();
-    processor.setFilePath("test.cpp");
+    if (!file.read(buffer.data(), size))
+    {
+        throw std::runtime_error("Error reading file");
+    }
 
-    processor.run();
+    return buffer;
 }

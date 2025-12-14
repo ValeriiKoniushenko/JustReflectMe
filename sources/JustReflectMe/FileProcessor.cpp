@@ -76,11 +76,6 @@ namespace JRM
     void FileProcessor::setFilePath(const std::string& path)
     {
         _filePath = path;
-
-        if (!std::filesystem::exists(_filePath))
-        {
-            throw std::runtime_error("File does not exist: '" + _filePath + "'");
-        }
     }
 
     void FileProcessor::run()
