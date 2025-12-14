@@ -70,8 +70,6 @@ namespace JRM
 
         std::vector<FileProcessor::TokenEntry> out;
 
-
-
         return out;
     }
 
@@ -87,6 +85,12 @@ namespace JRM
 
     void FileProcessor::run()
     {
+        if (!std::filesystem::exists(_filePath))
+        {
+            throw std::runtime_error("File does not exist: '" + _filePath + "'");
+        }
+
+
     }
 
 } // namespace JRM
