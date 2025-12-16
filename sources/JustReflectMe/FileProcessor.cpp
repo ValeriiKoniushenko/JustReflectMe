@@ -33,10 +33,10 @@ namespace
 {
     [[nodiscard]] std::string ReadFile(const std::string& filename)
     {
-        std::ifstream file(filename);
+        std::ifstream file(filename, std::ios::ate);
         if (!file)
         {
-            throw std::runtime_error("Cannot open file");
+            throw std::runtime_error("Cannot open a file: " + filename);
         }
 
         const std::streamsize size = file.tellg();
@@ -61,16 +61,134 @@ namespace JRM
     bool FileProcessor::TokenEntry::isValid() const noexcept
     {
         return begin != invalidPosition && end != invalidPosition && begin < end
-               && processableReflectorTypeHash != 0;
+               && processableReflectorIndex != invalidPosition;
     }
 
     std::vector<FileProcessor::TokenEntry> FileProcessor::findAllEntryPoints() const
     {
-        std::string fileContent = ReadFile(_filePath);
+        const std::string fileContent = getFileContent(_filePath);
 
         std::vector<FileProcessor::TokenEntry> out;
 
         return out;
+    }
+
+    std::string FileProcessor::getFileContent(const std::string& filename) const
+    {
+        std::string content1 = ReadFile(_filePath);
+
+        std::string content2;
+        content2.reserve(content1.size());
+
+        // Removing all block comments
+        bool nowInsideBlockComment = false;
+        for (std::size_t i = 1; i < content1.size() && content1[i]; ++i)
+        {
+            if (content1[i - 1] == '/' && content1[i] == '*')
+            {
+                if (nowInsideBlockComment) [[unlikely]]
+                {
+                    throw std::runtime_error(
+                        "Can't parse a file: " + filename
+                        + " - troubles with parsing block comment. File can be incorrect.");
+                }
+                nowInsideBlockComment = true;
+                if (!content2.empty())
+                {
+                    content2.pop_back();
+                }
+            }
+
+            if (content1[i - 1] == '*' && content1[i] == '/')
+            {
+                nowInsideBlockComment = false;
+                continue;
+            }
+
+            if (!nowInsideBlockComment || content1[i] == '\n')
+            {
+                content2.push_back(content1[i]);
+            }
+        }
+        content1.resize(0);
+
+        // Removing all comments: //
+        if (!content2.empty())
+        {
+            content1.push_back(content2.front());
+        }
+        bool nowComment = false;
+        for (std::size_t i = 1; i < content2.size() && content2[i]; ++i)
+        {
+            if (nowComment)
+            {
+                if (content2[i] == '\n')
+                {
+                    nowComment = false;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            if (content2[i] == '/' && content2[i - 1] == '/')
+            {
+                nowComment = true;
+                content1.pop_back();
+                continue;
+            }
+
+            content1.push_back(content2[i]);
+        }
+        content2.resize(0);
+
+        // Removing all strings: "hello world"
+        bool nowDoubleQuote = false;
+        for (std::size_t i = 0; i < content1.size() && content1[i]; ++i)
+        {
+            if (nowDoubleQuote && content1[i] == '\n')
+            {
+                nowDoubleQuote = false;
+            }
+
+            if (content1[i] == '"')
+            {
+                nowDoubleQuote = !nowDoubleQuote;
+                if (!nowDoubleQuote)
+                {
+                    continue;
+                }
+            }
+
+            if (!nowDoubleQuote)
+            {
+                content2.push_back(content1[i]);
+            }
+        }
+        content1.resize(0);
+
+        // Removing all chars: 'c'
+        bool nowSingleQuote = false;
+        for (std::size_t i = 0; i < content2.size() && content2[i]; ++i)
+        {
+            if (content2[i] == '\'')
+            {
+                nowSingleQuote = !nowSingleQuote;
+                if (!nowSingleQuote)
+                {
+                    continue;
+                }
+            }
+
+            if (!nowSingleQuote)
+            {
+                content1.push_back(content2[i]);
+            }
+        }
+        content2.resize(0);
+
+        return content1;
     }
 
     void FileProcessor::setFilePath(const std::string& path)
@@ -85,7 +203,7 @@ namespace JRM
             throw std::runtime_error("File does not exist: '" + _filePath + "'");
         }
 
-
+        auto entries = findAllEntryPoints();
     }
 
 } // namespace JRM

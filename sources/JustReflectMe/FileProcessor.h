@@ -90,14 +90,14 @@ namespace JRM
             static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
             std::size_t begin = invalidPosition;
             std::size_t end = invalidPosition;
-
-            std::size_t processableReflectorTypeHash = 0;
+            std::size_t processableReflectorIndex = invalidPosition;
 
             [[nodiscard]] bool isValid() const noexcept;
         };
 
     private:
         [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints() const;
+        [[nodiscard]] std::string getFileContent(const std::string& filename) const;
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
