@@ -26,10 +26,37 @@
 #include "JustReflectMe/Reflectors/EnumClassReflector.h"
 
 #include "gtest/gtest.h"
+#include <filesystem>
+#include <fstream>
 
 class FileProcessorTests : public testing::Test
 {
 public:
+    struct RAIIFile
+    {
+        RAIIFile(const std::string& filename_, const std::string& content)
+        {
+            filename = filename_;
+
+            std::ofstream out(filename);
+            if (!out.is_open())
+            {
+                throw std::runtime_error("Cannot open file: " + filename);
+            }
+
+            out.write(content.c_str(), content.size() * sizeof(char));
+        }
+        ~RAIIFile() { release(); }
+
+        void release() { std::filesystem::remove(filename.c_str()); }
+
+        [[nodiscard]] const std::string& getFilename() const { return filename; }
+        [[nodiscard]] operator const std::string&() const { return filename; }
+
+    private:
+        std::string filename;
+    };
+
     JRM::FileProcessor processor;
 
 public:
@@ -42,8 +69,19 @@ public:
 
 TEST_F(FileProcessorTests, FindAllEntryPoints)
 {
+    const RAIIFile file("test.cpp", R"(
+#pragma once        // 2 line
+                    // 3
+ENUM_CLASS          // 4
+enum class TestEnum // 5
+{                   // 6
+    Hello,          // 7
+    World           // 8
+};                  // 9
+)");
+
     processor.registerReflector<JRM::EnumClassReflector>();
-    processor.setFilePath("test.cpp");
+    processor.setFilePath(file);
 
     processor.run();
 }

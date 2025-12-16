@@ -1,7 +1,7 @@
 add_library(_JustReflectMe_Adapter INTERFACE)
 add_library(JustReflectMe::Adapter ALIAS _JustReflectMe_Adapter)
 
-target_compile_definitions(_JustReflectMe_Adapter INTERFACE CLASS)
+target_compile_definitions(_JustReflectMe_Adapter INTERFACE ENUM_CLASS)
 
 file(GLOB_RECURSE CPP_SOURCES "JustReflectMe/*.cpp")
 set_source_files_properties(${CPP_SOURCES} PROPERTIES LANGUAGE CXX)
