@@ -52,4 +52,18 @@ namespace JRM
         }
     }
 
+    std::string BaseReflector::generateHeaderFile() const
+    {
+        std::string result;
+
+        return result;
+    }
+
+    std::string BaseReflector::generateSourceFile() const
+    {
+        std::string result;
+
+        return result;
+    }
+
 } // namespace JRM

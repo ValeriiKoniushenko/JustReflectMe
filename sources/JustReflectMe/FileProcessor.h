@@ -51,6 +51,7 @@ namespace JRM
         FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
+        void generateNewContent();
         void run(const std::string& path);
 
         template<IsBaseReflector T>

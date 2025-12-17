@@ -186,6 +186,11 @@ namespace JRM
         return content1;
     }
 
+    void FileProcessor::generateNewContent()
+    {
+        for ()
+    }
+
     void FileProcessor::run(const std::string& path)
     {
         _path = path;
@@ -196,6 +201,7 @@ namespace JRM
         }
 
         scanContent();
+        generateNewContent();
     }
 
 } // namespace JRM

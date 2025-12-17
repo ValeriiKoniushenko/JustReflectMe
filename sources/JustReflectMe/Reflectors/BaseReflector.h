@@ -48,6 +48,9 @@ namespace JRM
         void scanContent(const std::string& content);
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
+        [[nodiscard]] std::string generateHeaderFile() const;
+        [[nodiscard]] std::string generateSourceFile() const;
+
     protected:
         struct TokenEntry final
         {
