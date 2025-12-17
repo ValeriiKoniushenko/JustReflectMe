@@ -64,9 +64,9 @@ namespace JRM
                && processableReflectorIndex != invalidPosition;
     }
 
-    std::vector<FileProcessor::TokenEntry> FileProcessor::findAllEntryPoints() const
+    std::vector<FileProcessor::TokenEntry> FileProcessor::findAllEntryPoints(const std::string& filename) const
     {
-        const std::string fileContent = getFileContent(_filePath);
+        const std::string fileContent = getFileContent(filename);
 
         std::vector<FileProcessor::TokenEntry> out;
 
@@ -75,7 +75,7 @@ namespace JRM
 
     std::string FileProcessor::getFileContent(const std::string& filename) const
     {
-        std::string content1 = ReadFile(_filePath);
+        std::string content1 = ReadFile(filename);
 
         std::string content2;
         content2.reserve(content1.size());
@@ -191,19 +191,14 @@ namespace JRM
         return content1;
     }
 
-    void FileProcessor::setFilePath(const std::string& path)
+    void FileProcessor::run(const std::string& path)
     {
-        _filePath = path;
-    }
-
-    void FileProcessor::run()
-    {
-        if (!std::filesystem::exists(_filePath))
+        if (!std::filesystem::exists(path))
         {
-            throw std::runtime_error("File does not exist: '" + _filePath + "'");
+            throw std::runtime_error("File does not exist: '" + path + "'");
         }
 
-        auto entries = findAllEntryPoints();
+        auto entries = findAllEntryPoints(path);
     }
 
 } // namespace JRM

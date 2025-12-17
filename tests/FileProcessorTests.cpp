@@ -93,7 +93,6 @@ std::string sss = "////////"; // 19
 )");
 
     processor.registerReflector<JRM::EnumClassReflector>();
-    processor.setFilePath(file);
 
-    processor.run();
+    processor.run(file);
 }

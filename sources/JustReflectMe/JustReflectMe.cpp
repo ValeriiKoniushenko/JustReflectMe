@@ -90,9 +90,8 @@ namespace JRM
                 try
                 {
                     FileProcessor processor;
-                    processor.setFilePath(path);
                     processor.registerReflector<EnumClassReflector>();
-                    processor.run();
+                    processor.run(path);
                 }
                 catch (const std::exception& er)
                 {

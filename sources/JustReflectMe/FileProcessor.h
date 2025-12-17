@@ -52,37 +52,13 @@ namespace JRM
         FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
-        void setFilePath(const std::string& path);
-        void run();
+        void run(const std::string& path);
 
-        template<typename T>
-            requires std::is_base_of_v<BaseReflector, T>
-        void registerReflector()
-        {
-#if defined(NDEBUG)
-            if (hasReflector<T>())
-            {
-                std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!" << std::endl;
-                return;
-            }
-#endif
+        template<IsBaseReflector T>
+        void registerReflector();
 
-            _reflectors.emplace_back(std::make_unique<T>());
-        }
-        template<typename T>
-            requires std::is_base_of_v<BaseReflector, T>
-        [[nodiscard]] bool hasReflector()
-        {
-            for (auto&& reflector : _reflectors)
-            {
-                if (typeid(*reflector) == typeid(T))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        template<IsBaseReflector T>
+        [[nodiscard]] bool hasReflector();
 
     private:
         struct TokenEntry final
@@ -96,16 +72,46 @@ namespace JRM
         };
 
     private:
-        [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints() const;
+        [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints(const std::string& filename) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
-        std::string _filePath;
 
 #if defined(JRM_ENABLE_TESTS)
         FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);
 #endif
     };
+
+    // =====================================================
+    //                   IMPLEMENTATIONS
+    // =====================================================
+    template<IsBaseReflector T>
+    void FileProcessor::registerReflector()
+    {
+        #if defined(NDEBUG)
+        if (hasReflector<T>())
+        {
+            std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!" << std::endl;
+            return;
+        }
+        #endif
+
+        _reflectors.emplace_back(std::make_unique<T>());
+    }
+
+    template<IsBaseReflector T>
+    bool FileProcessor::hasReflector()
+    {
+        for (auto&& reflector : _reflectors)
+        {
+            if (typeid(*reflector) == typeid(T))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 } // namespace JRM

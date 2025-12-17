@@ -25,6 +25,7 @@
  */
 
 #pragma once
+#include <type_traits>
 
 namespace JRM
 {
@@ -41,5 +42,8 @@ namespace JRM
 
     protected:
     };
+
+    template<class T>
+    concept IsBaseReflector = std::is_base_of_v<BaseReflector, std::remove_reference_t<T>>;
 
 } // namespace JRM
