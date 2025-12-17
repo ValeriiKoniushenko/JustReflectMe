@@ -41,6 +41,11 @@ namespace JRM
         EnumClassReflector& operator=(EnumClassReflector&&) noexcept = default;
         ~EnumClassReflector() override = default;
 
+        [[nodiscard]] const char* getTriggerKeyword() const noexcept override
+        {
+            return "ENUM_CLASS";
+        }
+
     protected:
     };
 

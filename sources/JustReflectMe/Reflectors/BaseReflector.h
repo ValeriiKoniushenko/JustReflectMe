@@ -25,10 +25,22 @@
  */
 
 #pragma once
+#include <concepts>
+#include <limits>
+#include <string>
 #include <type_traits>
 
 namespace JRM
 {
+    struct TokenEntry final
+    {
+        static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
+        std::size_t begin = invalidPosition;
+        std::size_t end = invalidPosition;
+        std::size_t processableReflectorIndex = invalidPosition;
+
+        [[nodiscard]] bool isValid() const noexcept;
+    };
 
     class BaseReflector
     {
@@ -40,10 +52,15 @@ namespace JRM
         BaseReflector& operator=(BaseReflector&&) noexcept = default;
         virtual ~BaseReflector() = default;
 
+        [[nodiscard]] bool canProcessContent(const std::string& content) const;
+
+        [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
+
     protected:
+
     };
 
     template<class T>
-    concept IsBaseReflector = std::is_base_of_v<BaseReflector, std::remove_reference_t<T>>;
+    concept IsBaseReflector = std::derived_from<std::remove_reference_t<T>, BaseReflector>;
 
 } // namespace JRM

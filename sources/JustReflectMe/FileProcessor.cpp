@@ -58,17 +58,20 @@ namespace
 namespace JRM
 {
 
-    bool FileProcessor::TokenEntry::isValid() const noexcept
-    {
-        return begin != invalidPosition && end != invalidPosition && begin < end
-               && processableReflectorIndex != invalidPosition;
-    }
-
-    std::vector<FileProcessor::TokenEntry> FileProcessor::findAllEntryPoints(const std::string& filename) const
+    std::vector<TokenEntry> FileProcessor::findAllEntryPoints(
+        const std::string& filename) const
     {
         const std::string fileContent = getFileContent(filename);
 
-        std::vector<FileProcessor::TokenEntry> out;
+        std::vector<TokenEntry> out;
+
+        for (const auto& reflector : _reflectors)
+        {
+            if (reflector->canProcessContent(fileContent))
+            {
+
+            }
+        }
 
         return out;
     }

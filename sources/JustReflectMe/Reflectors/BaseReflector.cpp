@@ -28,4 +28,15 @@
 
 namespace JRM
 {
+    bool TokenEntry::isValid() const noexcept
+    {
+        return begin != invalidPosition && end != invalidPosition && begin < end
+               && processableReflectorIndex != invalidPosition;
+    }
+
+    bool BaseReflector::canProcessContent(const std::string& content) const
+    {
+        return content.find(getTriggerKeyword());
+    }
+
 } // namespace JRM

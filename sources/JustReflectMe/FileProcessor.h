@@ -29,7 +29,6 @@
 #include "Reflectors/BaseReflector.h"
 
 #include <iostream>
-#include <limits>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -59,17 +58,6 @@ namespace JRM
 
         template<IsBaseReflector T>
         [[nodiscard]] bool hasReflector();
-
-    private:
-        struct TokenEntry final
-        {
-            static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
-            std::size_t begin = invalidPosition;
-            std::size_t end = invalidPosition;
-            std::size_t processableReflectorIndex = invalidPosition;
-
-            [[nodiscard]] bool isValid() const noexcept;
-        };
 
     private:
         [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints(const std::string& filename) const;
