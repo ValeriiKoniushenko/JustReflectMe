@@ -29,18 +29,10 @@
 #include <limits>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace JRM
 {
-    struct TokenEntry final
-    {
-        static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
-        std::size_t begin = invalidPosition;
-        std::size_t end = invalidPosition;
-        std::size_t processableReflectorIndex = invalidPosition;
-
-        [[nodiscard]] bool isValid() const noexcept;
-    };
 
     class BaseReflector
     {
@@ -53,11 +45,20 @@ namespace JRM
         virtual ~BaseReflector() = default;
 
         [[nodiscard]] bool canProcessContent(const std::string& content) const;
+        void scanContent(const std::string& content);
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
+    protected:
+        struct TokenEntry final
+        {
+            static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
+            std::size_t begin = invalidPosition;
+
+            [[nodiscard]] bool isValid() const noexcept;
+        };
 
     protected:
-
+        std::vector<TokenEntry> _tokens;
     };
 
     template<class T>

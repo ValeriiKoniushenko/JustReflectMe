@@ -26,17 +26,30 @@
 
 #include "BaseReflector.h"
 
+#include <cstring>
+
 namespace JRM
 {
-    bool TokenEntry::isValid() const noexcept
+    bool BaseReflector::TokenEntry::isValid() const noexcept
     {
-        return begin != invalidPosition && end != invalidPosition && begin < end
-               && processableReflectorIndex != invalidPosition;
+        return begin != invalidPosition;
     }
 
     bool BaseReflector::canProcessContent(const std::string& content) const
     {
         return content.find(getTriggerKeyword());
+    }
+
+    void BaseReflector::scanContent(const std::string& content)
+    {
+        const char* triggerKeyword = getTriggerKeyword();
+
+        auto pos = content.find(triggerKeyword);
+        while (pos != std::string::npos)
+        {
+            _tokens.emplace_back(pos);
+            pos = content.find(triggerKeyword, pos + 1);
+        }
     }
 
 } // namespace JRM

@@ -60,11 +60,12 @@ namespace JRM
         [[nodiscard]] bool hasReflector();
 
     private:
-        [[nodiscard]] std::vector<TokenEntry> findAllEntryPoints(const std::string& filename) const;
+        void scanContent() const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
+        std::string _path;
 
 #if defined(JRM_ENABLE_TESTS)
         FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);

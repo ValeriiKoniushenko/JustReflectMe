@@ -58,22 +58,14 @@ namespace
 namespace JRM
 {
 
-    std::vector<TokenEntry> FileProcessor::findAllEntryPoints(
-        const std::string& filename) const
+    void FileProcessor::scanContent() const
     {
-        const std::string fileContent = getFileContent(filename);
+        const std::string content = getFileContent(_path);
 
-        std::vector<TokenEntry> out;
-
-        for (const auto& reflector : _reflectors)
+        for (std::size_t i = 0; i < _reflectors.size(); ++i)
         {
-            if (reflector->canProcessContent(fileContent))
-            {
-
-            }
+            _reflectors[i]->scanContent(content);
         }
-
-        return out;
     }
 
     std::string FileProcessor::getFileContent(const std::string& filename) const
@@ -196,12 +188,14 @@ namespace JRM
 
     void FileProcessor::run(const std::string& path)
     {
-        if (!std::filesystem::exists(path))
+        _path = path;
+
+        if (!std::filesystem::exists(_path))
         {
-            throw std::runtime_error("File does not exist: '" + path + "'");
+            throw std::runtime_error("File does not exist: '" + _path + "'");
         }
 
-        auto entries = findAllEntryPoints(path);
+        scanContent();
     }
 
 } // namespace JRM
