@@ -28,4 +28,19 @@
 
 namespace JRM
 {
+
+    std::string EnumClassReflector::onGenerateHeaderFile() const
+    {
+        std::string result;
+        result.reserve(1024);
+        return result;
+    }
+
+    std::string EnumClassReflector::onGenerateSourceFile() const
+    {
+        std::string result;
+        result.reserve(1024);
+        return result;
+    }
+
 } // namespace JRM

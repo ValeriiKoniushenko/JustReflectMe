@@ -47,6 +47,8 @@ namespace JRM
         }
 
     protected:
+        [[nodiscard]] std::string onGenerateHeaderFile() const override;
+        [[nodiscard]] std::string onGenerateSourceFile() const override;
     };
 
 } // namespace JRM

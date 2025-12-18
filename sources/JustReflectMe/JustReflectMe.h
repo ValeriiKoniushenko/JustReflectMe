@@ -61,7 +61,7 @@ namespace JRM
     private:
         std::filesystem::path _sourcePath;
         std::vector<std::string> _parseableFileExtensions
-            = { ".h", ".cpp", ".cxx", ".cc", ".c++", ".hpp", ".hxx", ".hh", ".h++", ".inl" };
+            = { ".h", ".hpp", ".hxx", ".hh", ".h++", ".inl" };
     };
 
 } // namespace JRM

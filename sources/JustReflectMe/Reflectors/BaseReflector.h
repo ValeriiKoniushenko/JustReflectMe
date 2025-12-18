@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -37,6 +35,18 @@ namespace JRM
     class BaseReflector
     {
     public:
+        static constexpr const char* warningCommentAtFileTop = R"(/*
+ * This code was generated automatically with
+ * https://github.com/ValeriiKoniushenko/JustReflectMe
+ *
+ * DO NOT EDIT MANUALLY!
+ * Your changes will be replaced next time
+ */
+
+)";
+
+        static constexpr const char* namespaceName = "Reflect";
+
         BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
@@ -48,8 +58,8 @@ namespace JRM
         void scanContent(const std::string& content);
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] std::string generateHeaderFile() const;
-        [[nodiscard]] std::string generateSourceFile() const;
+        [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath) const;
+        [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath) const;
 
     protected:
         struct TokenEntry final
@@ -59,6 +69,9 @@ namespace JRM
 
             [[nodiscard]] bool isValid() const noexcept;
         };
+
+        [[nodiscard]] virtual std::string onGenerateHeaderFile() const = 0;
+        [[nodiscard]] virtual std::string onGenerateSourceFile() const = 0;
 
     protected:
         std::vector<TokenEntry> _tokens;

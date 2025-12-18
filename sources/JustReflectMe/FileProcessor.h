@@ -44,6 +44,8 @@ namespace JRM
     class FileProcessor
     {
     public:
+        inline static const char* newFileExtension = ".generated";
+
         FileProcessor() = default;
         FileProcessor(const FileProcessor&) = delete;
         FileProcessor& operator=(const FileProcessor&) = delete;
@@ -63,6 +65,7 @@ namespace JRM
     private:
         void scanContent() const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
+        [[nodiscard]] std::pair<std::string, std::string> generateFilenames() const;
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;

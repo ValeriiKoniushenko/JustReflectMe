@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -52,16 +50,41 @@ namespace JRM
         }
     }
 
-    std::string BaseReflector::generateHeaderFile() const
+    std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath) const
     {
         std::string result;
+        result.reserve(1024);
+
+        result += warningCommentAtFileTop;
+
+        result += "#pragma once\n\n";
+
+        result += "namespace ";
+        result += namespaceName;
+        result += "\n{\n\n";
+
+        result += onGenerateHeaderFile();
+
+        result += "\n\n} // namespace\n";
 
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile() const
+    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath) const
     {
         std::string result;
+        result.reserve(1024);
+
+        result += warningCommentAtFileTop;
+        result += "#include \"" + newHeaderPath + "\"\n\n";
+
+        result += "namespace ";
+        result += namespaceName;
+        result += "\n{\n\n";
+
+        result += onGenerateSourceFile();
+
+        result += "\n\n} // namespace\n";
 
         return result;
     }

@@ -186,9 +186,32 @@ namespace JRM
         return content1;
     }
 
+    std::pair<std::string, std::string> FileProcessor::generateFilenames() const
+    {
+        const auto extIndex = _path.find_last_of(".");
+        if (extIndex == std::string::npos)
+        {
+            throw std::runtime_error("Can't find extension in file name: " + _path);
+        }
+
+        std::string headerPath = _path.substr(0, extIndex);
+        headerPath += newFileExtension;
+        std::string sourcePath = headerPath;
+        headerPath += ".h";
+        sourcePath += ".cpp";
+
+        return { headerPath, sourcePath };
+    }
+
     void FileProcessor::generateNewContent()
     {
-        for ()
+        auto [hppPath, cppPath] = generateFilenames();
+
+        for (const auto& reflector : _reflectors)
+        {
+            std::string hpp = reflector->generateHeaderFile(hppPath);
+            std::string cpp = reflector->generateSourceFile(hppPath);
+        }
     }
 
     void FileProcessor::run(const std::string& path)
