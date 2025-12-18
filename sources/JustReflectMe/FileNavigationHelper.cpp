@@ -33,9 +33,39 @@ namespace FileNavigator
     {
         if (auto* out = strchr(p, '\n'))
         {
-            return *out == '\r' ? out + 1 : out;
+            return *out == '\r' ? out + 2 : out + 1;
         }
         return nullptr;
+    }
+
+    const char* FindFirstWithLineLimit(const char* source, const char* keyword, std::size_t limit)
+    {
+        if (!source || !keyword) [[unlikely]]
+        {
+            return nullptr;
+        }
+
+        const auto* result = strstr(source, keyword);
+        if (!result)
+        {
+            return nullptr;
+        }
+
+        std::size_t count = 0;
+        while (*source && *result && source < result)
+        {
+            if (*source == '\n')
+            {
+                if (++count > limit)
+                {
+                    return nullptr;
+                }
+            }
+
+            ++source;
+        }
+
+        return result;
     }
 
     const char* FindOnThisLine(const char* source, const char* keyword)
@@ -53,6 +83,16 @@ namespace FileNavigator
     const char* GoToNotSpace(const char* source)
     {
         while (source && *source != '\0' && (*source == ' ' || *source == '\t'))
+        {
+            ++source;
+        }
+
+        return source;
+    }
+
+    const char* SkipAllBlanks(const char* source)
+    {
+        while (isspace(source[0]))
         {
             ++source;
         }
@@ -126,6 +166,58 @@ namespace FileNavigator
         }
 
         return { count, i - iter };
+    }
+
+    const char* FindScopeEnd(const char* source)
+    {
+        if (!source) [[unlikely]]
+        {
+            return nullptr;
+        }
+
+        if (!(*source == '{' || *source == '(' || *source == '<' || *source == '[')) [[unlikely]]
+        {
+            return nullptr;
+        }
+
+        const char openSign = *source;
+        char closeSign = 0;
+        if (openSign == '{')
+        {
+            closeSign = '}';
+        }
+        else if (openSign == '(')
+        {
+            closeSign = ')';
+        }
+        else if (openSign == '<')
+        {
+            closeSign = '>';
+        }
+        else
+        {
+            closeSign = ']';
+        }
+
+        int count = 0;
+        while (*source)
+        {
+            if (*source == openSign)
+            {
+                ++count;
+            }
+            else if (*source == closeSign)
+            {
+                if (--count == 0)
+                {
+                    return source;
+                }
+            }
+
+            ++source;
+        }
+
+        return nullptr;
     }
 
 } // namespace FileNavigator

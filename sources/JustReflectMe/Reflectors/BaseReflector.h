@@ -97,6 +97,7 @@ namespace JRM
             }
         };
 
+        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace() const = 0;
         [[nodiscard]] virtual std::string onGenerateHeaderFile() const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile() const = 0;
         virtual void onScan(const std::string& content) = 0;

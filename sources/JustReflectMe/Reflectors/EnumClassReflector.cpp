@@ -36,10 +36,47 @@ using namespace FileNavigator;
 namespace JRM
 {
 
+    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace() const
+    {
+        std::string result;
+        result.reserve(512);
+
+        for (const auto& [_, data] : _data)
+        {
+            result += "enum class " + data.name;
+            result += ";\n";
+        }
+
+        return result;
+    }
+
     std::string EnumClassReflector::onGenerateHeaderFile() const
     {
         std::string result;
         result.reserve(1024);
+
+        for (const auto& [_, data] : _data)
+        {
+            const std::string nestedNamespace = "namespace " + data.name;
+            result += nestedNamespace + "\n{\n";
+
+            std::string decls = R"(
+    // ============== enum class @@ENUM_NAME ===============
+    [[nodiscard]] const std::string& Name();
+    [[nodiscard]] const std::string& ToString(const @@ENUM_NAME value);
+    [[nodiscard]] std::optional<@@ENUM_NAME> FromString(const std::string& value);
+    [[nodiscard]] constexpr std::size_t Size() noexcept { return  }
+
+    template<class T> requires std::is_same_v<T, @@ENUM_NAME>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::vector<@@ENUM_NAME>> ToVector();
+
+    template<class T> requires std::is_same_v<T, @@ENUM_NAME>
+    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::unordered_set<@@ENUM_NAME>> ToSet();
+
+    template<class T>
+    [[nodiscard]] std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::unordered_map<@@ENUM_NAME, std::string>> ToMap();
+)";
+        }
 
         return result;
     }
@@ -98,6 +135,8 @@ namespace JRM
                         + " keyword found, but 'enum class' wasn't found after it.",
                     prevP - content.c_str());
             }
+            static const auto enumClassLength = strlen("enum class");
+            p += enumClassLength;
 
             TokenData data;
             data.name = ReadAsIdentifier(p);
@@ -107,11 +146,68 @@ namespace JRM
             }
 
             prevP = p;
-            p = FindOnThisLine(p, "{");
+            p = FindFirstWithLineLimit(p, "{", 1);
             if (!p)
             {
-                throw SyntaxException("Not found '{' after enum's class identifier.", prevP - content.c_str());
+                throw SyntaxException("Not found '{' after enum class identifier.",
+                                      prevP - content.c_str());
             }
+
+            const char* scopeStart = p;
+            const char* scopeEnd = FindScopeEnd(p);
+            if (!scopeEnd)
+            {
+                throw SyntaxException("Not found end of scope '}' for enum class '" + data.name
+                                          + "'",
+                                      scopeStart - content.c_str());
+            }
+
+            ++p;
+
+            while (p < scopeEnd)
+            {
+                std::pair<std::string, std::string> nameAndValue;
+
+                p = SkipAllBlanks(p);
+                nameAndValue.first = ReadAsIdentifier(p);
+                if (nameAndValue.first.empty())
+                {
+                    throw SyntaxException("Not found enum's constant identifier.",
+                                          p - content.c_str());
+                }
+                p += nameAndValue.first.size();
+                p = SkipAllBlanks(p);
+
+                if (*p == '=')
+                {
+                    p = SkipAllBlanks(p + 1);
+                    nameAndValue.second.assign(p, strchr(p, '\n') - p);
+
+                    while (!nameAndValue.second.empty()
+                           && (isspace(nameAndValue.second.back())
+                               || nameAndValue.second.back() == ','))
+                    {
+                        nameAndValue.second.pop_back();
+                    }
+                }
+                else
+                {
+                    if (data.constants.empty())
+                    {
+                        nameAndValue.second = "0";
+                    }
+                    else
+                    {
+                        nameAndValue.second = data.constants.back().first;
+                        nameAndValue.second += "+1";
+                    }
+                }
+
+                data.constants.emplace_back(std::move(nameAndValue));
+                p = GoToNextLine(p);
+            }
+
+            _data.emplace(token, std::move(data));
         }
     }
 

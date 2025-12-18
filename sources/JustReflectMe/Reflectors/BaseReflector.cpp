@@ -75,6 +75,8 @@ namespace JRM
 
         result += "#pragma once\n\n";
 
+        result += onGenerateHeaderFilePreNamespace()
+
         result += "namespace ";
         result += namespaceName;
         result += "\n{\n\n";

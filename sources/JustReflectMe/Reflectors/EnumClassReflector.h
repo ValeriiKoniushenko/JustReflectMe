@@ -55,6 +55,7 @@ namespace JRM
             std::vector<std::pair<std::string, std::string>> constants;
         };
 
+        [[nodiscard]] std::string onGenerateHeaderFilePreNamespace() const override;
         [[nodiscard]] std::string onGenerateHeaderFile() const override;
         [[nodiscard]] std::string onGenerateSourceFile() const override;
         void onScan(const std::string& content) override;

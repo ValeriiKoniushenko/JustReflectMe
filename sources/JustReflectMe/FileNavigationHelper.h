@@ -30,10 +30,15 @@ namespace FileNavigator
 {
 
     [[nodiscard]] const char* GoToNextLine(const char* p);
+
+    // limit = 0 -- only on this line
+    [[nodiscard]] const char* FindFirstWithLineLimit(const char* source, const char* keyword, std::size_t limit);
     [[nodiscard]] const char* FindOnThisLine(const char* source, const char* keyword);
     [[nodiscard]] const char* GoToNotSpace(const char* source);
+    [[nodiscard]] const char* SkipAllBlanks(const char* source);
     [[nodiscard]] std::string ReadAsIdentifier(const char* source);
     [[nodiscard]] std::size_t GetLineNumber(const char* source, std::size_t i);
     [[nodiscard]] std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source, std::size_t i);
+    [[nodiscard]] const char* FindScopeEnd(const char* source);
 
 } // namespace FileNavigator
