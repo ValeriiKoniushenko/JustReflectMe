@@ -25,12 +25,24 @@
 #pragma once
 #include <concepts>
 #include <limits>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 namespace JRM
 {
+
+    class SyntaxException : public std::runtime_error
+    {
+    public:
+        SyntaxException(const std::string& message, std::size_t indexInFile);
+
+        [[nodiscard]] std::string getFullMessage(const std::string& content, const std::string& pathToFile) const;
+
+    protected:
+        std::size_t _indexInFile = std::numeric_limits<std::size_t>::max();
+    };
 
     class BaseReflector
     {
@@ -87,7 +99,7 @@ namespace JRM
 
         [[nodiscard]] virtual std::string onGenerateHeaderFile() const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile() const = 0;
-        virtual void onScan() = 0;
+        virtual void onScan(const std::string& content) = 0;
 
     protected:
         std::vector<TokenEntry> _tokens;

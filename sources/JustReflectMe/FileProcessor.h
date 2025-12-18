@@ -63,7 +63,7 @@ namespace JRM
         [[nodiscard]] bool hasReflector();
 
     private:
-        void scanContent() const;
+        void scanContent(const std::string& content) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames() const;
 

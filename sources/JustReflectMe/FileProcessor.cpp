@@ -26,6 +26,8 @@
 
 #include "FileProcessor.h"
 
+#include "Reflectors/BaseReflector.h"
+
 #include <filesystem>
 #include <fstream>
 
@@ -58,10 +60,8 @@ namespace
 namespace JRM
 {
 
-    void FileProcessor::scanContent() const
+    void FileProcessor::scanContent(const std::string& content) const
     {
-        const std::string content = getFileContent(_path);
-
         for (std::size_t i = 0; i < _reflectors.size(); ++i)
         {
             _reflectors[i]->scanContent(content);
@@ -223,10 +223,17 @@ namespace JRM
             throw std::runtime_error("File does not exist: '" + _path + "'");
         }
 
+        std::string content;
         try
         {
-            scanContent();
+            content = getFileContent(_path);
+
+            scanContent(content);
             generateNewContent();
+        }
+        catch (const JRM::SyntaxException& e)
+        {
+            std::cerr << e.getFullMessage(content, _path) << "\n";
         }
         catch (const std::exception& e)
         {

@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -26,41 +24,16 @@
 
 #pragma once
 
-#include "BaseReflector.h"
+#include <string>
 
-#include <unordered_map>
-
-namespace JRM
+namespace FileNavigator
 {
 
-    class EnumClassReflector : public BaseReflector
-    {
-    public:
-        EnumClassReflector() = default;
-        EnumClassReflector(const EnumClassReflector&) = default;
-        EnumClassReflector& operator=(const EnumClassReflector&) = default;
-        EnumClassReflector(EnumClassReflector&&) noexcept = default;
-        EnumClassReflector& operator=(EnumClassReflector&&) noexcept = default;
-        ~EnumClassReflector() override = default;
+    [[nodiscard]] const char* GoToNextLine(const char* p);
+    [[nodiscard]] const char* FindOnThisLine(const char* source, const char* keyword);
+    [[nodiscard]] const char* GoToNotSpace(const char* source);
+    [[nodiscard]] std::string ReadAsIdentifier(const char* source);
+    [[nodiscard]] std::size_t GetLineNumber(const char* source, std::size_t i);
+    [[nodiscard]] std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source, std::size_t i);
 
-        [[nodiscard]] const char* getTriggerKeyword() const noexcept override
-        {
-            return "ENUM_CLASS";
-        }
-
-    protected:
-        struct TokenData
-        {
-            std::string name;
-            std::vector<std::pair<std::string, std::string>> constants;
-        };
-
-        [[nodiscard]] std::string onGenerateHeaderFile() const override;
-        [[nodiscard]] std::string onGenerateSourceFile() const override;
-        void onScan(const std::string& content) override;
-
-    protected:
-        std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;
-    };
-
-} // namespace JRM
+} // namespace FileNavigator

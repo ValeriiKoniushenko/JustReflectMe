@@ -26,7 +26,12 @@
 
 #include "EnumClassReflector.h"
 
+#include "JustReflectMe/FileNavigationHelper.h"
+
+#include <cstring>
 #include <stdexcept>
+
+using namespace FileNavigator;
 
 namespace JRM
 {
@@ -35,8 +40,6 @@ namespace JRM
     {
         std::string result;
         result.reserve(1024);
-
-
 
         return result;
     }
@@ -48,13 +51,66 @@ namespace JRM
         return result;
     }
 
-    void EnumClassReflector::onScan()
+    void EnumClassReflector::onScan(const std::string& content)
     {
         for (const auto& token : _tokens)
         {
             if (!token.isValid()) [[unlikely]]
             {
                 throw std::runtime_error("Invalid token was found.");
+            }
+
+            if (token.begin >= content.size()) [[unlikely]]
+            {
+                throw std::runtime_error(
+                    "Token begin position is out of range: " + std::to_string(token.begin)
+                    + " But content length is: " + std::to_string(content.size()));
+            }
+
+            const char* p = content.c_str() + token.begin;
+            const char* prevP = p;
+
+            // Validating define
+            static const auto keywordLength = strlen(getTriggerKeyword());
+            if (strncmp(p, getTriggerKeyword(), keywordLength) != 0) [[unlikely]]
+            {
+                throw SyntaxException("Invalid keyword was found. But expected: "
+                                          + std::string(getTriggerKeyword()),
+                                      prevP - content.c_str());
+            }
+
+            prevP = p;
+            p = GoToNextLine(p);
+            if (!p)
+            {
+                throw SyntaxException(
+                    std::string(getTriggerKeyword())
+                        + " keyword found, but 'enum class' wasn't found after it.",
+                    prevP - content.c_str());
+            }
+
+            prevP = p;
+            p = FindOnThisLine(p, "enum class");
+            if (!p)
+            {
+                throw SyntaxException(
+                    std::string(getTriggerKeyword())
+                        + " keyword found, but 'enum class' wasn't found after it.",
+                    prevP - content.c_str());
+            }
+
+            TokenData data;
+            data.name = ReadAsIdentifier(p);
+            if (data.name.empty())
+            {
+                throw SyntaxException("Not found enum's class identifier.", p - content.c_str());
+            }
+
+            prevP = p;
+            p = FindOnThisLine(p, "{");
+            if (!p)
+            {
+                throw SyntaxException("Not found '{' after enum's class identifier.", prevP - content.c_str());
             }
         }
     }

@@ -24,8 +24,28 @@
 
 #include "BaseReflector.h"
 
+#include "JustReflectMe/FileNavigationHelper.h"
+
+using namespace FileNavigator;
+
 namespace JRM
 {
+
+    SyntaxException::SyntaxException(const std::string& message, std::size_t indexInFile)
+        : std::runtime_error(message),
+          _indexInFile(indexInFile)
+    {
+    }
+
+    std::string SyntaxException::getFullMessage(const std::string& content,
+                                                const std::string& pathToFile) const
+    {
+        const auto pos = GetLineNumberAndColumn(content.c_str(), _indexInFile);
+        std::string result = pathToFile + ":";
+        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": error: ";
+        result += what();
+        return result;
+    }
 
     bool BaseReflector::canProcessContent(const std::string& content) const
     {
@@ -43,7 +63,7 @@ namespace JRM
             pos = content.find(triggerKeyword, pos + 1);
         }
 
-        onScan();
+        onScan(content);
     }
 
     std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath) const
