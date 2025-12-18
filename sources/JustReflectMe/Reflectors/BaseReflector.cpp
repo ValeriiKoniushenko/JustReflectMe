@@ -24,14 +24,8 @@
 
 #include "BaseReflector.h"
 
-#include <cstring>
-
 namespace JRM
 {
-    bool BaseReflector::TokenEntry::isValid() const noexcept
-    {
-        return begin != invalidPosition;
-    }
 
     bool BaseReflector::canProcessContent(const std::string& content) const
     {
@@ -48,6 +42,8 @@ namespace JRM
             _tokens.emplace_back(pos);
             pos = content.find(triggerKeyword, pos + 1);
         }
+
+        onScan();
     }
 
     std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath) const

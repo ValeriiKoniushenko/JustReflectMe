@@ -26,6 +26,8 @@
 
 #include "EnumClassReflector.h"
 
+#include <stdexcept>
+
 namespace JRM
 {
 
@@ -33,6 +35,9 @@ namespace JRM
     {
         std::string result;
         result.reserve(1024);
+
+
+
         return result;
     }
 
@@ -41,6 +46,17 @@ namespace JRM
         std::string result;
         result.reserve(1024);
         return result;
+    }
+
+    void EnumClassReflector::onScan()
+    {
+        for (const auto& token : _tokens)
+        {
+            if (!token.isValid()) [[unlikely]]
+            {
+                throw std::runtime_error("Invalid token was found.");
+            }
+        }
     }
 
 } // namespace JRM

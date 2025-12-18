@@ -223,8 +223,16 @@ namespace JRM
             throw std::runtime_error("File does not exist: '" + _path + "'");
         }
 
-        scanContent();
-        generateNewContent();
+        try
+        {
+            scanContent();
+            generateNewContent();
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Error while processing the file: '" << _path << "' Details: " << e.what()
+                      << "\n";
+        }
     }
 
 } // namespace JRM

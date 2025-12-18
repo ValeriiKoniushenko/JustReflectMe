@@ -28,6 +28,8 @@
 
 #include "BaseReflector.h"
 
+#include <unordered_map>
+
 namespace JRM
 {
 
@@ -47,8 +49,18 @@ namespace JRM
         }
 
     protected:
+        struct TokenData
+        {
+            std::string name;
+            std::vector<std::pair<std::string, std::string>> constants;
+        };
+
         [[nodiscard]] std::string onGenerateHeaderFile() const override;
         [[nodiscard]] std::string onGenerateSourceFile() const override;
+        void onScan() override;
+
+    protected:
+        std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;
     };
 
 } // namespace JRM

@@ -64,14 +64,30 @@ namespace JRM
     protected:
         struct TokenEntry final
         {
+            struct Hasher
+            {
+                std::size_t operator()(const TokenEntry& entry) const noexcept
+                {
+                    return std::hash<std::size_t>{}(entry.begin);
+                }
+            };
+
             static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
             std::size_t begin = invalidPosition;
 
-            [[nodiscard]] bool isValid() const noexcept;
+            [[nodiscard]] constexpr bool isValid() const noexcept
+            {
+                return begin != invalidPosition;
+            }
+            [[nodiscard]] constexpr bool operator==(const TokenEntry& other) const noexcept
+            {
+                return begin == other.begin;
+            }
         };
 
         [[nodiscard]] virtual std::string onGenerateHeaderFile() const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile() const = 0;
+        virtual void onScan() = 0;
 
     protected:
         std::vector<TokenEntry> _tokens;
