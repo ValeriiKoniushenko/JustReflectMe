@@ -30,6 +30,32 @@
 #include <type_traits>
 #include <vector>
 
+#include <optional>
+#include <string>
+#include <array>
+#include <unordered_map>
+enum class HelloWorld;
+
+namespace Reflect::HelloWorld
+{
+    [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "HelloWorld"; return name; }
+    [[nodiscard]] constexpr std::size_t Size() noexcept { return 2; }
+
+    [[nodiscard]] const std::string& ToString(::HelloWorld value);
+    [[nodiscard]] std::optional<::HelloWorld> FromString(const std::string& value);
+
+    [[nodiscard]] const std::array<::HelloWorld, 2>& ToArrayC();
+    [[nodiscard]] const std::array<std::string, 2>& ToArrayN();
+    [[nodiscard]] const std::unordered_map<::HelloWorld, std::string>& ToMapCN();
+    [[nodiscard]] const std::unordered_map<std::string, ::HelloWorld>& ToMapNC();
+} // Reflect::HelloWorld
+
+enum class HelloWorld
+{
+    Hello,
+    World
+};
+
 namespace JRM
 {
 

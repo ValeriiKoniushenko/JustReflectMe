@@ -28,6 +28,77 @@
 
 using namespace FileNavigator;
 
+namespace Reflect::HelloWorld
+{
+
+    // clang-format off
+    const std::string& ToString(::HelloWorld value)
+    {
+        const auto& data = Reflect::HelloWorld::ToMapCN();
+        const auto it = data.find(value);
+        if (it != data.end()) [[likely]]
+        {
+            return it->second;
+        }
+        static constexpr std::string empty{};
+        return empty;
+    }
+
+    std::optional<::HelloWorld> FromString(const std::string& value)
+    {
+        const auto& data = Reflect::HelloWorld::ToMapNC();
+        const auto it = data.find(value);
+        if (it != data.end()) [[likely]]
+        {
+            return it->second;
+        }
+        return std::nullopt;
+
+    }
+
+    const std::array<::HelloWorld, 2>& ToArrayC()
+    {
+        static constexpr std::array constants = {
+            ::HelloWorld::Hello,
+            ::HelloWorld::World
+        };
+
+        return constants;
+    }
+
+    const std::array<std::string, 2>& ToArrayN()
+    {
+        static constexpr std::array names = {
+            std::string("Hello"),
+            std::string("World")
+        };
+
+        return names;
+    }
+
+    const std::unordered_map<::HelloWorld, std::string>& ToMapCN()
+    {
+        static const std::unordered_map<::HelloWorld, std::string> map = {
+            { ::HelloWorld::Hello, "Hello" },
+            { ::HelloWorld::World, "World" }
+        };
+
+        return map;
+    }
+
+    const std::unordered_map<std::string, ::HelloWorld>& ToMapNC()
+    {
+        static const std::unordered_map<std::string, ::HelloWorld> map = {
+            { "Hello", ::HelloWorld::Hello },
+            { "World", ::HelloWorld::World }
+        };
+
+        return map;
+    }
+    // clang-format on
+
+} // namespace Reflect::HelloWorld
+
 namespace JRM
 {
 
@@ -75,7 +146,7 @@ namespace JRM
 
         result += "#pragma once\n\n";
 
-        result += onGenerateHeaderFilePreNamespace()
+        result += onGenerateHeaderFilePreNamespace();
 
         result += "namespace ";
         result += namespaceName;

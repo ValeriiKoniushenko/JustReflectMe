@@ -41,6 +41,12 @@ namespace JRM
         std::string result;
         result.reserve(512);
 
+        result += "#include <optional>\n";
+        result += "#include <string>\n";
+        result += "#include <array>\n";
+        result += "#include <unordered_map>\n";
+
+
         for (const auto& [_, data] : _data)
         {
             result += "enum class " + data.name;
@@ -61,21 +67,22 @@ namespace JRM
             result += nestedNamespace + "\n{\n";
 
             std::string decls = R"(
-    // ============== enum class @@ENUM_NAME ===============
-    [[nodiscard]] const std::string& Name();
-    [[nodiscard]] const std::string& ToString(const @@ENUM_NAME value);
-    [[nodiscard]] std::optional<@@ENUM_NAME> FromString(const std::string& value);
-    [[nodiscard]] constexpr std::size_t Size() noexcept { return  }
+    namespace Reflect
+    {
+        [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
+        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT; }
 
-    template<class T> requires std::is_same_v<T, @@ENUM_NAME>
-    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::vector<@@ENUM_NAME>> ToVector();
+        [[nodiscard]] const std::string& ToString(::@@NAME value);
+        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value);
 
-    template<class T> requires std::is_same_v<T, @@ENUM_NAME>
-    [[nodiscard]] constexpr std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::unordered_set<@@ENUM_NAME>> ToSet();
-
-    template<class T>
-    [[nodiscard]] std::enable_if_t<std::is_same_v<T, @@ENUM_NAME>, std::unordered_map<@@ENUM_NAME, std::string>> ToMap();
+        [[nodiscard]] const std::array<::@@NAME, @@COUNT>& ToArrayC();
+        [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
+        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
+        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
+    } // namespace Reflect
 )";
+            
+
         }
 
         return result;
