@@ -154,7 +154,7 @@ namespace JRM
 
         result += onGenerateHeaderFile();
 
-        result += "\n\n} // namespace\n";
+        result += "\n} // namespace\n";
 
         return result;
     }

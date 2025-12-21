@@ -209,8 +209,25 @@ namespace JRM
 
         for (const auto& reflector : _reflectors)
         {
-            std::string hpp = reflector->generateHeaderFile(hppPath);
-            std::string cpp = reflector->generateSourceFile(hppPath);
+            {
+                const std::string src = reflector->generateHeaderFile(hppPath);
+                std::ofstream out(hppPath);
+                if (!out.is_open())
+                {
+                    throw std::runtime_error("Cannot open file for write: " + hppPath);
+                }
+                out.write(src.c_str(), src.size() * sizeof(char));
+            }
+
+            {
+                const std::string src = reflector->generateSourceFile(cppPath);
+                std::ofstream out(cppPath);
+                if (!out.is_open())
+                {
+                    throw std::runtime_error("Cannot open file for write: " + cppPath);
+                }
+                out.write(src.c_str(), src.size() * sizeof(char));
+            }
         }
     }
 
@@ -234,6 +251,10 @@ namespace JRM
         catch (const JRM::SyntaxException& e)
         {
             std::cerr << e.getFullMessage(content, _path) << "\n";
+        }
+        catch (const JRM::GenerationException& e)
+        {
+            std::cerr << _path << ": generation exception: " << e.what() << "\n";
         }
         catch (const std::exception& e)
         {

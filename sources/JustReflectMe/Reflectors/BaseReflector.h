@@ -23,23 +23,28 @@
  */
 
 #pragma once
+#include <array>
 #include <concepts>
 #include <limits>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include <vector>
-
-#include <optional>
-#include <string>
-#include <array>
 #include <unordered_map>
+#include <vector>
 enum class HelloWorld;
 
 namespace Reflect::HelloWorld
 {
-    [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "HelloWorld"; return name; }
-    [[nodiscard]] constexpr std::size_t Size() noexcept { return 2; }
+    [[nodiscard]] constexpr const std::string& Name()
+    {
+        static constexpr std::string name = "HelloWorld";
+        return name;
+    }
+    [[nodiscard]] constexpr std::size_t Size() noexcept
+    {
+        return 2;
+    }
 
     [[nodiscard]] const std::string& ToString(::HelloWorld value);
     [[nodiscard]] std::optional<::HelloWorld> FromString(const std::string& value);
@@ -48,7 +53,7 @@ namespace Reflect::HelloWorld
     [[nodiscard]] const std::array<std::string, 2>& ToArrayN();
     [[nodiscard]] const std::unordered_map<::HelloWorld, std::string>& ToMapCN();
     [[nodiscard]] const std::unordered_map<std::string, ::HelloWorld>& ToMapNC();
-} // Reflect::HelloWorld
+} // namespace Reflect::HelloWorld
 
 enum class HelloWorld
 {
@@ -64,10 +69,20 @@ namespace JRM
     public:
         SyntaxException(const std::string& message, std::size_t indexInFile);
 
-        [[nodiscard]] std::string getFullMessage(const std::string& content, const std::string& pathToFile) const;
+        [[nodiscard]] std::string getFullMessage(const std::string& content,
+                                                 const std::string& pathToFile) const;
 
     protected:
         std::size_t _indexInFile = std::numeric_limits<std::size_t>::max();
+    };
+
+    class GenerationException : public std::runtime_error
+    {
+    public:
+        GenerationException(const std::string& message)
+            : std::runtime_error(message)
+        {
+        }
     };
 
     class BaseReflector

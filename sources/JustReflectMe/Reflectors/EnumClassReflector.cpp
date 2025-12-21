@@ -27,11 +27,13 @@
 #include "EnumClassReflector.h"
 
 #include "JustReflectMe/FileNavigationHelper.h"
+#include "JustReflectMe/StringHelper.h"
 
 #include <cstring>
 #include <stdexcept>
 
 using namespace FileNavigator;
+using namespace StringHelper;
 
 namespace JRM
 {
@@ -45,29 +47,37 @@ namespace JRM
         result += "#include <string>\n";
         result += "#include <array>\n";
         result += "#include <unordered_map>\n";
-
+        result += "\n";
 
         for (const auto& [_, data] : _data)
         {
             result += "enum class " + data.name;
             result += ";\n";
         }
+        result += "\n";
 
         return result;
     }
 
     std::string EnumClassReflector::onGenerateHeaderFile() const
     {
+        constexpr static const std::string nameMark = "@@NAME";
+        constexpr static const std::string countMark = "@@COUNT";
+
         std::string result;
         result.reserve(1024);
 
         for (const auto& [_, data] : _data)
         {
-            const std::string nestedNamespace = "namespace " + data.name;
-            result += nestedNamespace + "\n{\n";
+            if (data.name.empty()) [[unlikely]]
+            {
+                throw GenerationException(
+                    "Can't process generation of the header file due to unexpected empty the "
+                    "enum's class name.");
+            }
 
-            std::string decls = R"(
-    namespace Reflect
+            std::string declarations = R"(
+    namespace @@NAME
     {
         [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
         [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT; }
@@ -79,10 +89,13 @@ namespace JRM
         [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
         [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
         [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
-    } // namespace Reflect
+    } // namespace @@NAME
 )";
-            
 
+            FindAndReplaceAll(declarations, nameMark, data.name);
+            FindAndReplaceAll(declarations, countMark, std::to_string(data.constants.size()));
+
+            result += declarations;
         }
 
         return result;
