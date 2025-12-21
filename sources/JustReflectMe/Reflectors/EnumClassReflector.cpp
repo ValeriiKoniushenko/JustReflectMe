@@ -61,9 +61,6 @@ namespace JRM
 
     std::string EnumClassReflector::onGenerateHeaderFile() const
     {
-        constexpr static const std::string nameMark = "@@NAME";
-        constexpr static const std::string countMark = "@@COUNT";
-
         std::string result;
         result.reserve(1024);
 
@@ -104,7 +101,119 @@ namespace JRM
     std::string EnumClassReflector::onGenerateSourceFile() const
     {
         std::string result;
-        result.reserve(1024);
+        result.reserve(2048);
+
+        for (const auto& [_, data] : _data)
+        {
+            if (data.name.empty()) [[unlikely]]
+            {
+                throw GenerationException(
+                    "Can't process generation of the source file due to unexpected empty the "
+                    "enum's class name.");
+            }
+
+            std::string declarations = R"(
+    namespace @@NAME
+    {
+        const std::string& ToString(::@@NAME value)
+        {
+            const auto& data = Reflect::@@NAME::ToMapCN();
+            const auto it = data.find(value);
+            if (it != data.end()) [[likely]]
+            {
+                return it->second;
+            }
+            static constexpr std::string empty{};
+            return empty;
+        }
+
+        std::optional<::@@NAME> FromString(const std::string& value)
+        {
+            const auto& data = Reflect::@@NAME::ToMapNC();
+            const auto it = data.find(value);
+            if (it != data.end()) [[likely]]
+            {
+                return it->second;
+            }
+            return std::nullopt;
+        }
+
+        const std::array<::@@NAME, 2>& ToArrayC()
+        {
+            static constexpr std::array constants = {
+                @@TO_ARRAY_C
+            };
+
+            return constants;
+        }
+
+        const std::array<std::string, 2>& ToArrayN()
+        {
+            static constexpr std::array names = {
+                std::string("Hello"),
+                std::string("World")
+            };
+
+            return names;
+        }
+
+        const std::unordered_map<::@@NAME, std::string>& ToMapCN()
+        {
+            static const std::unordered_map<::@@NAME, std::string> map = {
+                { ::HelloWorld::Hello, "Hello" },
+                { ::HelloWorld::World, "World" }
+            };
+
+            return map;
+        }
+
+        const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
+        {
+            static const std::unordered_map<std::string, ::@@NAME> map = {
+                { "Hello", ::HelloWorld::Hello },
+                { "World", ::HelloWorld::World }
+            };
+
+            return map;
+        }
+
+    } // namespace @@NAME
+)";
+
+            // Impl ToArrayN
+            {
+                std::string str;
+                str.reserve(32 * (data.constants.size() + 1));
+                for (const auto& [name, _] : data.constants)
+                {
+                    str += "::";
+                    str += data.name;
+                    str += "::";
+                    str += name;
+                    str += ",\n";
+                }
+
+                if (!str.empty())
+                {
+                    if (str.back() == '\n') [[likely]]
+                    {
+                        str.pop_back();
+                    }
+                    if (str.back() == ',') [[likely]]
+                    {
+                        str.pop_back();
+                    }
+                }
+
+                FindAndReplaceAll(declarations, "@@TO_ARRAY_C", str);
+            }
+
+            FindAndReplaceAll(declarations, nameMark, data.name);
+            FindAndReplaceAll(declarations, countMark, std::to_string(data.constants.size()));
+
+            result += declarations;
+        }
+
         return result;
     }
 

@@ -56,6 +56,10 @@ namespace JRM
             std::vector<std::pair<std::string, std::string>> constants;
         };
 
+        constexpr static const std::string nameMark = "@@NAME";
+        constexpr static const std::string countMark = "@@COUNT";
+
+
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace() const override;
         [[nodiscard]] std::string onGenerateHeaderFile() const override;
         [[nodiscard]] std::string onGenerateSourceFile() const override;
