@@ -141,7 +141,7 @@ namespace JRM
         const std::array<::@@NAME, 2>& ToArrayC()
         {
             static constexpr std::array constants = {
-                @@TO_ARRAY_C
+@@TO_ARRAY_C
             };
 
             return constants;
@@ -150,8 +150,7 @@ namespace JRM
         const std::array<std::string, 2>& ToArrayN()
         {
             static constexpr std::array names = {
-                std::string("Hello"),
-                std::string("World")
+@@TO_ARRAY_N
             };
 
             return names;
@@ -206,6 +205,32 @@ namespace JRM
                 }
 
                 FindAndReplaceAll(declarations, "@@TO_ARRAY_C", str);
+            }
+
+            // Impl ToArrayN
+            {
+                std::string str;
+                str.reserve(48 * (data.constants.size() + 1));
+                for (const auto& [name, _] : data.constants)
+                {
+                    str += "std::string(\"";
+                    str += name;
+                    str += "\"),\n";
+                }
+
+                if (!str.empty())
+                {
+                    if (str.back() == '\n') [[likely]]
+                    {
+                        str.pop_back();
+                    }
+                    if (str.back() == ',') [[likely]]
+                    {
+                        str.pop_back();
+                    }
+                }
+
+                FindAndReplaceAll(declarations, "@@TO_ARRAY_N", str);
             }
 
             FindAndReplaceAll(declarations, nameMark, data.name);
