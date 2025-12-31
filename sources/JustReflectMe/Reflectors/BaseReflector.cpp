@@ -150,7 +150,7 @@ namespace JRM
 
         result += "namespace ";
         result += namespaceName;
-        result += "\n{\n\n";
+        result += "\n{\n";
 
         result += onGenerateHeaderFile();
 
@@ -169,7 +169,7 @@ namespace JRM
 
         result += "namespace ";
         result += namespaceName;
-        result += "\n{\n\n";
+        result += "\n{\n";
 
         result += onGenerateSourceFile();
 

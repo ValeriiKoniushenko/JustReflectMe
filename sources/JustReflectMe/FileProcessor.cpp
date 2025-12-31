@@ -220,7 +220,7 @@ namespace JRM
             }
 
             {
-                const std::string src = reflector->generateSourceFile(cppPath);
+                const std::string src = reflector->generateSourceFile(hppPath);
                 std::ofstream out(cppPath);
                 if (!out.is_open())
                 {
