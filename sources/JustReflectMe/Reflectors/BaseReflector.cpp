@@ -144,7 +144,10 @@ namespace JRM
 
         result += warningCommentAtFileTop;
 
-        result += "#pragma once\n\n";
+        if (hasSeparateTranslationUnit())
+        {
+            result += "#pragma once\n\n";
+        }
 
         result += onGenerateHeaderFilePreNamespace();
 
@@ -161,6 +164,11 @@ namespace JRM
 
     std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath) const
     {
+        if (_type == ImplType::InlOnly)
+        {
+            return {};
+        }
+
         std::string result;
         result.reserve(1024);
 
@@ -176,6 +184,11 @@ namespace JRM
         result += "\n\n} // namespace\n";
 
         return result;
+    }
+
+    bool BaseReflector::hasSeparateTranslationUnit() const noexcept
+    {
+        return _type == ImplType::HeaderCpp;
     }
 
 } // namespace JRM

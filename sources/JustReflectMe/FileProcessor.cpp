@@ -186,7 +186,8 @@ namespace JRM
         return content1;
     }
 
-    std::pair<std::string, std::string> FileProcessor::generateFilenames() const
+    std::pair<std::string, std::string> FileProcessor::generateFilenames(
+        const BaseReflector* reflector) const
     {
         const auto extIndex = _path.find_last_of(".");
         if (extIndex == std::string::npos)
@@ -196,19 +197,27 @@ namespace JRM
 
         std::string headerPath = _path.substr(0, extIndex);
         headerPath += newFileExtension;
-        std::string sourcePath = headerPath;
-        headerPath += ".h";
-        sourcePath += ".cpp";
+        std::string sourcePath;
+        if (reflector->hasSeparateTranslationUnit())
+        {
+            headerPath += ".h";
+            sourcePath = headerPath;
+            sourcePath += ".cpp";
+        }
+        else
+        {
+            headerPath += ".inl";
+        }
 
         return { headerPath, sourcePath };
     }
 
     void FileProcessor::generateNewContent()
     {
-        auto [hppPath, cppPath] = generateFilenames();
-
         for (const auto& reflector : _reflectors)
         {
+            auto [hppPath, cppPath] = generateFilenames(reflector.get());
+
             {
                 const std::string src = reflector->generateHeaderFile(hppPath);
                 std::ofstream out(hppPath);
@@ -219,6 +228,7 @@ namespace JRM
                 out.write(src.c_str(), src.size() * sizeof(char));
             }
 
+            if (reflector->hasSeparateTranslationUnit())
             {
                 const std::string src = reflector->generateSourceFile(hppPath);
                 std::ofstream out(cppPath);

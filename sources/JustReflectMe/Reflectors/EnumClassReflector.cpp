@@ -49,11 +49,12 @@ namespace JRM
         result += "#include <unordered_map>\n";
         result += "\n";
 
-        for (const auto& [_, data] : _data)
-        {
-            result += "enum class " + data.name;
-            result += ";\n";
-        }
+        // for (const auto& [_, data] : _data)
+        // {
+        //     result += "enum class " + data.name;
+        //     result += ";\n";
+        // }
+
         result += "\n";
 
         return result;
@@ -76,9 +77,8 @@ namespace JRM
             std::string declarations = R"(
     namespace @@NAME
     {
-        [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
-        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT; }
 
+        // =================== DECLARATIONS =====================
         [[nodiscard]] const std::string& ToString(::@@NAME value);
         [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value);
 
@@ -86,36 +86,12 @@ namespace JRM
         [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
         [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
         [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
-    } // namespace @@NAME
-)";
 
-            FindAndReplaceAll(declarations, nameMark, data.name);
-            FindAndReplaceAll(declarations, countMark, std::to_string(data.constants.size()));
+        // =================== IMPLEMENTATIONS =====================
+        [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
+        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT; }
 
-            result += declarations;
-        }
-
-        return result;
-    }
-
-    std::string EnumClassReflector::onGenerateSourceFile() const
-    {
-        std::string result;
-        result.reserve(2048);
-
-        for (const auto& [_, data] : _data)
-        {
-            if (data.name.empty()) [[unlikely]]
-            {
-                throw GenerationException(
-                    "Can't process generation of the source file due to unexpected empty the "
-                    "enum's class name.");
-            }
-
-            std::string declarations = R"(
-    namespace @@NAME
-    {
-        const std::string& ToString(::@@NAME value)
+        [[nodiscard]] const std::string& ToString(::@@NAME value)
         {
             const auto& data = Reflect::@@NAME::ToMapCN();
             const auto it = data.find(value);
@@ -127,7 +103,7 @@ namespace JRM
             return empty;
         }
 
-        std::optional<::@@NAME> FromString(const std::string& value)
+        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value)
         {
             const auto& data = Reflect::@@NAME::ToMapNC();
             const auto it = data.find(value);
@@ -138,7 +114,7 @@ namespace JRM
             return std::nullopt;
         }
 
-        const std::array<::@@NAME, 2>& ToArrayC()
+        [[nodiscard]] const std::array<::@@NAME, 2>& ToArrayC()
         {
             static constexpr std::array constants = {
 @@TO_ARRAY_C_
@@ -147,7 +123,7 @@ namespace JRM
             return constants;
         }
 
-        const std::array<std::string, 2>& ToArrayN()
+        [[nodiscard]] const std::array<std::string, 2>& ToArrayN()
         {
             static constexpr std::array names = {
 @@TO_ARRAY_N_
@@ -156,7 +132,7 @@ namespace JRM
             return names;
         }
 
-        const std::unordered_map<::@@NAME, std::string>& ToMapCN()
+        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN()
         {
             static const std::unordered_map<::@@NAME, std::string> map = {
 @@TO_ARRAY_CN_
@@ -165,7 +141,7 @@ namespace JRM
             return map;
         }
 
-        const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
+        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
         {
             static const std::unordered_map<std::string, ::@@NAME> map = {
 @@TO_ARRAY_NC_
@@ -183,7 +159,7 @@ namespace JRM
                 str.reserve(32 * (data.constants.size() + 1));
                 for (const auto& [name, _] : data.constants)
                 {
-                    str += "::";
+                    str += "\t\t\t\t::";
                     str += data.name;
                     str += "::";
                     str += name;
@@ -211,7 +187,7 @@ namespace JRM
                 str.reserve(48 * (data.constants.size() + 1));
                 for (const auto& [name, _] : data.constants)
                 {
-                    str += "std::string(\"";
+                    str += "\t\t\t\tstd::string(\"";
                     str += name;
                     str += "\"),\n";
                 }
@@ -237,7 +213,7 @@ namespace JRM
                 str.reserve(64 * (data.constants.size() + 1));
                 for (const auto& [name, _] : data.constants)
                 {
-                    str += "{ ::";
+                    str += "\t\t\t\t{ ::";
                     str += data.name;
                     str += "::";
                     str += name;
@@ -267,7 +243,7 @@ namespace JRM
                 str.reserve(64 * (data.constants.size() + 1));
                 for (const auto& [name, _] : data.constants)
                 {
-                    str += "{ \"";
+                    str += "\t\t\t\t{ \"";
                     str += name;
                     str += "\", ::";
                     str += data.name;
@@ -298,6 +274,11 @@ namespace JRM
         }
 
         return result;
+    }
+
+    std::string EnumClassReflector::onGenerateSourceFile() const
+    {
+        return {};
     }
 
     void EnumClassReflector::onScan(const std::string& content)

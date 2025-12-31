@@ -100,7 +100,6 @@ namespace JRM
 
         static constexpr const char* namespaceName = "Reflect";
 
-        BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
         BaseReflector(BaseReflector&&) noexcept = default;
@@ -114,7 +113,15 @@ namespace JRM
         [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath) const;
 
+        [[nodiscard]] bool hasSeparateTranslationUnit() const noexcept;
+
     protected:
+        enum class ImplType
+        {
+            HeaderCpp,
+            InlOnly
+        };
+
         struct TokenEntry final
         {
             struct Hasher
@@ -138,6 +145,11 @@ namespace JRM
             }
         };
 
+        BaseReflector(ImplType type)
+            : _type(type)
+        {
+        }
+
         [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace() const = 0;
         [[nodiscard]] virtual std::string onGenerateHeaderFile() const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile() const = 0;
@@ -145,6 +157,7 @@ namespace JRM
 
     protected:
         std::vector<TokenEntry> _tokens;
+        ImplType _type = ImplType::HeaderCpp;
     };
 
     template<class T>

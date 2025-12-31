@@ -30,14 +30,17 @@
 
 #include <unordered_map>
 
-
 namespace JRM
 {
 
     class EnumClassReflector : public BaseReflector
     {
     public:
-        EnumClassReflector() = default;
+        EnumClassReflector()
+            : BaseReflector(BaseReflector::ImplType::InlOnly)
+        {
+        }
+
         EnumClassReflector(const EnumClassReflector&) = default;
         EnumClassReflector& operator=(const EnumClassReflector&) = default;
         EnumClassReflector(EnumClassReflector&&) noexcept = default;
@@ -58,7 +61,6 @@ namespace JRM
 
         constexpr static const std::string nameMark = "@@NAME";
         constexpr static const std::string countMark = "@@COUNT";
-
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace() const override;
         [[nodiscard]] std::string onGenerateHeaderFile() const override;

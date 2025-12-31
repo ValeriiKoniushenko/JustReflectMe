@@ -65,7 +65,7 @@ namespace JRM
     private:
         void scanContent(const std::string& content) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
-        [[nodiscard]] std::pair<std::string, std::string> generateFilenames() const;
+        [[nodiscard]] std::pair<std::string, std::string> generateFilenames(const BaseReflector* reflector) const;
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
