@@ -89,6 +89,9 @@ std::string hello = "world" "ddddd" // 14
 //18
 std::string sss = "////////"; // 19
 
+// This line was added by the code generator. Better don't move it.
+#include "test.generated.inl"
+
 6 / 2 = 3;//21
 )");
 

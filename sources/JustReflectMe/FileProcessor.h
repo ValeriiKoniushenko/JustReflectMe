@@ -73,7 +73,7 @@ namespace JRM
         void tryToGenerateHeaderContent(const BaseReflector* reflector);
         void tryToGenerateSourceContent(const BaseReflector* reflector);
 
-        void tryToIntegrateIncludes();
+        void tryToIntegrateIncludes(const BaseReflector* reflector);
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;

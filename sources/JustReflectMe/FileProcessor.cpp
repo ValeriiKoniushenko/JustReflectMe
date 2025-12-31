@@ -278,9 +278,56 @@ namespace JRM
         out.write(src.c_str(), src.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToIntegrateIncludes()
+    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector)
     {
+        const auto [generatedHpp, generatedCpp] = generateFilenames(reflector);
 
+        // ============ HEADER =================
+        {
+            const auto includeString = "#include \"" + generatedHpp + "\"";
+            const auto hpp = getHeaderFilename();
+            auto originalSources = ReadFile(hpp);
+
+            if (originalSources.find(includeString) == std::string::npos)
+            {
+                std::string integrationString;
+                integrationString += "\n// This line was added by the code generator. Better don't move it.\n";
+                integrationString += includeString;
+                integrationString += "\n";
+
+                if (reflector->hasSeparateTranslationUnit())
+                {
+                    // find the last #include and put it under it
+                    auto index = originalSources.find_last_of("#include");
+                    if (index != std::string::npos)
+                    {
+                        index = originalSources.find_first_of("#pragma once");
+                        if (index == std::string::npos)
+                        {
+                            index = 0;
+                        }
+
+                        originalSources.insert(index, integrationString);
+                    }
+                }
+                else
+                {
+                    // just put it to the end of the file
+                    originalSources += integrationString;
+                }
+
+                std::ofstream out(hpp);
+                if (!out.is_open())
+                {
+                    throw std::runtime_error("Cannot open file for write, to integrate generated #include-s: " + hpp);
+                }
+                out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
+            }
+
+        }
+
+        // ============ SOURCE =================
+        const auto cpp = getSourceFilename();
     }
 
     void FileProcessor::generateNewContent()
@@ -289,7 +336,7 @@ namespace JRM
         {
             tryToGenerateHeaderContent(reflector.get());
             tryToGenerateSourceContent(reflector.get());
-            tryToIntegrateIncludes();
+            tryToIntegrateIncludes(reflector.get());
         }
     }
 
