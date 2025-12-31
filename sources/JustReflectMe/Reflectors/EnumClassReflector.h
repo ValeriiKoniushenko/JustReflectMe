@@ -67,6 +67,10 @@ namespace JRM
         [[nodiscard]] std::string onGenerateSourceFile() const override;
         void onScan(const std::string& content) override;
 
+    private:
+        [[nodiscard]] std::string generateDeclaration(const TokenData& data) const;
+        [[nodiscard]] std::string generateImplementation(const TokenData& data) const;
+
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;
     };

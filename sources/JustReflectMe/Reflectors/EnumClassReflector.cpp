@@ -74,203 +74,13 @@ namespace JRM
                     "enum's class name.");
             }
 
-            std::string declarations = R"(
-    namespace @@NAME
-    {
+            std::string finalString;
+            finalString.reserve(1024 * 4);
 
-        // =================== DECLARATIONS =====================
-        [[nodiscard]] const std::string& ToString(::@@NAME value);
-        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value);
+            finalString += generateDeclaration(data);
+            finalString += generateImplementation(data);
 
-        [[nodiscard]] const std::array<::@@NAME, @@COUNT>& ToArrayC();
-        [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
-        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
-        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
-
-        // =================== IMPLEMENTATIONS =====================
-        [[nodiscard]] constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
-        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT; }
-
-        [[nodiscard]] const std::string& ToString(::@@NAME value)
-        {
-            const auto& data = Reflect::@@NAME::ToMapCN();
-            const auto it = data.find(value);
-            if (it != data.end()) [[likely]]
-            {
-                return it->second;
-            }
-            static constexpr std::string empty{};
-            return empty;
-        }
-
-        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value)
-        {
-            const auto& data = Reflect::@@NAME::ToMapNC();
-            const auto it = data.find(value);
-            if (it != data.end()) [[likely]]
-            {
-                return it->second;
-            }
-            return std::nullopt;
-        }
-
-        [[nodiscard]] const std::array<::@@NAME, 2>& ToArrayC()
-        {
-            static constexpr std::array constants = {
-@@TO_ARRAY_C_
-            };
-
-            return constants;
-        }
-
-        [[nodiscard]] const std::array<std::string, 2>& ToArrayN()
-        {
-            static constexpr std::array names = {
-@@TO_ARRAY_N_
-            };
-
-            return names;
-        }
-
-        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN()
-        {
-            static const std::unordered_map<::@@NAME, std::string> map = {
-@@TO_ARRAY_CN_
-            };
-
-            return map;
-        }
-
-        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
-        {
-            static const std::unordered_map<std::string, ::@@NAME> map = {
-@@TO_ARRAY_NC_
-            };
-
-            return map;
-        }
-
-    } // namespace @@NAME
-)";
-
-            // Impl ToArrayC
-            {
-                std::string str;
-                str.reserve(32 * (data.constants.size() + 1));
-                for (const auto& [name, _] : data.constants)
-                {
-                    str += "\t\t\t\t::";
-                    str += data.name;
-                    str += "::";
-                    str += name;
-                    str += ",\n";
-                }
-
-                if (!str.empty())
-                {
-                    if (str.back() == '\n') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                    if (str.back() == ',') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                }
-
-                FindAndReplaceAll(declarations, "@@TO_ARRAY_C_", str);
-            }
-
-            // Impl ToArrayN
-            {
-                std::string str;
-                str.reserve(48 * (data.constants.size() + 1));
-                for (const auto& [name, _] : data.constants)
-                {
-                    str += "\t\t\t\tstd::string(\"";
-                    str += name;
-                    str += "\"),\n";
-                }
-
-                if (!str.empty())
-                {
-                    if (str.back() == '\n') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                    if (str.back() == ',') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                }
-
-                FindAndReplaceAll(declarations, "@@TO_ARRAY_N_", str);
-            }
-
-            // Impl ToArrayCN
-            {
-                std::string str;
-                str.reserve(64 * (data.constants.size() + 1));
-                for (const auto& [name, _] : data.constants)
-                {
-                    str += "\t\t\t\t{ ::";
-                    str += data.name;
-                    str += "::";
-                    str += name;
-                    str += ", \"";
-                    str += name;
-                    str += "\" },\n";
-                }
-
-                if (!str.empty())
-                {
-                    if (str.back() == '\n') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                    if (str.back() == ',') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                }
-
-                FindAndReplaceAll(declarations, "@@TO_ARRAY_CN_", str);
-            }
-
-            // Impl ToArrayNC
-            {
-                std::string str;
-                str.reserve(64 * (data.constants.size() + 1));
-                for (const auto& [name, _] : data.constants)
-                {
-                    str += "\t\t\t\t{ \"";
-                    str += name;
-                    str += "\", ::";
-                    str += data.name;
-                    str += "::";
-                    str += name;
-                    str += " },\n";
-                }
-
-                if (!str.empty())
-                {
-                    if (str.back() == '\n') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                    if (str.back() == ',') [[likely]]
-                    {
-                        str.pop_back();
-                    }
-                }
-
-                FindAndReplaceAll(declarations, "@@TO_ARRAY_NC_", str);
-            }
-
-            FindAndReplaceAll(declarations, nameMark, data.name);
-            FindAndReplaceAll(declarations, countMark, std::to_string(data.constants.size()));
-
-            result += declarations;
+            result += finalString;
         }
 
         return result;
@@ -402,6 +212,222 @@ namespace JRM
 
             _data.emplace(token, std::move(data));
         }
+    }
+
+    std::string EnumClassReflector::generateDeclaration(const TokenData& data) const
+    {
+        std::string finalString = R"(
+    namespace @@NAME
+    {
+
+        // =================== DECLARATIONS =====================
+        [[nodiscard]] const std::string& ToString(::@@NAME value);
+        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value);
+
+        [[nodiscard]] const std::array<::@@NAME, @@COUNT>& ToArrayC();
+        [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
+        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
+        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
+
+    } // namespace @@NAME
+)";
+
+        FindAndReplaceAll(finalString, nameMark, data.name);
+        FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+
+        return finalString;
+    }
+
+    std::string EnumClassReflector::generateImplementation(const TokenData& data) const
+    {
+        std::string finalString = R"(
+    namespace @@NAME
+    {
+
+        // =================== IMPLEMENTATIONS =====================
+        constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
+        constexpr std::size_t Size() noexcept { return @@COUNT; }
+
+        const std::string& ToString(::@@NAME value)
+        {
+            const auto& data = Reflect::@@NAME::ToMapCN();
+            const auto it = data.find(value);
+            if (it != data.end()) [[likely]]
+            {
+                return it->second;
+            }
+            static constexpr std::string empty{};
+            return empty;
+        }
+
+        std::optional<::@@NAME> FromString(const std::string& value)
+        {
+            const auto& data = Reflect::@@NAME::ToMapNC();
+            const auto it = data.find(value);
+            if (it != data.end()) [[likely]]
+            {
+                return it->second;
+            }
+            return std::nullopt;
+        }
+
+        const std::array<::@@NAME, 2>& ToArrayC()
+        {
+            static constexpr std::array constants = {
+@@TO_ARRAY_C_
+            };
+
+            return constants;
+        }
+
+        const std::array<std::string, 2>& ToArrayN()
+        {
+            static constexpr std::array names = {
+@@TO_ARRAY_N_
+            };
+
+            return names;
+        }
+
+        const std::unordered_map<::@@NAME, std::string>& ToMapCN()
+        {
+            static const std::unordered_map<::@@NAME, std::string> map = {
+@@TO_ARRAY_CN_
+            };
+
+            return map;
+        }
+
+        const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
+        {
+            static const std::unordered_map<std::string, ::@@NAME> map = {
+@@TO_ARRAY_NC_
+            };
+
+            return map;
+        }
+
+    } // namespace @@NAME
+)";
+
+        // Impl ToArrayC
+        {
+            std::string str;
+            str.reserve(32 * (data.constants.size() + 1));
+            for (const auto& [name, _] : data.constants)
+            {
+                str += "\t\t\t\t::";
+                str += data.name;
+                str += "::";
+                str += name;
+                str += ",\n";
+            }
+
+            if (!str.empty())
+            {
+                if (str.back() == '\n') [[likely]]
+                {
+                    str.pop_back();
+                }
+                if (str.back() == ',') [[likely]]
+                {
+                    str.pop_back();
+                }
+            }
+
+            FindAndReplaceAll(finalString, "@@TO_ARRAY_C_", str);
+        }
+
+        // Impl ToArrayN
+        {
+            std::string str;
+            str.reserve(48 * (data.constants.size() + 1));
+            for (const auto& [name, _] : data.constants)
+            {
+                str += "\t\t\t\tstd::string(\"";
+                str += name;
+                str += "\"),\n";
+            }
+
+            if (!str.empty())
+            {
+                if (str.back() == '\n') [[likely]]
+                {
+                    str.pop_back();
+                }
+                if (str.back() == ',') [[likely]]
+                {
+                    str.pop_back();
+                }
+            }
+
+            FindAndReplaceAll(finalString, "@@TO_ARRAY_N_", str);
+        }
+
+        // Impl ToArrayCN
+        {
+            std::string str;
+            str.reserve(64 * (data.constants.size() + 1));
+            for (const auto& [name, _] : data.constants)
+            {
+                str += "\t\t\t\t{ ::";
+                str += data.name;
+                str += "::";
+                str += name;
+                str += ", \"";
+                str += name;
+                str += "\" },\n";
+            }
+
+            if (!str.empty())
+            {
+                if (str.back() == '\n') [[likely]]
+                {
+                    str.pop_back();
+                }
+                if (str.back() == ',') [[likely]]
+                {
+                    str.pop_back();
+                }
+            }
+
+            FindAndReplaceAll(finalString, "@@TO_ARRAY_CN_", str);
+        }
+
+        // Impl ToArrayNC
+        {
+            std::string str;
+            str.reserve(64 * (data.constants.size() + 1));
+            for (const auto& [name, _] : data.constants)
+            {
+                str += "\t\t\t\t{ \"";
+                str += name;
+                str += "\", ::";
+                str += data.name;
+                str += "::";
+                str += name;
+                str += " },\n";
+            }
+
+            if (!str.empty())
+            {
+                if (str.back() == '\n') [[likely]]
+                {
+                    str.pop_back();
+                }
+                if (str.back() == ',') [[likely]]
+                {
+                    str.pop_back();
+                }
+            }
+
+            FindAndReplaceAll(finalString, "@@TO_ARRAY_NC_", str);
+        }
+
+        FindAndReplaceAll(finalString, nameMark, data.name);
+        FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+
+        return finalString;
     }
 
 } // namespace JRM
