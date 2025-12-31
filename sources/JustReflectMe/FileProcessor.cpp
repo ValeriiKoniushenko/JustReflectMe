@@ -60,6 +60,37 @@ namespace
 namespace JRM
 {
 
+    std::string FileProcessor::getHeaderFilename() const
+    {
+        return _path;
+    }
+
+    std::string FileProcessor::getSourceFilename() const
+    {
+        std::filesystem::path path(_path);
+        if (path.has_extension()) [[likely]]
+        {
+            path.replace_extension(".cpp");
+            return path.generic_string();
+        }
+        return {};
+    }
+
+    bool FileProcessor::isGeneratedFilename(const std::string& filename)
+    {
+        std::filesystem::path path(filename);
+        if (path.has_extension()) [[likely]]
+        {
+            path.replace_extension("");
+            if (path.has_extension())
+            {
+                return path.extension().generic_string() == newFileExtension;
+            }
+        }
+
+        return false;
+    }
+
     void FileProcessor::scanContent(const std::string& content) const
     {
         for (std::size_t i = 0; i < _reflectors.size(); ++i)
@@ -212,32 +243,53 @@ namespace JRM
         return { headerPath, sourcePath };
     }
 
+    void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector)
+    {
+        const auto [hppPath, _] = generateFilenames(reflector);
+
+        const std::string src = reflector->generateHeaderFile(hppPath);
+        std::ofstream out(hppPath);
+        if (!out.is_open())
+        {
+            throw std::runtime_error("Cannot open file for write: " + hppPath);
+        }
+        out.write(src.c_str(), src.size() * sizeof(char));
+    }
+
+    void FileProcessor::tryToGenerateSourceContent(const BaseReflector* reflector)
+    {
+        if (!reflector->hasSeparateTranslationUnit())
+        {
+            return;
+        }
+
+        const auto [hppPath, cppPath] = generateFilenames(reflector);
+        if (cppPath.empty()) [[unlikely]]
+        {
+            return;
+        }
+
+        const std::string src = reflector->generateSourceFile(hppPath);
+        std::ofstream out(cppPath);
+        if (!out.is_open())
+        {
+            throw std::runtime_error("Cannot open file for write: " + cppPath);
+        }
+        out.write(src.c_str(), src.size() * sizeof(char));
+    }
+
+    void FileProcessor::tryToIntegrateIncludes()
+    {
+
+    }
+
     void FileProcessor::generateNewContent()
     {
         for (const auto& reflector : _reflectors)
         {
-            auto [hppPath, cppPath] = generateFilenames(reflector.get());
-
-            {
-                const std::string src = reflector->generateHeaderFile(hppPath);
-                std::ofstream out(hppPath);
-                if (!out.is_open())
-                {
-                    throw std::runtime_error("Cannot open file for write: " + hppPath);
-                }
-                out.write(src.c_str(), src.size() * sizeof(char));
-            }
-
-            if (reflector->hasSeparateTranslationUnit())
-            {
-                const std::string src = reflector->generateSourceFile(hppPath);
-                std::ofstream out(cppPath);
-                if (!out.is_open())
-                {
-                    throw std::runtime_error("Cannot open file for write: " + cppPath);
-                }
-                out.write(src.c_str(), src.size() * sizeof(char));
-            }
+            tryToGenerateHeaderContent(reflector.get());
+            tryToGenerateSourceContent(reflector.get());
+            tryToIntegrateIncludes();
         }
     }
 
