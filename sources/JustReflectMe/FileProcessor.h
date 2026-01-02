@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,6 +65,10 @@ namespace JRM
         [[nodiscard]] std::string getHeaderFilename() const;
         [[nodiscard]] std::string getSourceFilename() const;
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
+
+    protected:
+        virtual void onPreGenerateContent(const std::string& content) const {}
+        virtual void onPostGenerateHeaderContent(const std::string& content) const {}
 
     private:
         void scanContent(const std::string& content) const;

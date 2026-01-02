@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,18 @@
 #include "JustReflectMe/FileProcessor.h"
 #include "JustReflectMe/Reflectors/EnumClassReflector.h"
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include <filesystem>
 #include <fstream>
+
+struct MockFileProcessor : public JRM::FileProcessor
+{
+    using JRM::FileProcessor::FileProcessor;
+
+    MOCK_METHOD(void, onPreGenerateContent, (const std::string& content), (const, override));
+    MOCK_METHOD(void, onPostGenerateHeaderContent, (const std::string& content), (const, override));
+};
 
 class FileProcessorTests : public testing::Test
 {
@@ -57,7 +66,7 @@ public:
         std::string filename;
     };
 
-    JRM::FileProcessor processor;
+    MockFileProcessor processor;
 
 public:
     FileProcessorTests() = default;
@@ -67,7 +76,7 @@ public:
     void TearDown() override {}
 };
 
-TEST_F(FileProcessorTests, FindAllEntryPoints)
+TEST_F(FileProcessorTests, SingleFile)
 {
     const RAIIFile file("test.cpp", R"(/* some file */
 #pragma once        // 2 line
@@ -89,8 +98,51 @@ std::string hello = "world" "ddddd" // 14
 //18
 std::string sss = "////////"; // 19
 
-// This line was added by the code generator. Better don't move it.
-#include "test.generated.inl"
+6 / 2 = 3;//21
+)");
+
+    processor.registerReflector<JRM::EnumClassReflector>();
+
+    EXPECT_CALL(processor, onPreGenerateContent(testing::_))
+        .WillOnce(testing::Invoke(
+            [&](const std::string& content)
+            {
+                ASSERT_FALSE(content.contains("#include \"test.generated.inl\""));
+                //
+            }));
+
+    EXPECT_CALL(processor, onPostGenerateHeaderContent(testing::_))
+        .WillOnce(testing::Invoke(
+            [&](const std::string& content)
+            {
+                ASSERT_TRUE(content.contains("#include \"test.generated.inl\""));
+                //
+            }));
+
+    processor.run(file);
+}
+
+TEST_F(FileProcessorTests, FindAllEntryPoints)
+{
+    const RAIIFile file("test.h", R"(/* some file */
+#pragma once        // 2 line
+                    // 3
+ENUM_CLASS          // 4
+enum class TestEnum // 5
+{                   // 6
+    Hello,          // 7
+    World           // 8
+};                  // 9
+                    // 10
+std::string hello = "world"; // 11
+char hello = 'c';   // 12
+std::string hello = "world" "ggggg" "ssss""aaaa"; // 13
+std::string hello = "world" "ddddd" // 14
+                    "ssss""aaaa"; // 15
+//16
+//// ================= MY FILE!!! ===================== //17
+//18
+std::string sss = "////////"; // 19
 
 6 / 2 = 3;//21
 )");

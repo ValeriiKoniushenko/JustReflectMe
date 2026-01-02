@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -322,8 +322,9 @@ namespace JRM
                     throw std::runtime_error("Cannot open file for write, to integrate generated #include-s: " + hpp);
                 }
                 out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
-            }
 
+                onPostGenerateHeaderContent(originalSources);
+            }
         }
 
         // ============ SOURCE =================
@@ -353,6 +354,8 @@ namespace JRM
         try
         {
             content = getFileContent(_path);
+
+            onPreGenerateContent(content);
 
             scanContent(content);
             generateNewContent();
