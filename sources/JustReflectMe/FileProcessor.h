@@ -72,7 +72,7 @@ namespace JRM
         virtual void onPostGenerateHeaderContent(const std::string& content) const {}
 
     private:
-        void scanContent(const FileData& content) const;
+        void scanContent(FileData& data) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
             const BaseReflector* reflector) const;

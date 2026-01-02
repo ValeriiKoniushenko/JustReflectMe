@@ -23,13 +23,36 @@
  */
 
 #pragma once
+#include <limits>
+#include <string>
+#include <vector>
 
 namespace JRM
 {
+    struct Scope
+    {
+        enum class Type
+        {
+            Undefined,
+            Namespace,
+            EnumClass
+        };
+
+        static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
+
+        [[nodiscard]] bool isValid() const noexcept;
+        [[nodiscard]] bool operator==(const Scope& other) const noexcept;
+        [[nodiscard]] bool placedAtScope(std::size_t i) const noexcept;
+
+        std::size_t start = invalidPosition;
+        std::size_t end = invalidPosition;
+        Type type = Type::Undefined;
+    };
 
     class Scopes
     {
     public:
+
         Scopes() = default;
         Scopes(const Scopes&) = default;
         Scopes& operator=(const Scopes&) = default;
@@ -37,7 +60,15 @@ namespace JRM
         Scopes& operator=(Scopes&&) noexcept = default;
         virtual ~Scopes() = default;
 
+        void scan(const std::string& content);
+
+        [[nodiscard]] const Scope* getTopScopeAtCursor(std::size_t cursor) const;
+
+    private:
+        [[nodiscard]] Scope::Type tryToDetermineScopeType(const char* p, const char* start);
+
     protected:
+        std::vector<Scope> _scopes;
     };
 
 } // namespace JRM

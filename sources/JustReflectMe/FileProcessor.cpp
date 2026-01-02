@@ -92,11 +92,11 @@ namespace JRM
         return false;
     }
 
-    void FileProcessor::scanContent(const FileData& content) const
+    void FileProcessor::scanContent(FileData& data) const
     {
         for (std::size_t i = 0; i < _reflectors.size(); ++i)
         {
-            _reflectors[i]->scanContent(content);
+            _reflectors[i]->scanContent(data);
         }
     }
 
@@ -359,7 +359,6 @@ namespace JRM
             onPreGenerateContent(data.getContent());
 
             scanContent(data);
-
             generateNewContent();
         }
         catch (const JRM::SyntaxException& e)

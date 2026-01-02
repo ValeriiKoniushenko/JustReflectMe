@@ -49,4 +49,9 @@ namespace JRM
         _scopes = scope;
     }
 
+    void FileData::scanScopes()
+    {
+        _scopes.scan(_content);
+    }
+
 } // namespace JRM

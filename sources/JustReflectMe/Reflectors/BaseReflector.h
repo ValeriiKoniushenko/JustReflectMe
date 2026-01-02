@@ -110,7 +110,7 @@ namespace JRM
         virtual ~BaseReflector() = default;
 
         [[nodiscard]] bool canProcessContent(const std::string& content) const;
-        void scanContent(const FileData& data);
+        void scanContent(FileData& data);
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
         [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath) const;

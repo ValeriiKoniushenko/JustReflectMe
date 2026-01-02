@@ -122,11 +122,10 @@ std::string sss = "////////"; // 19
     processor.run(file);
 }
 
-TEST_F(FileProcessorTests, FindAllEntryPoints)
+TEST_F(FileProcessorTests, FindEnumClassAtNamespace)
 {
-    const RAIIFile file("test_1.h", R"(
-#pragma once
-
+    const RAIIFile sources("test_1.cpp", R"(#include \"test_1.h\")");
+    const RAIIFile header("test_1.h", R"(#pragma once
 namespace NS
 {
     ENUM_CLASS
@@ -135,11 +134,9 @@ namespace NS
         Hello,
         World
     };
-} // namespace NS
-
-)");
+} // namespace NS)");
 
     processor.registerReflector<JRM::EnumClassReflector>();
 
-    processor.run(file);
+    processor.run(header);
 }

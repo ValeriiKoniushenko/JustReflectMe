@@ -124,7 +124,7 @@ namespace JRM
         return content.find(getTriggerKeyword());
     }
 
-    void BaseReflector::scanContent(const FileData& data)
+    void BaseReflector::scanContent(FileData& data)
     {
         const char* triggerKeyword = getTriggerKeyword();
 
@@ -136,6 +136,13 @@ namespace JRM
             _tokens.emplace_back(pos);
             pos = content.find(triggerKeyword, pos + 1);
         }
+
+        if (_tokens.empty())
+        {
+            return;
+        }
+
+        data.scanScopes();
 
         onScan(content);
     }
