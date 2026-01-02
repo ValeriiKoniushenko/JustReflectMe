@@ -124,27 +124,19 @@ std::string sss = "////////"; // 19
 
 TEST_F(FileProcessorTests, FindAllEntryPoints)
 {
-    const RAIIFile file("test.h", R"(/* some file */
-#pragma once        // 2 line
-                    // 3
-ENUM_CLASS          // 4
-enum class TestEnum // 5
-{                   // 6
-    Hello,          // 7
-    World           // 8
-};                  // 9
-                    // 10
-std::string hello = "world"; // 11
-char hello = 'c';   // 12
-std::string hello = "world" "ggggg" "ssss""aaaa"; // 13
-std::string hello = "world" "ddddd" // 14
-                    "ssss""aaaa"; // 15
-//16
-//// ================= MY FILE!!! ===================== //17
-//18
-std::string sss = "////////"; // 19
+    const RAIIFile file("test_1.h", R"(
+#pragma once
 
-6 / 2 = 3;//21
+namespace NS
+{
+    ENUM_CLASS
+    enum class TestEnum
+    {
+        Hello,
+        World
+    };
+} // namespace NS
+
 )");
 
     processor.registerReflector<JRM::EnumClassReflector>();

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 
 #pragma once
+
 #include <array>
 #include <concepts>
 #include <limits>
@@ -32,6 +33,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
+
 enum class HelloWorld;
 
 namespace Reflect::HelloWorld
@@ -63,6 +65,7 @@ enum class HelloWorld
 
 namespace JRM
 {
+    class FileData;
 
     class SyntaxException : public std::runtime_error
     {
@@ -107,7 +110,7 @@ namespace JRM
         virtual ~BaseReflector() = default;
 
         [[nodiscard]] bool canProcessContent(const std::string& content) const;
-        void scanContent(const std::string& content);
+        void scanContent(const FileData& data);
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
         [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath) const;

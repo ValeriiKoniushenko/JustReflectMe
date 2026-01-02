@@ -40,6 +40,7 @@
 
 namespace JRM
 {
+    class FileData;
 
     class FileProcessor
     {
@@ -71,9 +72,10 @@ namespace JRM
         virtual void onPostGenerateHeaderContent(const std::string& content) const {}
 
     private:
-        void scanContent(const std::string& content) const;
+        void scanContent(const FileData& content) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
-        [[nodiscard]] std::pair<std::string, std::string> generateFilenames(const BaseReflector* reflector) const;
+        [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
+            const BaseReflector* reflector) const;
         void tryToGenerateHeaderContent(const BaseReflector* reflector);
         void tryToGenerateSourceContent(const BaseReflector* reflector);
 
@@ -94,13 +96,14 @@ namespace JRM
     template<IsBaseReflector T>
     void FileProcessor::registerReflector()
     {
-        #if defined(NDEBUG)
+#if defined(NDEBUG)
         if (hasReflector<T>())
         {
-            std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!" << std::endl;
+            std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!"
+                      << std::endl;
             return;
         }
-        #endif
+#endif
 
         _reflectors.emplace_back(std::make_unique<T>());
     }

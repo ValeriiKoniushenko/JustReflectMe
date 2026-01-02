@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 #include "BaseReflector.h"
 
 #include "JustReflectMe/FileNavigationHelper.h"
+#include "../FileData.h"
 
 using namespace FileNavigator;
 
@@ -123,9 +124,11 @@ namespace JRM
         return content.find(getTriggerKeyword());
     }
 
-    void BaseReflector::scanContent(const std::string& content)
+    void BaseReflector::scanContent(const FileData& data)
     {
         const char* triggerKeyword = getTriggerKeyword();
+
+        const auto& content = data.getContent();
 
         auto pos = content.find(triggerKeyword);
         while (pos != std::string::npos)
