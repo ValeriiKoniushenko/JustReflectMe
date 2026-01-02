@@ -244,11 +244,11 @@ namespace JRM
         return { headerPath, sourcePath };
     }
 
-    void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector)
+    void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data)
     {
         const auto [hppPath, _] = generateFilenames(reflector);
 
-        const std::string src = reflector->generateHeaderFile(hppPath);
+        const std::string src = reflector->generateHeaderFile(hppPath, data);
         std::ofstream out(hppPath);
         if (!out.is_open())
         {
@@ -257,7 +257,7 @@ namespace JRM
         out.write(src.c_str(), src.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToGenerateSourceContent(const BaseReflector* reflector)
+    void FileProcessor::tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data)
     {
         if (!reflector->hasSeparateTranslationUnit())
         {
@@ -270,7 +270,7 @@ namespace JRM
             return;
         }
 
-        const std::string src = reflector->generateSourceFile(hppPath);
+        const std::string src = reflector->generateSourceFile(hppPath, data);
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
@@ -279,7 +279,7 @@ namespace JRM
         out.write(src.c_str(), src.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector)
+    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data)
     {
         const auto [generatedHpp, generatedCpp] = generateFilenames(reflector);
 
@@ -332,13 +332,13 @@ namespace JRM
         const auto cpp = getSourceFilename();
     }
 
-    void FileProcessor::generateNewContent()
+    void FileProcessor::generateNewContent(FileData& data)
     {
         for (const auto& reflector : _reflectors)
         {
-            tryToGenerateHeaderContent(reflector.get());
-            tryToGenerateSourceContent(reflector.get());
-            tryToIntegrateIncludes(reflector.get());
+            tryToGenerateHeaderContent(reflector.get(), data);
+            tryToGenerateSourceContent(reflector.get(), data);
+            tryToIntegrateIncludes(reflector.get(), data);
         }
     }
 
@@ -359,7 +359,7 @@ namespace JRM
             onPreGenerateContent(data.getContent());
 
             scanContent(data);
-            generateNewContent();
+            generateNewContent(data);
         }
         catch (const JRM::SyntaxException& e)
         {

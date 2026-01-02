@@ -24,6 +24,7 @@
 
 #pragma once
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -38,15 +39,20 @@ namespace JRM
             EnumClass
         };
 
-        static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
-
         [[nodiscard]] bool isValid() const noexcept;
         [[nodiscard]] bool operator==(const Scope& other) const noexcept;
-        [[nodiscard]] bool placedAtScope(std::size_t i) const noexcept;
+        [[nodiscard]] bool contains(const char* i) const noexcept;
+        [[nodiscard]] const Scope* findDeepest(const char* i) const;
+        [[nodiscard]] std::string getIdentifier() const;
 
-        std::size_t start = invalidPosition;
-        std::size_t end = invalidPosition;
+        const char* start = nullptr;
+        const char* end = nullptr;
         Type type = Type::Undefined;
+
+        Scope* parent = nullptr;
+
+        const char* identifierStart = nullptr;
+        std::vector<Scope> children;
     };
 
     class Scopes
@@ -62,13 +68,13 @@ namespace JRM
 
         void scan(const std::string& content);
 
-        [[nodiscard]] const Scope* getTopScopeAtCursor(std::size_t cursor) const;
+        [[nodiscard]] const Scope* getScopeAt(const char* p) const;
 
     private:
-        [[nodiscard]] Scope::Type tryToDetermineScopeType(const char* p, const char* start);
+        void tryToDetermineScopeType(Scope& scope, const char* p, const char* start);
 
     protected:
-        std::vector<Scope> _scopes;
+        Scope _root;
     };
 
 } // namespace JRM

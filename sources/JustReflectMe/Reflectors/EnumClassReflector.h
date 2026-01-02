@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,15 +57,16 @@ namespace JRM
         {
             std::string name;
             std::vector<std::pair<std::string, std::string>> constants;
+            std::string parentSpace;
         };
 
         constexpr static const std::string nameMark = "@@NAME";
         constexpr static const std::string countMark = "@@COUNT";
 
-        [[nodiscard]] std::string onGenerateHeaderFilePreNamespace() const override;
-        [[nodiscard]] std::string onGenerateHeaderFile() const override;
-        [[nodiscard]] std::string onGenerateSourceFile() const override;
-        void onScan(const std::string& content) override;
+        [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(FileData& data) const override;
+        [[nodiscard]] std::string onGenerateHeaderFile(FileData& data) const override;
+        [[nodiscard]] std::string onGenerateSourceFile(FileData& data) const override;
+        void onScan(const FileData& fileData) override;
 
     private:
         [[nodiscard]] std::string generateDeclaration(const TokenData& data) const;

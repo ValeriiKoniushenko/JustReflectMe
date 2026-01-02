@@ -128,13 +128,50 @@ TEST_F(FileProcessorTests, FindEnumClassAtNamespace)
     const RAIIFile header("test_1.h", R"(#pragma once
 namespace NS
 {
-    ENUM_CLASS
-    enum class TestEnum
-    {
-        Hello,
-        World
-    };
-} // namespace NS)");
+    namespace NS1{
+        class TestClass{};
+    }
+
+    namespace NS222{
+
+        namespace NS1{
+            class TestClass{};
+        }
+
+        namespace NS222_333{
+
+            ENUM_CLASS
+            enum class TestEnum
+            {
+                Hello,
+                World
+            };
+        }
+    }
+
+    namespace NS3{
+        class TestClass{};
+    }
+} // namespace NS
+
+)");
+
+    EXPECT_CALL(processor, onPreGenerateContent(testing::_))
+    .WillOnce(testing::Invoke(
+        [&](const std::string& content)
+        {
+            ASSERT_FALSE(content.contains("#include \"test_1.generated.inl\""));
+            //
+        }));
+
+    EXPECT_CALL(processor, onPostGenerateHeaderContent(testing::_))
+        .WillOnce(testing::Invoke(
+            [&](const std::string& content)
+            {
+                ASSERT_TRUE(content.contains("#include \"test_1.generated.inl\""));
+                //
+            }));
+
 
     processor.registerReflector<JRM::EnumClassReflector>();
 

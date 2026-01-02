@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 
 #include "EnumClassReflector.h"
 
+#include "JustReflectMe/FileData.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 #include "JustReflectMe/StringHelper.h"
 
@@ -38,7 +39,7 @@ using namespace StringHelper;
 namespace JRM
 {
 
-    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace() const
+    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData& data) const
     {
         std::string result;
         result.reserve(512);
@@ -60,7 +61,7 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFile() const
+    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData) const
     {
         std::string result;
         result.reserve(1024);
@@ -86,13 +87,15 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateSourceFile() const
+    std::string EnumClassReflector::onGenerateSourceFile(FileData& data) const
     {
         return {};
     }
 
-    void EnumClassReflector::onScan(const std::string& content)
+    void EnumClassReflector::onScan(const FileData& fileData)
     {
+        const auto& content = fileData.getContent();
+
         for (const auto& token : _tokens)
         {
             if (!token.isValid()) [[unlikely]]
@@ -146,6 +149,11 @@ namespace JRM
             if (data.name.empty())
             {
                 throw SyntaxException("Not found enum's class identifier.", p - content.c_str());
+            }
+
+            if (const Scope* scope = fileData.getScopes().getScopeAt(p))
+            {
+                data.parentSpace = PrettyPrintScope(scope);
             }
 
             prevP = p;

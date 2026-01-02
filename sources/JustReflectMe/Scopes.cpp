@@ -26,7 +26,7 @@
 
 #include "Scopes.h"
 
-#include "Reflectors/BaseReflector.h"
+#include "FileNavigationHelper.h"
 
 #include <algorithm>
 #include <cstring>
@@ -37,7 +37,7 @@ namespace JRM
 
     bool Scope::isValid() const noexcept
     {
-        return start != invalidPosition && end != invalidPosition;
+        return start && end;
     }
 
     bool Scope::operator==(const Scope& other) const noexcept
@@ -45,9 +45,34 @@ namespace JRM
         return start == other.start && end == other.end;
     }
 
-    bool Scope::placedAtScope(std::size_t i) const noexcept
+    bool Scope::contains(const char* i) const noexcept
     {
         return i > start && i < end;
+    }
+
+    const Scope* Scope::findDeepest(const char* i) const
+    {
+        if (contains(i))
+        {
+            const Scope* found = this;
+            for (const auto& child : children)
+            {
+                if (const auto* result = child.findDeepest(i))
+                {
+                    found = result;
+                    break;
+                }
+            }
+
+            return found;
+        }
+
+        return nullptr;
+    }
+
+    std::string Scope::getIdentifier() const
+    {
+        return FileNavigator::ReadAsIdentifier(identifierStart);
     }
 
     void Scopes::scan(const std::string& content)
@@ -57,62 +82,56 @@ namespace JRM
             throw std::runtime_error("Can't scan scopes. The content is empty.");
         }
 
-        int counter = 0;
+        Scope* parent = nullptr;
 
         for (const char* p = content.c_str(); p && *p; ++p)
         {
             if (*p == '{')
             {
-                _scopes.push_back({ .start = static_cast<std::size_t>(p - content.c_str()),
-                                    .end = Scope::invalidPosition,
-                                    .type = tryToDetermineScopeType(p, content.c_str()) });
-                ++counter;
+                if (parent)
+                {
+                    auto* child = &parent->children.emplace_back();
+                    child->parent = parent;
+                    parent = child;
+                }
+                else
+                {
+                    parent = &_root;
+                }
+
+                parent->start = p;
+                parent->end = nullptr;
+                tryToDetermineScopeType(*parent, p, content.c_str());
             }
             else if (*p == '}')
             {
-                --counter;
-                if (counter < 0) [[unlikely]]
+                if (!parent) [[unlikely]]
                 {
-                    throw std::runtime_error("Found '}' without corresponding '{'.");
+                    throw std::runtime_error(
+                        "Can't scan scopes. The content contains unmatched '{'.");
                 }
 
-                _scopes.at(counter).end = static_cast<std::size_t>(p - content.c_str());
+                parent->end = p;
+                parent = parent->parent;
             }
         }
-
-        std::ranges::sort(_scopes,
-                          [](const Scope& a, const Scope& b)
-                          {
-                              if (a.start != b.start)
-                              {
-                                  return a.start < b.start;
-                              }
-                              return a.end > b.end;
-                          });
     }
 
-    const Scope* Scopes::getTopScopeAtCursor(std::size_t cursor) const
+    const Scope* Scopes::getScopeAt(const char* p) const
     {
-        auto it
-            = std::upper_bound(_scopes.begin(), _scopes.end(), cursor,
-                               [](std::size_t value, const Scope& s) { return value < s.start; });
-
-        while (it != _scopes.begin())
+        if (_root.isValid())
         {
-            --it;
-            if (it->end > cursor)
-            {
-                return &(*it);
-            }
+            return _root.findDeepest(p);
         }
+
         return nullptr;
     }
 
-    Scope::Type Scopes::tryToDetermineScopeType(const char* p, const char* start)
+    void Scopes::tryToDetermineScopeType(Scope& scope, const char* p, const char* start)
     {
         if (*p != '{')
         {
-            return Scope::Type::Undefined;
+            return;
         }
 
         --p;
@@ -122,30 +141,33 @@ namespace JRM
             --p;
         }
 
-        std::string buff;
-        buff.reserve(64);
         while (p > start && *p != '\n')
         {
-            buff.push_back(*p);
             --p;
         }
-        std::ranges::reverse(buff);
-        if (const auto pos = buff.find_first_not_of(" \t\n\r\f\v");
-            pos != std::string::npos && pos != 0)
+        while (*p && isspace(*p))
         {
-            buff.erase(0, pos);
+            ++p;
         }
 
-        if (strncmp(buff.c_str(), "namespace", 9) == 0)
-        {
-            return Scope::Type::Namespace;
-        }
-        if (strncmp(buff.c_str(), "enum class", 10) == 0)
-        {
-            return Scope::Type::EnumClass;
-        }
+        static const std::string namespaceKeyword = "namespace";
+        static const std::string enumClassKeyword = "enum class";
 
-        return Scope::Type::Undefined;
+        if (strncmp(p, namespaceKeyword.c_str(), namespaceKeyword.size()) == 0)
+        {
+            scope.type = Scope::Type::Namespace;
+            scope.identifierStart = FileNavigator::GoToNotSpace(p + namespaceKeyword.size());
+        }
+        else if (strncmp(p, enumClassKeyword.c_str(), enumClassKeyword.size()) == 0)
+        {
+            scope.type = Scope::Type::EnumClass;
+            scope.identifierStart = FileNavigator::GoToNotSpace(p + enumClassKeyword.size());
+        }
+        else
+        {
+            scope.identifierStart = nullptr;
+            scope.type = Scope::Type::Undefined;
+        }
     }
 
 } // namespace JRM

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ namespace FileNavigator
     // limit = 0 -- only on this line
     [[nodiscard]] const char* FindFirstWithLineLimit(const char* source, const char* keyword, std::size_t limit);
     [[nodiscard]] const char* FindOnThisLine(const char* source, const char* keyword);
+    [[nodiscard]] const char* GoToSpace(const char* source);
     [[nodiscard]] const char* GoToNotSpace(const char* source);
     [[nodiscard]] const char* SkipAllBlanks(const char* source);
     [[nodiscard]] std::string ReadAsIdentifier(const char* source);

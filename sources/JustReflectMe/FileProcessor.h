@@ -54,7 +54,7 @@ namespace JRM
         FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
-        void generateNewContent();
+        void generateNewContent(FileData& data);
         void run(const std::string& path);
 
         template<IsBaseReflector T>
@@ -76,10 +76,9 @@ namespace JRM
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
             const BaseReflector* reflector) const;
-        void tryToGenerateHeaderContent(const BaseReflector* reflector);
-        void tryToGenerateSourceContent(const BaseReflector* reflector);
-
-        void tryToIntegrateIncludes(const BaseReflector* reflector);
+        void tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data);
+        void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
+        void tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data);
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;

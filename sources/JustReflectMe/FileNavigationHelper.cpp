@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,6 +78,17 @@ namespace FileNavigator
 
         const auto* out = strstr(source, keyword);
         return out && out < endLine ? out : nullptr;
+    }
+
+    const char* GoToSpace(const char* source)
+    {
+        while (source && *source != '\0' && !(*source == ' ' || *source == '\t'))
+        {
+            ++source;
+        }
+
+        return source;
+
     }
 
     const char* GoToNotSpace(const char* source)

@@ -24,8 +24,9 @@
 
 #include "BaseReflector.h"
 
-#include "JustReflectMe/FileNavigationHelper.h"
 #include "../FileData.h"
+#include "../Scopes.h"
+#include "JustReflectMe/FileNavigationHelper.h"
 
 using namespace FileNavigator;
 
@@ -144,10 +145,10 @@ namespace JRM
 
         data.scanScopes();
 
-        onScan(content);
+        onScan(data);
     }
 
-    std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath) const
+    std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath, FileData& data) const
     {
         std::string result;
         result.reserve(1024);
@@ -159,20 +160,20 @@ namespace JRM
             result += "#pragma once\n\n";
         }
 
-        result += onGenerateHeaderFilePreNamespace();
+        result += onGenerateHeaderFilePreNamespace(data);
 
         result += "namespace ";
         result += namespaceName;
         result += "\n{\n";
 
-        result += onGenerateHeaderFile();
+        result += onGenerateHeaderFile(data);
 
         result += "\n} // namespace\n";
 
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath) const
+    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath, FileData& data) const
     {
         if (_type == ImplType::InlOnly)
         {
@@ -189,7 +190,7 @@ namespace JRM
         result += namespaceName;
         result += "\n{\n";
 
-        result += onGenerateSourceFile();
+        result += onGenerateSourceFile(data);
 
         result += "\n\n} // namespace\n";
 
@@ -199,6 +200,23 @@ namespace JRM
     bool BaseReflector::hasSeparateTranslationUnit() const noexcept
     {
         return _type == ImplType::HeaderCpp;
+    }
+
+    std::string BaseReflector::PrettyPrintScope(const Scope* scope)
+    {
+        std::string out;
+
+        while (scope)
+        {
+            out.insert(0, scope->getIdentifier());
+            if (scope->parent)
+            {
+                out.insert(0, "::");
+            }
+            scope = scope->parent;
+        }
+
+        return out;
     }
 
 } // namespace JRM
