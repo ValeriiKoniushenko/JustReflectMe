@@ -60,11 +60,12 @@ namespace JRM
             std::string parentSpace;
         };
 
-        constexpr static const std::string nameMark = "@@NAME";
-        constexpr static const std::string countMark = "@@COUNT";
+        constexpr static const std::string nameMark = "@@NAME_";
+        constexpr static const std::string countMark = "@@COUNT_";
+        constexpr static const std::string namespaceMark = "@@NAMESPACE_";
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(FileData& data) const override;
-        [[nodiscard]] std::string onGenerateHeaderFile(FileData& data) const override;
+        [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData) const override;
         [[nodiscard]] std::string onGenerateSourceFile(FileData& data) const override;
         void onScan(const FileData& fileData) override;
 

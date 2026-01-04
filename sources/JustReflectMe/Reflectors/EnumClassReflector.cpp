@@ -225,7 +225,7 @@ namespace JRM
     std::string EnumClassReflector::generateDeclaration(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAME
+    namespace @@NAMESPACE_::@@NAME_
     {
 
         // =================== DECLARATIONS =====================
@@ -237,11 +237,12 @@ namespace JRM
         [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
         [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
 
-    } // namespace @@NAME
+    } // namespace @@NAMESPACE_::@@NAME_
 )";
 
         FindAndReplaceAll(finalString, nameMark, data.name);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+        FindAndReplaceAll(finalString, namespaceMark, data.parentSpace);
 
         return finalString;
     }
@@ -249,7 +250,7 @@ namespace JRM
     std::string EnumClassReflector::generateImplementation(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAME
+    namespace @@NAMESPACE_::@@NAME_
     {
 
         // =================== IMPLEMENTATIONS =====================
@@ -315,7 +316,7 @@ namespace JRM
             return map;
         }
 
-    } // namespace @@NAME
+    } // namespace @@NAMESPACE_::@@NAME_
 )";
 
         // Impl ToArrayC
@@ -434,6 +435,7 @@ namespace JRM
 
         FindAndReplaceAll(finalString, nameMark, data.name);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+        FindAndReplaceAll(finalString, namespaceMark, data.parentSpace);
 
         return finalString;
     }
