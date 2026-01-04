@@ -225,24 +225,25 @@ namespace JRM
     std::string EnumClassReflector::generateDeclaration(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAMESPACE_::@@NAME_
+    namespace @@NAMESPACE_@@NAME_
     {
 
         // =================== DECLARATIONS =====================
-        [[nodiscard]] const std::string& ToString(::@@NAME value);
-        [[nodiscard]] std::optional<::@@NAME> FromString(const std::string& value);
+        [[nodiscard]] const std::string& ToString(::@@NAME_ value);
+        [[nodiscard]] std::optional<::@@NAME_> FromString(const std::string& value);
 
-        [[nodiscard]] const std::array<::@@NAME, @@COUNT>& ToArrayC();
-        [[nodiscard]] const std::array<std::string, @@COUNT>& ToArrayN();
-        [[nodiscard]] const std::unordered_map<::@@NAME, std::string>& ToMapCN();
-        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME>& ToMapNC();
+        [[nodiscard]] const std::array<::@@NAME_, @@COUNT_>& ToArrayC();
+        [[nodiscard]] const std::array<std::string, @@COUNT_>& ToArrayN();
+        [[nodiscard]] const std::unordered_map<::@@NAME_, std::string>& ToMapCN();
+        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME_>& ToMapNC();
 
-    } // namespace @@NAMESPACE_::@@NAME_
+    } // namespace @@NAMESPACE_@@NAME_
 )";
 
         FindAndReplaceAll(finalString, nameMark, data.name);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-        FindAndReplaceAll(finalString, namespaceMark, data.parentSpace);
+        const auto parentScope = data.parentSpace.empty() ? "" : data.parentSpace + "::";
+        FindAndReplaceAll(finalString, namespaceMark, parentScope);
 
         return finalString;
     }
@@ -250,16 +251,16 @@ namespace JRM
     std::string EnumClassReflector::generateImplementation(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAMESPACE_::@@NAME_
+    namespace @@NAMESPACE_@@NAME_
     {
 
         // =================== IMPLEMENTATIONS =====================
-        constexpr const std::string& Name() { static constexpr std::string name = "@@NAME"; return name; }
-        constexpr std::size_t Size() noexcept { return @@COUNT; }
+        constexpr const std::string& Name() { static constexpr std::string name = "@@NAME_"; return name; }
+        constexpr std::size_t Size() noexcept { return @@COUNT_; }
 
-        const std::string& ToString(::@@NAME value)
+        const std::string& ToString(::@@NAME_ value)
         {
-            const auto& data = Reflect::@@NAME::ToMapCN();
+            const auto& data = Reflect::@@NAME_::ToMapCN();
             const auto it = data.find(value);
             if (it != data.end()) [[likely]]
             {
@@ -269,9 +270,9 @@ namespace JRM
             return empty;
         }
 
-        std::optional<::@@NAME> FromString(const std::string& value)
+        std::optional<::@@NAME_> FromString(const std::string& value)
         {
-            const auto& data = Reflect::@@NAME::ToMapNC();
+            const auto& data = Reflect::@@NAME_::ToMapNC();
             const auto it = data.find(value);
             if (it != data.end()) [[likely]]
             {
@@ -280,7 +281,7 @@ namespace JRM
             return std::nullopt;
         }
 
-        const std::array<::@@NAME, 2>& ToArrayC()
+        const std::array<::@@NAME_, 2>& ToArrayC()
         {
             static constexpr std::array constants = {
 @@TO_ARRAY_C_
@@ -298,25 +299,25 @@ namespace JRM
             return names;
         }
 
-        const std::unordered_map<::@@NAME, std::string>& ToMapCN()
+        const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
         {
-            static const std::unordered_map<::@@NAME, std::string> map = {
+            static const std::unordered_map<::@@NAME_, std::string> map = {
 @@TO_ARRAY_CN_
             };
 
             return map;
         }
 
-        const std::unordered_map<std::string, ::@@NAME>& ToMapNC()
+        const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
         {
-            static const std::unordered_map<std::string, ::@@NAME> map = {
+            static const std::unordered_map<std::string, ::@@NAME_> map = {
 @@TO_ARRAY_NC_
             };
 
             return map;
         }
 
-    } // namespace @@NAMESPACE_::@@NAME_
+    } // namespace @@NAMESPACE_@@NAME_
 )";
 
         // Impl ToArrayC
@@ -435,7 +436,9 @@ namespace JRM
 
         FindAndReplaceAll(finalString, nameMark, data.name);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-        FindAndReplaceAll(finalString, namespaceMark, data.parentSpace);
+
+        const auto parentScope = data.parentSpace.empty() ? "" : data.parentSpace + "::";
+        FindAndReplaceAll(finalString, namespaceMark, parentScope);
 
         return finalString;
     }
