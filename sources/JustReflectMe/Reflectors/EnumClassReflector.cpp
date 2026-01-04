@@ -193,8 +193,7 @@ namespace JRM
                 nameAndValue.first = ReadAsIdentifier(p);
                 if (nameAndValue.first.empty())
                 {
-                    throw SyntaxException("Not found enum's constant identifier.",
-                                          p - content.c_str());
+                    break; // no constants
                 }
                 p += nameAndValue.first.size();
                 p = SkipAllBlanks(p);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,12 +29,20 @@
 
 int main(int argc, char** argv)
 {
-    JRM::JustReflectMe obj;
-    if (!obj.setArgs(argc, argv))
+    try
     {
-        obj.printHelp();
-        return -1;
+        JRM::JustReflectMe obj;
+        if (!obj.setArgs(argc, argv))
+        {
+            obj.printHelp();
+            return -1;
+        }
+        return obj.run();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 
-    return obj.run();
+    return 1;
 }

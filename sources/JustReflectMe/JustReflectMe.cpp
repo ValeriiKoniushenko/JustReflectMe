@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ namespace JRM
         try
         {
             const auto args = parseInputArgs(argc, argv);
-            if (args.find(InputArgs::ProjectDir) == args.end())
+            if (!args.contains(InputArgs::ProjectDir))
             {
                 throw std::runtime_error("Project directory is not specified!");
             }
@@ -54,7 +54,7 @@ namespace JRM
             _sourcePath = args.find(InputArgs::ProjectDir)->second;
             if (!std::filesystem::exists(_sourcePath))
             {
-                throw std::runtime_error("Project directory does not exist!");
+                throw std::runtime_error("Project directory does not exist: " + _sourcePath.generic_string());
             }
         }
         catch (const std::exception& er)
@@ -68,6 +68,7 @@ namespace JRM
 
     int JustReflectMe::run()
     {
+        std::cout << "========= JustReflectMe =========\n";
         std::cout << "Finding all files with extensions: ";
         for (auto&& ext : _parseableFileExtensions)
         {
