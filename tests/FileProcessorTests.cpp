@@ -124,7 +124,7 @@ std::string sss = "////////"; // 19
 
 TEST_F(FileProcessorTests, FindEnumClassAtNamespace)
 {
-    const RAIIFile sources("test_1.cpp", R"(#include \"test_1.h\")");
+    const RAIIFile sources("test_1.cpp", R"(#include "test_1.h")");
     const RAIIFile header("test_1.h", R"(#pragma once
 namespace NS
 {

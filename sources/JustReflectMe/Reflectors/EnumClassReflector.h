@@ -58,11 +58,14 @@ namespace JRM
             std::string name;
             std::vector<std::pair<std::string, std::string>> constants;
             std::string parentSpace;
+
+            [[nodiscard]] std::string fullNamePath() const;
         };
 
         constexpr static const std::string nameMark = "@@NAME_";
         constexpr static const std::string countMark = "@@COUNT_";
-        constexpr static const std::string namespaceMark = "@@NAMESPACE_";
+        constexpr static const std::string realNameMark = "@@REAL_NAME_";
+        constexpr static const std::string parentsMark = "@@PARENT_";
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(FileData& data) const override;
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData) const override;

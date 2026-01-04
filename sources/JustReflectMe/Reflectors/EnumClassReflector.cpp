@@ -39,6 +39,16 @@ using namespace StringHelper;
 namespace JRM
 {
 
+    std::string EnumClassReflector::TokenData::fullNamePath() const
+    {
+        if (parentSpace.empty())
+        {
+            return name;
+        }
+
+        return parentSpace + "::" + name;
+    }
+
     std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData& data) const
     {
         std::string result;
@@ -168,8 +178,8 @@ namespace JRM
             const char* scopeEnd = FindScopeEnd(p);
             if (!scopeEnd)
             {
-                throw SyntaxException("Not found end of scope '}' for enum class '" + data.name
-                                          + "'",
+                throw SyntaxException("Not found end of scope '}' for enum class '"
+                                          + data.fullNamePath() + "'",
                                       scopeStart - content.c_str());
             }
 
@@ -225,10 +235,14 @@ namespace JRM
     std::string EnumClassReflector::generateDeclaration(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAMESPACE_@@NAME_
+    namespace @@NAME_
     {
 
         // =================== DECLARATIONS =====================
+        [[nodiscard]] const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
+        [[nodiscard]] const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
+        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT_; }
+
         [[nodiscard]] const std::string& ToString(::@@NAME_ value);
         [[nodiscard]] std::optional<::@@NAME_> FromString(const std::string& value);
 
@@ -237,13 +251,13 @@ namespace JRM
         [[nodiscard]] const std::unordered_map<::@@NAME_, std::string>& ToMapCN();
         [[nodiscard]] const std::unordered_map<std::string, ::@@NAME_>& ToMapNC();
 
-    } // namespace @@NAMESPACE_@@NAME_
+    } // namespace @@NAME_
 )";
 
-        FindAndReplaceAll(finalString, nameMark, data.name);
+        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
+        FindAndReplaceAll(finalString, realNameMark, data.name);
+        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-        const auto parentScope = data.parentSpace.empty() ? "" : data.parentSpace + "::";
-        FindAndReplaceAll(finalString, namespaceMark, parentScope);
 
         return finalString;
     }
@@ -251,13 +265,10 @@ namespace JRM
     std::string EnumClassReflector::generateImplementation(const TokenData& data) const
     {
         std::string finalString = R"(
-    namespace @@NAMESPACE_@@NAME_
+    namespace @@NAME_
     {
 
         // =================== IMPLEMENTATIONS =====================
-        constexpr const std::string& Name() { static constexpr std::string name = "@@NAME_"; return name; }
-        constexpr std::size_t Size() noexcept { return @@COUNT_; }
-
         const std::string& ToString(::@@NAME_ value)
         {
             const auto& data = Reflect::@@NAME_::ToMapCN();
@@ -317,7 +328,7 @@ namespace JRM
             return map;
         }
 
-    } // namespace @@NAMESPACE_@@NAME_
+    } // namespace @@NAME_
 )";
 
         // Impl ToArrayC
@@ -327,7 +338,7 @@ namespace JRM
             for (const auto& [name, _] : data.constants)
             {
                 str += "\t\t\t\t::";
-                str += data.name;
+                str += data.fullNamePath();
                 str += "::";
                 str += name;
                 str += ",\n";
@@ -381,7 +392,7 @@ namespace JRM
             for (const auto& [name, _] : data.constants)
             {
                 str += "\t\t\t\t{ ::";
-                str += data.name;
+                str += data.fullNamePath();
                 str += "::";
                 str += name;
                 str += ", \"";
@@ -413,7 +424,7 @@ namespace JRM
                 str += "\t\t\t\t{ \"";
                 str += name;
                 str += "\", ::";
-                str += data.name;
+                str += data.fullNamePath();
                 str += "::";
                 str += name;
                 str += " },\n";
@@ -434,11 +445,10 @@ namespace JRM
             FindAndReplaceAll(finalString, "@@TO_ARRAY_NC_", str);
         }
 
-        FindAndReplaceAll(finalString, nameMark, data.name);
+        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
+        FindAndReplaceAll(finalString, realNameMark, data.name);
+        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-
-        const auto parentScope = data.parentSpace.empty() ? "" : data.parentSpace + "::";
-        FindAndReplaceAll(finalString, namespaceMark, parentScope);
 
         return finalString;
     }
