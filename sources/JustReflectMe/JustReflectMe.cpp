@@ -54,7 +54,8 @@ namespace JRM
             _sourcePath = args.find(InputArgs::ProjectDir)->second;
             if (!std::filesystem::exists(_sourcePath))
             {
-                throw std::runtime_error("Project directory does not exist: " + _sourcePath.generic_string());
+                throw std::runtime_error("Project directory does not exist: "
+                                         + _sourcePath.generic_string());
             }
         }
         catch (const std::exception& er)
@@ -134,6 +135,21 @@ namespace JRM
         if (!entry.is_regular_file())
         {
             return false;
+        }
+
+        {
+            auto path = entry.path();
+
+            if (!path.has_extension())
+            {
+                return false;
+            }
+
+            path.replace_extension("");
+            if (path.extension() == FileProcessor::newFileExtension)
+            {
+                return false;
+            }
         }
 
         auto&& ext = entry.path().extension().generic_string();

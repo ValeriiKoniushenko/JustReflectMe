@@ -112,10 +112,13 @@ namespace JRM
 
         [[nodiscard]] bool canProcessContent(const std::string& content) const;
         void scanContent(FileData& data);
+        [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath, FileData& data) const;
-        [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath, FileData& data) const;
+        [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath,
+                                                     FileData& data) const;
+        [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
+                                                     FileData& data) const;
 
         [[nodiscard]] bool hasSeparateTranslationUnit() const noexcept;
 
@@ -156,7 +159,8 @@ namespace JRM
 
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
 
-        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(FileData& data) const = 0;
+        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(FileData& data) const
+            = 0;
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data) const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data) const = 0;
         virtual void onScan(const FileData& content) = 0;

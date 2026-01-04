@@ -26,8 +26,8 @@
 
 #include "FileProcessor.h"
 
-#include "Reflectors/BaseReflector.h"
 #include "FileData.h"
+#include "Reflectors/BaseReflector.h"
 
 #include <filesystem>
 #include <fstream>
@@ -292,7 +292,8 @@ namespace JRM
             if (originalSources.find(includeString) == std::string::npos)
             {
                 std::string integrationString;
-                integrationString += "\n// This line was added by the code generator. Better don't move it.\n";
+                integrationString
+                    += "\n// This line was added by the code generator. Better don't move it.\n";
                 integrationString += includeString;
                 integrationString += "\n";
 
@@ -320,7 +321,8 @@ namespace JRM
                 std::ofstream out(hpp);
                 if (!out.is_open())
                 {
-                    throw std::runtime_error("Cannot open file for write, to integrate generated #include-s: " + hpp);
+                    throw std::runtime_error(
+                        "Cannot open file for write, to integrate generated #include-s: " + hpp);
                 }
                 out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
 
@@ -336,9 +338,12 @@ namespace JRM
     {
         for (const auto& reflector : _reflectors)
         {
-            tryToGenerateHeaderContent(reflector.get(), data);
-            tryToGenerateSourceContent(reflector.get(), data);
-            tryToIntegrateIncludes(reflector.get(), data);
+            if (reflector->hasTokens())
+            {
+                tryToGenerateHeaderContent(reflector.get(), data);
+                tryToGenerateSourceContent(reflector.get(), data);
+                tryToIntegrateIncludes(reflector.get(), data);
+            }
         }
     }
 
