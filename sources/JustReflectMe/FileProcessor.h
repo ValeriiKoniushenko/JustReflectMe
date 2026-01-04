@@ -75,7 +75,7 @@ namespace JRM
         void scanContent(FileData& data) const;
         [[nodiscard]] std::string getFileContent(const std::string& filename) const;
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
-            const BaseReflector* reflector) const;
+            const BaseReflector* reflector, bool onlyFileNames = false) const;
         void tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data);
         void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
         void tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data);

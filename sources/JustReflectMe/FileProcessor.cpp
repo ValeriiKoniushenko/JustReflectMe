@@ -109,9 +109,9 @@ namespace JRM
 
         // Removing all block comments
         bool nowInsideBlockComment = false;
-        for (std::size_t i = 1; i < content1.size() && content1[i]; ++i)
+        for (std::size_t i = 0; i < content1.size() && content1[i]; ++i)
         {
-            if (content1[i - 1] == '/' && content1[i] == '*')
+            if (i > 0 && content1[i - 1] == '/' && content1[i] == '*')
             {
                 if (nowInsideBlockComment) [[unlikely]]
                 {
@@ -126,7 +126,7 @@ namespace JRM
                 }
             }
 
-            if (content1[i - 1] == '*' && content1[i] == '/')
+            if (i > 0 && content1[i - 1] == '*' && content1[i] == '/')
             {
                 nowInsideBlockComment = false;
                 continue;
@@ -140,12 +140,8 @@ namespace JRM
         content1.resize(0);
 
         // Removing all comments: //
-        if (!content2.empty())
-        {
-            content1.push_back(content2.front());
-        }
         bool nowComment = false;
-        for (std::size_t i = 1; i < content2.size() && content2[i]; ++i)
+        for (std::size_t i = 0; i < content2.size() && content2[i]; ++i)
         {
             if (nowComment)
             {
@@ -159,7 +155,7 @@ namespace JRM
                 }
             }
 
-            if (content2[i] == '/' && content2[i - 1] == '/')
+            if (i > 0 && content2[i] == '/' && content2[i - 1] == '/')
             {
                 nowComment = true;
                 content1.pop_back();
@@ -219,7 +215,7 @@ namespace JRM
     }
 
     std::pair<std::string, std::string> FileProcessor::generateFilenames(
-        const BaseReflector* reflector) const
+        const BaseReflector* reflector, bool onlyFileNames /* = false*/) const
     {
         const auto extIndex = _path.find_last_of(".");
         if (extIndex == std::string::npos)
@@ -239,6 +235,15 @@ namespace JRM
         else
         {
             headerPath += ".inl";
+        }
+
+        if (onlyFileNames)
+        {
+            namespace fs = std::filesystem;
+            using Path = std::filesystem::path;
+
+            headerPath = fs::relative(headerPath, Path(_path).parent_path().generic_string());
+            sourcePath = fs::relative(sourcePath, Path(_path).parent_path().generic_string());
         }
 
         return { headerPath, sourcePath };
@@ -281,7 +286,7 @@ namespace JRM
 
     void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data)
     {
-        const auto [generatedHpp, generatedCpp] = generateFilenames(reflector);
+        const auto [generatedHpp, generatedCpp] = generateFilenames(reflector, true);
 
         // ============ HEADER =================
         {

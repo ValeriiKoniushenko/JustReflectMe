@@ -65,7 +65,8 @@ namespace JRM
         constexpr static const std::string nameMark = "@@NAME_";
         constexpr static const std::string countMark = "@@COUNT_";
         constexpr static const std::string realNameMark = "@@REAL_NAME_";
-        constexpr static const std::string parentsMark = "@@PARENT_";
+        constexpr static const std::string parentsMark = "@@PARENTS_";
+        constexpr static const std::string funcPrefMark = "@@FUNC_PREF_";
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(FileData& data) const override;
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData) const override;
@@ -74,7 +75,7 @@ namespace JRM
 
     private:
         [[nodiscard]] std::string generateDeclaration(const TokenData& data) const;
-        [[nodiscard]] std::string generateImplementation(const TokenData& data) const;
+        [[nodiscard]] std::string generateImplementation(const TokenData& data, bool inlined) const;
 
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;

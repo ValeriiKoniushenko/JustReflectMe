@@ -153,7 +153,7 @@ namespace FileNavigator
             ++iter;
         }
 
-        return count;
+        return count + 1;
     }
 
     std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source, std::size_t i)
@@ -176,7 +176,7 @@ namespace FileNavigator
             ++iter;
         }
 
-        return { count, i - iter };
+        return { count + 1, i - iter + 1 };
     }
 
     const char* FindScopeEnd(const char* source)

@@ -89,7 +89,7 @@ namespace JRM
             finalString.reserve(1024 * 4);
 
             finalString += generateDeclaration(data);
-            finalString += generateImplementation(data);
+            finalString += generateImplementation(data, true);
 
             result += finalString;
         }
@@ -238,8 +238,8 @@ namespace JRM
     {
 
         // =================== DECLARATIONS =====================
-        [[nodiscard]] const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
-        [[nodiscard]] const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
+        [[nodiscard]] const std::string& Name();
+        [[nodiscard]] const std::string& ParentScope();
         [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT_; }
 
         [[nodiscard]] const std::string& ToString(::@@NAME_ value);
@@ -261,14 +261,17 @@ namespace JRM
         return finalString;
     }
 
-    std::string EnumClassReflector::generateImplementation(const TokenData& data) const
+    std::string EnumClassReflector::generateImplementation(const TokenData& data, bool inlined) const
     {
         std::string finalString = R"(
     namespace @@NAME_
     {
 
         // =================== IMPLEMENTATIONS =====================
-        const std::string& ToString(::@@NAME_ value)
+        @@FUNC_PREF_ const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
+        @@FUNC_PREF_ const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
+
+        @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
         {
             const auto& data = Reflect::@@NAME_::ToMapCN();
             const auto it = data.find(value);
@@ -280,7 +283,7 @@ namespace JRM
             return empty;
         }
 
-        std::optional<::@@NAME_> FromString(const std::string& value)
+        @@FUNC_PREF_ std::optional<::@@NAME_> FromString(const std::string& value)
         {
             const auto& data = Reflect::@@NAME_::ToMapNC();
             const auto it = data.find(value);
@@ -291,25 +294,25 @@ namespace JRM
             return std::nullopt;
         }
 
-        const std::array<::@@NAME_, 2>& ToArrayC()
+        @@FUNC_PREF_ const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
         {
-            static constexpr std::array constants = {
+            static constexpr std::array<::@@NAME_, @@COUNT_> constants = {
 @@TO_ARRAY_C_
             };
 
             return constants;
         }
 
-        const std::array<std::string, 2>& ToArrayN()
+        @@FUNC_PREF_ const std::array<std::string, @@COUNT_>& ToArrayN()
         {
-            static constexpr std::array names = {
+            static constexpr std::array<std::string, @@COUNT_> names = {
 @@TO_ARRAY_N_
             };
 
             return names;
         }
 
-        const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
+        @@FUNC_PREF_ const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
         {
             static const std::unordered_map<::@@NAME_, std::string> map = {
 @@TO_ARRAY_CN_
@@ -318,7 +321,7 @@ namespace JRM
             return map;
         }
 
-        const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
+        @@FUNC_PREF_ const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
         {
             static const std::unordered_map<std::string, ::@@NAME_> map = {
 @@TO_ARRAY_NC_
@@ -448,6 +451,9 @@ namespace JRM
         FindAndReplaceAll(finalString, realNameMark, data.name);
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+
+        std::string funcPref = inlined ? "inline" : "";
+        FindAndReplaceAll(finalString, funcPrefMark, funcPref);
 
         return finalString;
     }
