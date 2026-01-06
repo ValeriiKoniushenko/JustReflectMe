@@ -75,6 +75,15 @@ namespace JRM
         return FileNavigator::ReadAsIdentifier(identifierStart);
     }
 
+    void Scope::revalidateTree()
+    {
+        for (auto& child : children)
+        {
+            child.parent = this;
+            child.revalidateTree();
+        }
+    }
+
     void Scopes::scan(const std::string& content)
     {
         if (content.empty()) [[unlikely]]
@@ -82,23 +91,19 @@ namespace JRM
             throw std::runtime_error("Can't scan scopes. The content is empty.");
         }
 
-        Scope* parent = nullptr;
+        _root.type = Scope::Type::File;
+        _root.start = content.c_str();
+        _root.end = content.c_str() + content.size() - 1;
+
+        Scope* parent = &_root;
 
         for (const char* p = content.c_str(); p && *p; ++p)
         {
             if (*p == '{')
             {
-                if (parent)
-                {
-                    auto* child = &parent->children.emplace_back();
-                    child->parent = parent;
-                    parent = child;
-                }
-                else
-                {
-                    parent = &_root;
-                }
-
+                auto* child = &parent->children.emplace_back();
+                child->parent = parent;
+                parent = child;
                 parent->start = p;
                 parent->end = nullptr;
                 tryToDetermineScopeType(*parent, p, content.c_str());
@@ -115,6 +120,9 @@ namespace JRM
                 parent = parent->parent;
             }
         }
+
+        // Updating/revalidating all parents
+        _root.revalidateTree();
     }
 
     const Scope* Scopes::getScopeAt(const char* p) const

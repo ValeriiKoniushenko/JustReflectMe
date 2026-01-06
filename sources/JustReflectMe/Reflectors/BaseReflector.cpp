@@ -138,11 +138,11 @@ namespace JRM
         while (scope)
         {
             out.insert(0, scope->getIdentifier());
-            if (scope->parent)
+            scope = scope->parent;
+            if (scope && scope->parent)
             {
                 out.insert(0, "::");
             }
-            scope = scope->parent;
         }
 
         return out;

@@ -122,7 +122,7 @@ namespace FileNavigator
             }
 
             int count = 0;
-            while (isalnum(source[count]) || source[count] == '_')
+            while (isalnum(source[count]) || source[count] == '_' || source[count] == ':')
             {
                 ++count;
             }

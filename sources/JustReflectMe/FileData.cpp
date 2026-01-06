@@ -44,9 +44,9 @@ namespace JRM
         return _scopes;
     }
 
-    void FileData::setScope(const Scopes& scope)
+    void FileData::setScope(Scopes&& scope)
     {
-        _scopes = scope;
+        _scopes = std::move(scope);
     }
 
     void FileData::scanScopes()

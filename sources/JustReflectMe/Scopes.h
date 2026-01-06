@@ -32,9 +32,17 @@ namespace JRM
 {
     struct Scope
     {
+        Scope() = default;
+        Scope(const Scope&) = delete;
+        Scope& operator=(const Scope&) = delete;
+        Scope(Scope&&) noexcept = default;
+        Scope& operator=(Scope&&) noexcept = default;
+        ~Scope() = default;
+
         enum class Type
         {
             Undefined,
+            File,
             Namespace,
             EnumClass
         };
@@ -44,6 +52,7 @@ namespace JRM
         [[nodiscard]] bool contains(const char* i) const noexcept;
         [[nodiscard]] const Scope* findDeepest(const char* i) const;
         [[nodiscard]] std::string getIdentifier() const;
+        void revalidateTree();
 
         const char* start = nullptr;
         const char* end = nullptr;
@@ -58,10 +67,9 @@ namespace JRM
     class Scopes
     {
     public:
-
         Scopes() = default;
-        Scopes(const Scopes&) = default;
-        Scopes& operator=(const Scopes&) = default;
+        Scopes(const Scopes&) = delete;
+        Scopes& operator=(const Scopes&) = delete;
         Scopes(Scopes&&) noexcept = default;
         Scopes& operator=(Scopes&&) noexcept = default;
         virtual ~Scopes() = default;

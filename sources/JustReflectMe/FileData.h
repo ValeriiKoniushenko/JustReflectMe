@@ -46,7 +46,7 @@ namespace JRM
         [[nodiscard]] const std::string& getContent() const noexcept;
 
         [[nodiscard]] const Scopes& getScopes() const noexcept;
-        void setScope(const Scopes& scope);
+        void setScope(Scopes&& scope);
 
         void scanScopes();
 
