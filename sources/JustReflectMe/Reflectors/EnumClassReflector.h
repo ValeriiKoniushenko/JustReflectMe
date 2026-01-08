@@ -36,11 +36,7 @@ namespace JRM
     class EnumClassReflector : public BaseReflector
     {
     public:
-        EnumClassReflector()
-            : BaseReflector(BaseReflector::ImplType::InlOnly)
-        {
-        }
-
+        EnumClassReflector() = default;
         EnumClassReflector(const EnumClassReflector&) = default;
         EnumClassReflector& operator=(const EnumClassReflector&) = default;
         EnumClassReflector(EnumClassReflector&&) noexcept = default;
@@ -70,12 +66,12 @@ namespace JRM
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(FileData& data) const override;
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData) const override;
-        [[nodiscard]] std::string onGenerateSourceFile(FileData& data) const override;
+        [[nodiscard]] std::string onGenerateSourceFile(FileData& fileData) const override;
         void onScan(const FileData& fileData) override;
 
     private:
         [[nodiscard]] std::string generateDeclaration(const TokenData& data) const;
-        [[nodiscard]] std::string generateImplementation(const TokenData& data, bool inlined) const;
+        [[nodiscard]] std::string generateImplementation(const TokenData& data) const;
 
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;

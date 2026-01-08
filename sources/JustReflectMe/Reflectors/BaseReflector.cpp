@@ -77,17 +77,13 @@ namespace JRM
         onScan(data);
     }
 
-    std::string BaseReflector::generateHeaderFile(const std::string& newHeaderPath, FileData& data) const
+    std::string BaseReflector::generateHeaderFile(FileData& data) const
     {
         std::string result;
         result.reserve(1024);
 
         result += warningCommentAtFileTop;
-
-        if (hasSeparateTranslationUnit())
-        {
-            result += "#pragma once\n\n";
-        }
+        result += "\n\n";
 
         result += onGenerateHeaderFilePreNamespace(data);
 
@@ -102,18 +98,14 @@ namespace JRM
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath, FileData& data) const
+    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath,
+                                                  FileData& data) const
     {
-        if (_type == ImplType::InlOnly)
-        {
-            return {};
-        }
-
         std::string result;
         result.reserve(1024);
 
         result += warningCommentAtFileTop;
-        result += "#include \"" + newHeaderPath + "\"\n\n";
+        result += "\n\n";
 
         result += "namespace ";
         result += namespaceName;
@@ -124,11 +116,6 @@ namespace JRM
         result += "\n\n} // namespace\n";
 
         return result;
-    }
-
-    bool BaseReflector::hasSeparateTranslationUnit() const noexcept
-    {
-        return _type == ImplType::HeaderCpp;
     }
 
     std::string BaseReflector::PrettyPrintScope(const Scope* scope)

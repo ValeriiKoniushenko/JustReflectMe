@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <array>
 #include <concepts>
 #include <limits>
 #include <optional>
@@ -69,12 +68,11 @@ namespace JRM
  *
  * DO NOT EDIT MANUALLY!
  * Your changes will be replaced next time
- */
-
-)";
+ */)";
 
         static constexpr const char* namespaceName = "Reflect";
 
+        BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
         BaseReflector(BaseReflector&&) noexcept = default;
@@ -86,20 +84,17 @@ namespace JRM
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] std::string generateHeaderFile(const std::string& newHeaderPath,
-                                                     FileData& data) const;
+        [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
                                                      FileData& data) const;
 
-        [[nodiscard]] bool hasSeparateTranslationUnit() const noexcept;
+        void setHasImplTranslationUnit(bool val) noexcept { _hasImplTranslationUnit = val; }
+        [[nodiscard]] bool hasImplTranslationUnit() const noexcept
+        {
+            return _hasImplTranslationUnit;
+        }
 
     protected:
-        enum class ImplType
-        {
-            HeaderCpp,
-            InlOnly
-        };
-
         struct TokenEntry final
         {
             struct Hasher
@@ -123,11 +118,6 @@ namespace JRM
             }
         };
 
-        BaseReflector(ImplType type)
-            : _type(type)
-        {
-        }
-
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
 
         [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(FileData& data) const
@@ -138,7 +128,7 @@ namespace JRM
 
     protected:
         std::vector<TokenEntry> _tokens;
-        ImplType _type = ImplType::HeaderCpp;
+        bool _hasImplTranslationUnit = false;
     };
 
     template<class T>

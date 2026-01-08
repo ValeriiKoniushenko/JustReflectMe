@@ -61,6 +61,7 @@ public:
 
         [[nodiscard]] const std::string& getFilename() const { return filename; }
         [[nodiscard]] operator const std::string&() const { return filename; }
+        [[nodiscard]] operator std::filesystem::path() const { return std::filesystem::path(filename); }
 
     private:
         std::string filename;

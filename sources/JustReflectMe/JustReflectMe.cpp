@@ -86,8 +86,8 @@ namespace JRM
                     continue;
                 }
 
-                auto&& path = entry.path().generic_string();
-                std::cout << "Processing: " << path << "\n";
+                auto&& path = entry.path();
+                std::cout << "Processing: " << path.generic_string() << "\n";
 
                 try
                 {

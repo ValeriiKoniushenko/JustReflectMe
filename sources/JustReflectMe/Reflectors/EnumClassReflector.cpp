@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -49,7 +47,7 @@ namespace JRM
         return parentSpace + "::" + name;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData& data) const
+    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData&) const
     {
         std::string result;
         result.reserve(512);
@@ -58,14 +56,6 @@ namespace JRM
         result += "#include <string>\n";
         result += "#include <array>\n";
         result += "#include <unordered_map>\n";
-        result += "\n";
-
-        // for (const auto& [_, data] : _data)
-        // {
-        //     result += "enum class " + data.name;
-        //     result += ";\n";
-        // }
-
         result += "\n";
 
         return result;
@@ -89,7 +79,11 @@ namespace JRM
             finalString.reserve(1024 * 4);
 
             finalString += generateDeclaration(data);
-            finalString += generateImplementation(data, true);
+
+            if (!_hasImplTranslationUnit)
+            {
+                finalString += generateImplementation(data);
+            }
 
             result += finalString;
         }
@@ -97,9 +91,25 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateSourceFile(FileData& data) const
+    std::string EnumClassReflector::onGenerateSourceFile(FileData& fileData) const
     {
-        return {};
+        std::string result;
+        result.reserve(1024);
+
+        for (const auto& [_, data] : _data)
+        {
+            if (data.name.empty()) [[unlikely]]
+            {
+                throw GenerationException(
+                    "Can't process generation of the source file due to unexpected empty the "
+                    "enum's class name.");
+            }
+
+            result += generateImplementation(data);
+        }
+
+        return result;
+
     }
 
     void EnumClassReflector::onScan(const FileData& fileData)
@@ -261,7 +271,7 @@ namespace JRM
         return finalString;
     }
 
-    std::string EnumClassReflector::generateImplementation(const TokenData& data, bool inlined) const
+    std::string EnumClassReflector::generateImplementation(const TokenData& data) const
     {
         std::string finalString = R"(
     namespace @@NAME_
@@ -452,7 +462,7 @@ namespace JRM
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
 
-        std::string funcPref = inlined ? "inline" : "";
+        std::string funcPref = !_hasImplTranslationUnit ? "inline" : "";
         FindAndReplaceAll(finalString, funcPrefMark, funcPref);
 
         return finalString;

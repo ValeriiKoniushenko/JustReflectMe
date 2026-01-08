@@ -226,11 +226,11 @@ namespace JRM
         std::string headerPath = _path.substr(0, extIndex);
         headerPath += newFileExtension;
         std::string sourcePath;
-        if (reflector->hasSeparateTranslationUnit())
+        if (!_pathImpl.empty())
         {
-            headerPath += ".h";
             sourcePath = headerPath;
-            sourcePath += ".cpp";
+            headerPath += ".h";
+            sourcePath += ".cpp.inl";
         }
         else
         {
@@ -251,9 +251,9 @@ namespace JRM
 
     void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data)
     {
-        const auto [hppPath, _] = generateFilenames(reflector);
+        const std::string src = reflector->generateHeaderFile(data);
 
-        const std::string src = reflector->generateHeaderFile(hppPath, data);
+        const auto hppPath = generateFilenames(reflector).first;
         std::ofstream out(hppPath);
         if (!out.is_open())
         {
@@ -264,18 +264,19 @@ namespace JRM
 
     void FileProcessor::tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data)
     {
-        if (!reflector->hasSeparateTranslationUnit())
+        if (_pathImpl.empty())
         {
             return;
         }
 
-        const auto [hppPath, cppPath] = generateFilenames(reflector);
+        const auto cppPath = generateFilenames(reflector).second;
         if (cppPath.empty()) [[unlikely]]
         {
             return;
         }
 
-        const std::string src = reflector->generateSourceFile(hppPath, data);
+        const std::string src
+            = reflector->generateSourceFile(generateFilenames(reflector, true).first, data);
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
@@ -288,55 +289,123 @@ namespace JRM
     {
         const auto [generatedHpp, generatedCpp] = generateFilenames(reflector, true);
 
-        // ============ HEADER =================
+        integrateHeaderIncludes(reflector, data, generatedHpp);
+
+        // ============ SOURCE =================
+        if (_pathImpl.empty())
         {
-            const auto includeString = "#include \"" + generatedHpp + "\"";
-            const auto hpp = getHeaderFilename();
-            auto originalSources = ReadFile(hpp);
+            return;
+        }
 
-            if (originalSources.find(includeString) == std::string::npos)
+        integrateSourceIncludes(reflector, data, generatedCpp);
+    }
+
+    void FileProcessor::integrateHeaderIncludes(const BaseReflector* reflector, FileData& data,
+                                                const std::string& generatedHpp)
+    {
+        const auto includeString = "\n#include \"" + generatedHpp + "\"";
+        const auto hpp = getHeaderFilename();
+        auto originalSources = ReadFile(hpp);
+
+        if (originalSources.find(includeString) != std::string::npos)
+        {
+            return;
+        }
+
+        std::string integrationString = includeString;
+        integrationString += " // added by the code generator. Better don't move it.\n";
+
+        originalSources += integrationString;
+
+        std::ofstream out(hpp);
+        if (!out.is_open())
+        {
+            throw std::runtime_error(
+                "Cannot open file for write, to integrate generated #include-s: " + hpp);
+        }
+        out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
+
+        onPostGenerateHeaderContent(originalSources);
+    }
+
+    void FileProcessor::integrateSourceIncludes(const BaseReflector* reflector, FileData& data,
+                                                const std::string& generatedCpp)
+    {
+        if (generatedCpp.empty() || _pathImpl.empty())
+        {
+            return;
+        }
+
+        const auto includeString = "\n#include \"" + generatedCpp + "\"";
+        auto originalSources = ReadFile(_pathImpl);
+        if (originalSources.contains(includeString))
+        {
+            return;
+        }
+
+        std::string integrationString;
+        integrationString += "\n";
+        integrationString += includeString;
+        integrationString += " // this line added by the code generator.\n";
+
+        // find the last #include and put it under it
+        auto index = originalSources.rfind("#include");
+        if (index == std::string::npos)
+        {
+            index = 0;
+        }
+        else
+        {
+            auto found = originalSources.find('\n', index);
+            if (found != std::string::npos)
             {
-                std::string integrationString;
-                integrationString
-                    += "\n// This line was added by the code generator. Better don't move it.\n";
-                integrationString += includeString;
-                integrationString += "\n";
+                index = found + 1;
+            }
+            else
+            {
+                index = originalSources.size();
+            }
+        }
+        originalSources.insert(index, integrationString);
 
-                if (reflector->hasSeparateTranslationUnit())
-                {
-                    // find the last #include and put it under it
-                    auto index = originalSources.find_last_of("#include");
-                    if (index != std::string::npos)
-                    {
-                        index = originalSources.find_first_of("#pragma once");
-                        if (index == std::string::npos)
-                        {
-                            index = 0;
-                        }
+        std::ofstream out(_pathImpl);
+        if (!out.is_open())
+        {
+            throw std::runtime_error(
+                "Cannot open file for write, to integrate generated #include-s: " + generatedCpp);
+        }
+        out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
+    }
 
-                        originalSources.insert(index, integrationString);
-                    }
-                }
-                else
-                {
-                    // just put it to the end of the file
-                    originalSources += integrationString;
-                }
+    std::string FileProcessor::extrudeImplPath(std::filesystem::path path)
+    {
+        if (!path.has_extension()) [[unlikely]]
+        {
+            return {};
+        }
+        path.replace_extension("");
+        const auto strPath = path.generic_string();
 
-                std::ofstream out(hpp);
-                if (!out.is_open())
-                {
-                    throw std::runtime_error(
-                        "Cannot open file for write, to integrate generated #include-s: " + hpp);
-                }
-                out.write(originalSources.c_str(), originalSources.size() * sizeof(char));
+        // TODO: optimize it! Super slow.
+        static const std::array extensions
+            = { std::string(".cpp"), std::string(".cxx"), std::string(".cc") };
 
-                onPostGenerateHeaderContent(originalSources);
+        std::string implExt;
+        for (const auto& ext : extensions)
+        {
+            if (std::filesystem::exists(strPath + ext))
+            {
+                implExt = ext;
+                break;
             }
         }
 
-        // ============ SOURCE =================
-        const auto cpp = getSourceFilename();
+        if (implExt.empty())
+        {
+            return {};
+        }
+
+        return strPath + implExt;
     }
 
     void FileProcessor::generateNewContent(FileData& data)
@@ -352,13 +421,19 @@ namespace JRM
         }
     }
 
-    void FileProcessor::run(const std::string& path)
+    void FileProcessor::run(const std::filesystem::path& path)
     {
-        _path = path;
+        _path = path.generic_string();
 
         if (!std::filesystem::exists(_path))
         {
             throw std::runtime_error("File does not exist: '" + _path + "'");
+        }
+
+        _pathImpl = extrudeImplPath(path);
+        for (auto& reflector : _reflectors)
+        {
+            reflector->setHasImplTranslationUnit(!_pathImpl.empty());
         }
 
         FileData data;

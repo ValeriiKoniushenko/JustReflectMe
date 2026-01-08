@@ -3,7 +3,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018-2025 Valerii Koniushenko
+ * Copyright (c) 2018-2026 Valerii Koniushenko
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ namespace JRM
     private:
         std::filesystem::path _sourcePath;
         std::vector<std::string> _parseableFileExtensions
-            = { ".h", ".hpp", ".hxx", ".hh", ".h++", ".inl" };
+            = { ".h", ".hpp", ".hxx", ".hh", ".h++" };
     };
 
 } // namespace JRM

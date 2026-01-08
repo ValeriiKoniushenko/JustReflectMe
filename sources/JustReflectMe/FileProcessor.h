@@ -28,6 +28,7 @@
 
 #include "Reflectors/BaseReflector.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <ostream>
@@ -55,7 +56,7 @@ namespace JRM
         virtual ~FileProcessor() = default;
 
         void generateNewContent(FileData& data);
-        void run(const std::string& path);
+        void run(const std::filesystem::path& path);
 
         template<IsBaseReflector T>
         void registerReflector();
@@ -80,9 +81,17 @@ namespace JRM
         void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
         void tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data);
 
+
+        void integrateHeaderIncludes(const BaseReflector* reflector, FileData& data, const std::string& generatedHpp);
+        void integrateSourceIncludes(const BaseReflector* reflector, FileData& data, const std::string& generatedCpp);
+
+
+        [[nodiscard]] static std::string extrudeImplPath(std::filesystem::path path);
+
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
-        std::string _path;
+        std::string _path;     // to .h   - must be filled
+        std::string _pathImpl; // to .cpp - can be empty
 
 #if defined(JRM_ENABLE_TESTS)
         FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);
