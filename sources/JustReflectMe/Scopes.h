@@ -32,13 +32,6 @@ namespace JRM
 {
     struct Scope
     {
-        Scope() = default;
-        Scope(const Scope&) = delete;
-        Scope& operator=(const Scope&) = delete;
-        Scope(Scope&&) noexcept = default;
-        Scope& operator=(Scope&&) noexcept = default;
-        ~Scope() = default;
-
         enum class Type
         {
             Undefined,
@@ -46,6 +39,7 @@ namespace JRM
             Namespace,
             EnumClass
         };
+
 
         [[nodiscard]] bool isValid() const noexcept;
         [[nodiscard]] bool operator==(const Scope& other) const noexcept;
@@ -57,9 +51,7 @@ namespace JRM
         const char* start = nullptr;
         const char* end = nullptr;
         Type type = Type::Undefined;
-
         Scope* parent = nullptr;
-
         const char* identifierStart = nullptr;
         std::vector<Scope> children;
     };

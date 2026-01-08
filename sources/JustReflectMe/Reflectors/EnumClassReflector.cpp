@@ -185,7 +185,7 @@ namespace JRM
 
             ++p;
 
-            while (p < scopeEnd)
+            while (p && p < scopeEnd)
             {
                 std::pair<std::string, std::string> nameAndValue;
 
