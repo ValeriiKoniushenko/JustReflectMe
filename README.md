@@ -11,3 +11,11 @@ Fast & user-friendly reflection application to reflect the C++ code. Everything 
 ## CMake macros
 
 Put `set(JRM_DISABLE_TESTS ON)` before connecting this library to disable tests. It will disable all levels of working with unit tests inside this library to speed up your build.
+
+## Integration
+
+1. Clone this repository to your project's root directory.
+2. Using CMake add this as a subdirectory: `add_subdirectory(path/to/JRM)`.
+3. Connect the adapter to your CMake's target: `target_link_libraries(YourTarget PUBLIC JustReflectMe::Adapter)`
+
+That's it!
