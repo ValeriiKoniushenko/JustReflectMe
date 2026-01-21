@@ -32,12 +32,7 @@ int main(int argc, char** argv)
     try
     {
         JRM::JustReflectMe obj;
-        if (!obj.setArgs(argc, argv))
-        {
-            obj.printHelp();
-            return -1;
-        }
-        return obj.run();
+        return obj.run(argc, argv);
     }
     catch (const std::exception& e)
     {

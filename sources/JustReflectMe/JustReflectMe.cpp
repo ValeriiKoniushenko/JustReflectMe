@@ -28,6 +28,7 @@
 
 #include "FileProcessor.h"
 #include "Reflectors/EnumClassReflector.h"
+#include "version.h"
 
 #include <filesystem>
 #include <iostream>
@@ -35,11 +36,24 @@
 
 namespace JRM
 {
-    bool JustReflectMe::setArgs(int argc, char** argv)
+    bool JustReflectMe::processArgs(int argc, char** argv)
     {
         if (argc < 2)
         {
             std::cerr << "Not enough arguments!" << std::endl;
+            return false;
+        }
+
+        const std::string first = argv[1];
+        if (first == "--help" || first == "-h")
+        {
+            printHelp();
+            return false;
+        }
+
+        if (first == "--version" || first == "-v")
+        {
+            printVersion();
             return false;
         }
 
@@ -67,8 +81,13 @@ namespace JRM
         return true;
     }
 
-    int JustReflectMe::run()
+    int JustReflectMe::run(int argc, char** argv)
     {
+        if (!processArgs(argc, argv))
+        {
+            return 1;
+        }
+
         std::cout << "========= JustReflectMe =========\n";
         std::cout << "Finding all files with extensions: ";
         for (auto&& ext : _parseableFileExtensions)
@@ -172,7 +191,16 @@ namespace JRM
 
     void JustReflectMe::printHelp()
     {
-        std::cout << "usage: jrm <source_path>" << std::endl;
+        std::cout << "usage: jrm <path to project>" << std::endl;
+    }
+
+    void JustReflectMe::printVersion()
+    {
+        std::cout << "jrm (JustReflectMe) " << APP_VERSION_MAJOR << "." << APP_VERSION_MINOR << "."
+                  << APP_VERSION_PATCH << std::endl
+                  << std::endl;
+        std::cout << "> Implemented by Valerii Koniushenko" << std::endl;
+        std::cout << "> https://github.com/ValeriiKoniushenko/JustReflectMe" << std::endl;
     }
 
 } // namespace JRM

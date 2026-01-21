@@ -43,9 +43,8 @@ namespace JRM
         JustReflectMe& operator=(JustReflectMe&&) noexcept = delete;
         ~JustReflectMe() = default;
 
-        void printHelp();
-        [[nodiscard]] bool setArgs(int argc, char** argv);
-        [[nodiscard]] int run();
+
+        [[nodiscard]] int run(int argc, char** argv);
 
     private:
         enum class InputArgs
@@ -54,6 +53,9 @@ namespace JRM
         };
 
     private:
+        [[nodiscard]] bool processArgs(int argc, char** argv);
+        void printHelp();
+        void printVersion();
         [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
                                                                                 char** argv) const;
         [[nodiscard]] bool isParseableEntry(const std::filesystem::directory_entry& entry) const;

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30.0..)
 
-project(JustReflectMe VERSION 0.1.0 LANGUAGES CXX)
+project(JustReflectMe VERSION 0.9.0 LANGUAGES CXX)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Features.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Flags.cmake)
@@ -16,6 +16,12 @@ set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
 set(CXX_STANDARD)
 
 JRF_InstallCXXStandardVersion()
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/sources/JustReflectMe/version.h.template
+    ${CMAKE_CURRENT_SOURCE_DIR}/sources/JustReflectMe/version.h
+    @ONLY
+)
 
 # ========= Adding subdirectories =========
 # Adding dependencies
