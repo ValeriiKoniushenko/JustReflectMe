@@ -26,6 +26,7 @@
 
 #include "JustReflectMe.h"
 
+#include "Config.h"
 #include "FileProcessor.h"
 #include "Reflectors/EnumClassReflector.h"
 #include "version.h"
@@ -98,14 +99,24 @@ namespace JRM
 
         try
         {
-            for (auto&& entry : std::filesystem::recursive_directory_iterator(_sourcePath))
+            ConfigManager configManager;
+            const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
+
+            for (auto&& entry : std::filesystem::directory_iterator(_sourcePath))
             {
                 if (!isParseableEntry(entry))
                 {
                     continue;
                 }
 
-                auto&& path = entry.path();
+                auto path = entry.path();
+                auto relPath = std::filesystem::relative(path, _sourcePath);
+
+                if (config.excludedPaths.contains(relPath))
+                {
+                    continue;
+                }
+
                 std::cout << "Processing: " << path.generic_string() << "\n";
 
                 try

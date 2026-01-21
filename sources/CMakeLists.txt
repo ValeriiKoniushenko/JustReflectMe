@@ -11,6 +11,7 @@ add_library(_JustReflectMe_Core STATIC ${CPP_SOURCES} ${HEADERS})
 add_library(JustReflectMe::Core ALIAS _JustReflectMe_Core)
 target_link_libraries(_JustReflectMe_Core PRIVATE
     JustReflectMe::Adapter
+    Yaml
 )
 target_include_directories(_JustReflectMe_Core PUBLIC .)
 target_compile_features(_JustReflectMe_Core PUBLIC ${CXX_STANDARD})
