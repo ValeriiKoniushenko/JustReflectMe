@@ -448,16 +448,17 @@ namespace JRM
         }
         catch (const JRM::SyntaxException& e)
         {
-            std::cerr << e.getFullMessage(data.getContent(), _path) << "\n";
+            std::cerr << "[JustReflectMe] " << e.getFullMessage(data.getContent(), _path) << "\n";
         }
         catch (const JRM::GenerationException& e)
         {
-            std::cerr << _path << ": generation exception: " << e.what() << "\n";
+            std::cerr << "[JustReflectMe] " << _path << ": generation exception: " << e.what()
+                      << "\n";
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Error while processing the file: '" << _path << "' Details: " << e.what()
-                      << "\n";
+            std::cerr << "[JustReflectMe] Error while processing the file: '" << _path
+                      << "' Details: " << e.what() << "\n";
         }
     }
 

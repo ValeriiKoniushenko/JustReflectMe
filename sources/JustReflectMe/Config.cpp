@@ -64,8 +64,8 @@ namespace JRM
         }
         catch (Yaml::Exception& ex)
         {
-            std::cerr << "Failed to parse .yaml config file. Details: " << ex.what() << std::endl;
-            std::cerr << "The JRM is configured incompletely!" << std::endl;
+            std::cerr << "[JustReflectMe] Failed to parse .yaml config file. Details: " << ex.what() << std::endl;
+            std::cerr << "[JustReflectMe] The JRM is configured incompletely!\n";
         }
 
         return config;
@@ -76,8 +76,8 @@ namespace JRM
         std::error_code ec;
         if (!std::filesystem::create_directory(_projectDir / jrmFolder, ec))
         {
-            std::cerr << "Failed to create jrm folder at the project's root. Details: "
-                      << ec.message() << std::endl;
+            std::cerr << "[JustReflectMe] Failed to create jrm folder at the project's root. Details: "
+                      << ec.message() << "\n";
             return;
         }
 
@@ -85,14 +85,14 @@ namespace JRM
             std::ofstream out(_projectDir / jrmFolder / jrmConfig);
             if (!out.is_open())
             {
-                std::cerr << "Failed to spawn a jrm fallback config at: <project_root>/"
-                          << jrmFolder << "/" << jrmConfig << std::endl;
+                std::cerr << "[JustReflectMe] Failed to spawn a jrm fallback config at: <project_root>/"
+                          << jrmFolder << "/" << jrmConfig << "\n";
                 return;
             }
             out << spawnFallbackConfigAsString();
         }
 
-        std::cout << "Config wasn't found. So, fallback config spawned at: <project_root>/" << jrmFolder << "/" << jrmConfig << std::endl;
+        std::cout << "[JustReflectMe] Config wasn't found. So, fallback config spawned at: <project_root>/" << jrmFolder << "/" << jrmConfig << "\n";
     }
 
     std::string ConfigManager::spawnFallbackConfigAsString()

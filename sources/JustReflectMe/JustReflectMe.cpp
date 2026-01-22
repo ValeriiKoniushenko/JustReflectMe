@@ -35,13 +35,15 @@
 #include <iostream>
 #include <unordered_map>
 
+namespace fs = std::filesystem;
+
 namespace JRM
 {
     bool JustReflectMe::processArgs(int argc, char** argv)
     {
         if (argc < 2)
         {
-            std::cerr << "Not enough arguments!" << std::endl;
+            std::cerr << "[JustReflectMe] Not enough arguments!\n";
             return false;
         }
 
@@ -67,7 +69,7 @@ namespace JRM
             }
 
             _sourcePath = args.find(InputArgs::ProjectDir)->second;
-            if (!std::filesystem::exists(_sourcePath))
+            if (!fs::exists(_sourcePath))
             {
                 throw std::runtime_error("Project directory does not exist: "
                                          + _sourcePath.generic_string());
@@ -75,7 +77,7 @@ namespace JRM
         }
         catch (const std::exception& er)
         {
-            std::cerr << "Error: " << er.what() << std::endl;
+            std::cerr << "[JustReflectMe] Error: " << er.what() << std::endl;
             return false;
         }
 
@@ -89,8 +91,8 @@ namespace JRM
             return 1;
         }
 
-        std::cout << "========= JustReflectMe =========\n";
-        std::cout << "Finding all files with extensions: ";
+        std::cout << "[JustReflectMe] Code generation\n";
+        std::cout << "[JustReflectMe] Finding all files with extensions: ";
         for (auto&& ext : _parseableFileExtensions)
         {
             std::cout << ext << " ";
@@ -102,22 +104,27 @@ namespace JRM
             ConfigManager configManager;
             const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
 
-            for (auto&& entry : std::filesystem::directory_iterator(_sourcePath))
+            for (auto&& entry : fs::directory_iterator(_sourcePath))
             {
-                if (!isParseableEntry(entry))
+                const auto path = entry.path();
+                const auto relPath = fs::relative(path, _sourcePath);
+
+                if (entry.is_regular_file())
                 {
-                    continue;
+                    if (!isParseableFileEntry(entry))
+                    {
+                        continue;
+                    }
+                }
+                else if (entry.is_directory() || entry.is_symlink())
+                {
+                    if (config.excludedPaths.contains(relPath))
+                    {
+                        continue;
+                    }
                 }
 
-                auto path = entry.path();
-                auto relPath = std::filesystem::relative(path, _sourcePath);
-
-                if (config.excludedPaths.contains(relPath))
-                {
-                    continue;
-                }
-
-                std::cout << "Processing: " << path.generic_string() << "\n";
+                std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
 
                 try
                 {
@@ -127,14 +134,14 @@ namespace JRM
                 }
                 catch (const std::exception& er)
                 {
-                    std::cerr << "Error while processing the source file: " << path
+                    std::cerr << "[JustReflectMe] Error while processing the source file: " << path
                               << " Message: " << er.what() << std::endl;
                 }
             }
         }
         catch (const std::exception& er)
         {
-            std::cerr << "Error while processing the source tree: " << er.what() << std::endl;
+            std::cerr << "[JustReflectMe] Error while processing the source tree: " << er.what() << std::endl;
         }
 
         return 0;
@@ -160,7 +167,7 @@ namespace JRM
         return out;
     }
 
-    bool JustReflectMe::isParseableEntry(const std::filesystem::directory_entry& entry) const
+    bool JustReflectMe::isParseableFileEntry(const fs::directory_entry& entry) const
     {
         if (!entry.is_regular_file())
         {
@@ -202,16 +209,15 @@ namespace JRM
 
     void JustReflectMe::printHelp()
     {
-        std::cout << "usage: jrm <path to project>" << std::endl;
+        std::cout << "usage: jrm <path to project>\n";
     }
 
     void JustReflectMe::printVersion()
     {
         std::cout << "jrm (JustReflectMe) " << APP_VERSION_MAJOR << "." << APP_VERSION_MINOR << "."
-                  << APP_VERSION_PATCH << std::endl
-                  << std::endl;
-        std::cout << "> Implemented by Valerii Koniushenko" << std::endl;
-        std::cout << "> https://github.com/ValeriiKoniushenko/JustReflectMe" << std::endl;
+                  << APP_VERSION_PATCH << "\n\n";
+        std::cout << "> Implemented by Valerii Koniushenko\n";
+        std::cout << "> https://github.com/ValeriiKoniushenko/JustReflectMe\n";
     }
 
 } // namespace JRM

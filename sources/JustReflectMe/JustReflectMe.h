@@ -58,7 +58,7 @@ namespace JRM
         void printVersion();
         [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
                                                                                 char** argv) const;
-        [[nodiscard]] bool isParseableEntry(const std::filesystem::directory_entry& entry) const;
+        [[nodiscard]] bool isParseableFileEntry(const std::filesystem::directory_entry& entry) const;
 
     private:
         std::filesystem::path _sourcePath;

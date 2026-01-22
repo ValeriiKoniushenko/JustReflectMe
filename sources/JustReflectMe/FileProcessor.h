@@ -107,8 +107,7 @@ namespace JRM
 #if defined(NDEBUG)
         if (hasReflector<T>())
         {
-            std::cerr << "Such a reflector '" << typeid(T).name() << "' already registered!"
-                      << std::endl;
+            std::cerr << "[JustReflectMe] Such a reflector '" << typeid(T).name() << "' already registered!\n";
             return;
         }
 #endif
