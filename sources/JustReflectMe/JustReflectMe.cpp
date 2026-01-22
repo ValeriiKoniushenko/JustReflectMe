@@ -33,6 +33,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <stack>
 #include <unordered_map>
 
 namespace fs = std::filesystem;
@@ -101,47 +102,12 @@ namespace JRM
 
         try
         {
-            ConfigManager configManager;
-            const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
-
-            for (auto&& entry : fs::directory_iterator(_sourcePath))
-            {
-                const auto path = entry.path();
-                const auto relPath = fs::relative(path, _sourcePath);
-
-                if (entry.is_regular_file())
-                {
-                    if (!isParseableFileEntry(entry))
-                    {
-                        continue;
-                    }
-                }
-                else if (entry.is_directory() || entry.is_symlink())
-                {
-                    if (config.excludedPaths.contains(relPath))
-                    {
-                        continue;
-                    }
-                }
-
-                std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
-
-                try
-                {
-                    FileProcessor processor;
-                    processor.registerReflector<EnumClassReflector>();
-                    processor.run(path);
-                }
-                catch (const std::exception& er)
-                {
-                    std::cerr << "[JustReflectMe] Error while processing the source file: " << path
-                              << " Message: " << er.what() << std::endl;
-                }
-            }
+            goThroughFiles();
         }
         catch (const std::exception& er)
         {
-            std::cerr << "[JustReflectMe] Error while processing the source tree: " << er.what() << std::endl;
+            std::cerr << "[JustReflectMe] Error while processing the source tree: " << er.what()
+                      << std::endl;
         }
 
         return 0;
@@ -205,6 +171,72 @@ namespace JRM
         }
 
         return false;
+    }
+
+    void JustReflectMe::goThroughFiles()
+    {
+        struct Frame
+        {
+            fs::directory_iterator it;
+            fs::path path;
+        };
+
+        ConfigManager configManager;
+        const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
+
+        std::stack<Frame> frames;
+        frames.push(Frame{ fs::directory_iterator(_sourcePath), _sourcePath });
+
+        while (!frames.empty())
+        {
+            Frame& currentFrame = frames.top();
+
+            for (; currentFrame.it != fs::directory_iterator(); ++currentFrame.it)
+            {
+                auto entry = *currentFrame.it;
+
+                const auto path = entry.path();
+                const auto relPath = path.lexically_relative(_sourcePath);
+
+                if (entry.is_regular_file())
+                {
+                    if (!isParseableFileEntry(entry))
+                    {
+                        continue;
+                    }
+                }
+                else if (entry.is_directory() || entry.is_symlink())
+                {
+                    if (config.excludedPaths.contains(relPath))
+                    {
+                        continue;
+                    }
+
+                    ++currentFrame.it;
+                    frames.push(Frame{ fs::directory_iterator(path), path });
+                    break;
+                }
+
+                std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
+
+                try
+                {
+                    FileProcessor processor;
+                    processor.registerReflector<EnumClassReflector>();
+                    processor.run(path);
+                }
+                catch (const std::exception& er)
+                {
+                    std::cerr << "[JustReflectMe] Error while processing the source file: " << path
+                              << " Message: " << er.what() << std::endl;
+                }
+            }
+
+            if (currentFrame.it == fs::directory_iterator())
+            {
+                frames.pop();
+            }
+        }
     }
 
     void JustReflectMe::printHelp()

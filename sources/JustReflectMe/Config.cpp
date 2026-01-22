@@ -103,12 +103,13 @@ namespace JRM
         out.reserve(128);
 
         out += Config::propName_excludedPaths + ":\n"s;
-        out += " - build\n";
-        out += " - .vscode\n";
-        out += " - .cache\n";
-        out += " - .git\n";
-        out += " - .idea\n";
-        out += " - "s + jrmFolder + "\n";
+        out += "  - build\n";
+        out += "  - .vscode\n";
+        out += "  - .cache\n";
+        out += "  - .git\n";
+        out += "  - .idea\n";
+        out += "  - j\n";
+        out += "  - "s + jrmFolder + "\n";
 
         return out;
     }
