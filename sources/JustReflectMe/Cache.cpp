@@ -29,10 +29,9 @@
 #include "Config.h"
 
 #include <chrono>
-#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <vector>
+#include <array>
 
 namespace fs = std::filesystem;
 
@@ -157,10 +156,21 @@ namespace JRM
 
             std::filesystem::path path(std::string_view(p, newLine - p));
 
-            const auto sys = std::chrono::sys_time{ std::chrono::nanoseconds{ lastWriteTime } };
-            _files.emplace(path.lexically_relative(_projectDir),
-                           std::chrono::clock_cast<std::filesystem::file_time_type::clock>(sys));
+            using file_time = std::filesystem::file_time_type;
 
+            const auto sys = std::chrono::sys_time<std::chrono::nanoseconds>{
+                std::chrono::nanoseconds{ lastWriteTime }
+            };
+
+            const auto ft =
+                std::chrono::time_point_cast<file_time::duration>(
+                    std::chrono::clock_cast<file_time::clock>(sys)
+                );
+
+            _files.emplace(
+                path.lexically_relative(_projectDir),
+                ft
+            );
             p = newLine + 1;
         }
 
