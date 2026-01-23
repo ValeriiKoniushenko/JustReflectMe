@@ -26,6 +26,7 @@
 
 #include "JustReflectMe.h"
 
+#include "Cache.h"
 #include "Config.h"
 #include "FileProcessor.h"
 #include "Reflectors/EnumClassReflector.h"
@@ -184,6 +185,8 @@ namespace JRM
         ConfigManager configManager;
         const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
 
+        Cache cache(_sourcePath);
+
         std::stack<Frame> frames;
         frames.push(Frame{ fs::directory_iterator(_sourcePath), _sourcePath });
 
@@ -217,6 +220,22 @@ namespace JRM
                     break;
                 }
 
+                std::error_code ec;
+                const auto lastWriteTime = entry.last_write_time(ec);
+
+                if (ec)
+                {
+                    std::cerr << "[JustReflectMe] Error getting last write time for file: " << path
+                              << " Details: " << ec.message() << "\n";
+                    continue;
+                }
+
+                if (!cache.isNeedUpdate(path, lastWriteTime))
+                {
+                    std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
+                    continue;
+                }
+
                 std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
 
                 try
@@ -224,6 +243,8 @@ namespace JRM
                     FileProcessor processor;
                     processor.registerReflector<EnumClassReflector>();
                     processor.run(path);
+
+                    cache.updateFile(path);
                 }
                 catch (const std::exception& er)
                 {
