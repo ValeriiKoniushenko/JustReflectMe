@@ -28,10 +28,11 @@
 
 #include "Config.h"
 
+#include <array>
 #include <chrono>
+#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <array>
 
 namespace fs = std::filesystem;
 
@@ -91,7 +92,8 @@ namespace JRM
 #ifdef NDEBUG
         if (path.is_absolute()) [[unlikely]]
         {
-            std::cerr << "[JustReflectMe] Error. Absolute path is passed to isNeedUpdate. File: " << path.generic_string() << "\n";
+            std::cerr << "[JustReflectMe] Error. Absolute path is passed to isNeedUpdate. File: "
+                      << path.generic_string() << "\n";
         }
 #endif
         if (!_files.contains(path))
@@ -131,14 +133,20 @@ namespace JRM
         cacheFile.read(buffer.data(), buffer.size());
         cacheFile.close();
 
+        while (!buffer.empty() && buffer.back() == '\n')
+        {
+            buffer.pop_back();
+        }
+
         const char* p = buffer.c_str();
         while (p && *p != '\0')
         {
             const auto* space = strchr(p, ' ');
             if (!space) [[unlikely]]
             {
-                std::cerr << "[JustReflectMe] Cache file corrupted(1)S. File: " << _targetFile
-                          << "\n";
+                std::cerr << "[JustReflectMe] Cache file corrupted(1). Delete it manually. It will "
+                             "be regenerated automatically. File: "
+                          << _targetFile << "\n";
                 return;
             }
 
@@ -147,11 +155,17 @@ namespace JRM
             p = space + 1;
 
             const char* newLine = strchr(space, '\n');
-            if (!newLine) [[unlikely]]
+            if (!newLine)
             {
-                std::cerr << "[JustReflectMe] Cache file corrupted(2). File: " << _targetFile
-                          << "\n";
-                return;
+                newLine = strchr(space, '\0');
+                if (!newLine) [[unlikely]]
+                {
+                    std::cerr
+                        << "[JustReflectMe] Cache file corrupted(2). Delete it manually. It will "
+                           "be regenerated automatically. File: "
+                        << _targetFile << "\n";
+                    return;
+                }
             }
 
             std::filesystem::path path(std::string_view(p, newLine - p));
@@ -162,15 +176,21 @@ namespace JRM
                 std::chrono::nanoseconds{ lastWriteTime }
             };
 
-            const auto ft =
-                std::chrono::time_point_cast<file_time::duration>(
-                    std::chrono::clock_cast<file_time::clock>(sys)
-                );
+            const auto ft = std::chrono::time_point_cast<file_time::duration>(
+                std::chrono::clock_cast<file_time::clock>(sys));
 
-            _files.emplace(
-                path.lexically_relative(_projectDir),
-                ft
-            );
+            if (path.is_absolute())
+            {
+                path = path.lexically_relative(_projectDir);
+            }
+
+            _files.emplace(path, ft);
+
+            if (*newLine == '\0')
+            {
+                break;
+            }
+
             p = newLine + 1;
         }
 
@@ -181,7 +201,9 @@ namespace JRM
     {
         if (_projectDir.empty()) [[unlikely]]
         {
-            std::cerr << "[JustReflectMe] Cache file corrupted(3). File: " << _targetFile << "\n";
+            std::cerr << "[JustReflectMe] Cache file corrupted(3). Delete it manually. It will be "
+                         "regenerated automatically. File: "
+                      << _targetFile << "\n";
             return;
         }
 
@@ -207,9 +229,15 @@ namespace JRM
                 continue;
             }
 
+            auto finalPath = path;
+            if (finalPath.is_absolute())
+            {
+                finalPath = path.lexically_relative(_projectDir);
+            }
+
             buffer.append(timeAsString.data(), res.ptr - timeAsString.data());
             buffer += " ";
-            buffer += path.lexically_relative(_projectDir).generic_string();
+            buffer += finalPath.generic_string();
             buffer += "\n";
         }
 
