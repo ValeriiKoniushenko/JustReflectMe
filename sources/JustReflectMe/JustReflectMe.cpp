@@ -230,7 +230,7 @@ namespace JRM
                     continue;
                 }
 
-                if (!cache.isNeedUpdate(path, lastWriteTime))
+                if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
                     std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
                     continue;

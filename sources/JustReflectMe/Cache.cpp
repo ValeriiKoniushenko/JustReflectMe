@@ -89,6 +89,12 @@ namespace JRM
     bool Cache::isNeedUpdate(const std::filesystem::path& path,
                              const std::filesystem::file_time_type& time)
     {
+#ifdef NDEBUG
+        if (path.is_absolute()) [[unlikely]]
+        {
+            std::cerr << "[JustReflectMe] Error. Absolute path is passed to isNeedUpdate. File: " << path.generic_string() << "\n";
+        }
+#endif
         if (!_files.contains(path))
         {
             return true;
@@ -149,10 +155,10 @@ namespace JRM
                 return;
             }
 
-            std::string_view path(p, newLine - p);
+            std::filesystem::path path(std::string_view(p, newLine - p));
 
             const auto sys = std::chrono::sys_time{ std::chrono::nanoseconds{ lastWriteTime } };
-            _files.emplace(path,
+            _files.emplace(path.lexically_relative(_projectDir),
                            std::chrono::clock_cast<std::filesystem::file_time_type::clock>(sys));
 
             p = newLine + 1;
@@ -165,8 +171,7 @@ namespace JRM
     {
         if (_projectDir.empty()) [[unlikely]]
         {
-            std::cerr << "[JustReflectMe] Cache file corrupted(3). File: " << _targetFile
-                      << "\n";
+            std::cerr << "[JustReflectMe] Cache file corrupted(3). File: " << _targetFile << "\n";
             return;
         }
 
@@ -194,7 +199,7 @@ namespace JRM
 
             buffer.append(timeAsString.data(), res.ptr - timeAsString.data());
             buffer += " ";
-            buffer += path.generic_string();
+            buffer += path.lexically_relative(_projectDir).generic_string();
             buffer += "\n";
         }
 
