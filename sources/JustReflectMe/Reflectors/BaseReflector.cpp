@@ -28,6 +28,7 @@
 #include "../Scopes.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
+#include <cstring>
 #include <iostream>
 
 using namespace FileNavigator;
@@ -53,17 +54,25 @@ namespace JRM
 
     bool BaseReflector::canProcessContent(const std::string& content) const
     {
-        return content.find(getTriggerKeyword());
+        auto pos = content.find(getTriggerKeyword());
+        if (pos == std::string::npos)
+        {
+            return false;
+        }
+
+        const auto len = strlen(getTriggerKeyword());
+        return pos + len < content.size() - 1 && !std::isalnum(content[pos + len]);
     }
 
     void BaseReflector::scanContent(FileData& data)
     {
         const char* triggerKeyword = getTriggerKeyword();
+        const auto len = strlen(getTriggerKeyword());
 
         const auto& content = data.getContent();
 
         auto pos = content.find(triggerKeyword);
-        while (pos != std::string::npos)
+        while (pos != std::string::npos && pos + len < content.size() - 1 && !std::isalnum(content[pos + len]))
         {
             _tokens.emplace_back(pos);
             pos = content.find(triggerKeyword, pos + 1);
@@ -121,8 +130,7 @@ namespace JRM
     }
 
     void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
-                                             const std::string& filepath,
-                                             const std::string& errorMessage)
+                                    const std::string& filepath, const std::string& errorMessage)
     {
         const auto pos = GetLineNumberAndColumn(source, indexInFileWithError);
         std::string result;

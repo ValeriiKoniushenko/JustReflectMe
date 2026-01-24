@@ -248,7 +248,7 @@ namespace JRM
                     continue;
                 }
 
-                std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
+                std::cout << "[JustReflectMe] Up: " << path.generic_string() << "\n";
 
                 ++processedTotal;
                 try
@@ -275,7 +275,7 @@ namespace JRM
 
         std::cout << "[JustReflectMe] ------------------------------------------- \n";
         std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal << " files. Parsable: " << iteratedOverParsable << " files.\n";
-        std::cout << "[JustReflectMe] Need update " << processedTotal << " files. With errors " << processedWithErrors << " files.\n";
+        std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors " << processedWithErrors << " files.\n";
     }
 
     void JustReflectMe::printHelp()
