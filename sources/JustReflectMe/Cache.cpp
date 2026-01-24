@@ -194,7 +194,7 @@ namespace JRM
             p = newLine + 1;
         }
 
-        std::cout << "[JustReflectMe] Cache has read successfully.\n";
+        // std::cout << "[JustReflectMe] Cache has read successfully.\n";
     }
 
     void Cache::writeCache()

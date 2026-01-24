@@ -26,6 +26,7 @@
 
 #include <filesystem>
 #include <set>
+#include <vector>
 
 namespace JRM
 {
@@ -33,6 +34,10 @@ namespace JRM
     {
         constexpr static const char* propName_excludedPaths = "excludedPaths";
         std::set<std::filesystem::path> excludedPaths;
+
+        constexpr static const char* propName_parsableFileExtensions = "parsableFileExtensions";
+        std::vector<std::string> parsableFileExtensions;
+
         // std::optional<std::string> enumClassTemplate;
     };
 

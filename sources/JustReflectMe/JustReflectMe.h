@@ -23,10 +23,11 @@
  */
 
 #pragma once
+
+#include "Config.h"
 #include <filesystem>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace JRM
 {
@@ -60,8 +61,7 @@ namespace JRM
 
     private:
         std::filesystem::path _sourcePath;
-        std::vector<std::string> _parseableFileExtensions
-            = { ".h", ".hpp", ".hxx", ".hh", ".h++" };
+        Config _config;
     };
 
 } // namespace JRM

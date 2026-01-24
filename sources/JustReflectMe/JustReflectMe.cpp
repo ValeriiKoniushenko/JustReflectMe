@@ -93,16 +93,19 @@ namespace JRM
 
         std::cout << "[JustReflectMe] <<< Started >>>\n";
 
-        std::cout << "[JustReflectMe] Finding all files with extensions: ";
-        for (auto&& ext : _parseableFileExtensions)
-        {
-            std::cout << ext << " ";
-        }
-        std::cout << "\n";
-
         bool hasError = false;
         try
         {
+            ConfigManager configManager;
+            _config = configManager.initializeProjectAndLoadConfig(_sourcePath);
+
+            std::cout << "[JustReflectMe] Processing files with extensions: ";
+            for (auto&& ext : _config.parsableFileExtensions)
+            {
+                std::cout << ext << " ";
+            }
+            std::cout << "\n";
+
             goThroughFiles();
         }
         catch (const std::exception& er)
@@ -167,7 +170,7 @@ namespace JRM
             return false;
         }
 
-        for (const auto& validExt : _parseableFileExtensions)
+        for (const auto& validExt : _config.parsableFileExtensions)
         {
             if (ext == validExt)
             {
@@ -186,13 +189,15 @@ namespace JRM
             fs::path path;
         };
 
-        ConfigManager configManager;
-        const Config config = configManager.initializeProjectAndLoadConfig(_sourcePath);
-
         Cache cache(_sourcePath);
 
         std::stack<Frame> frames;
         frames.push(Frame{ fs::directory_iterator(_sourcePath), _sourcePath });
+
+        std::size_t iteratedOverTotal = 0;
+        std::size_t iteratedOverParsable = 0;
+        std::size_t processedTotal = 0;
+        std::size_t processedWithErrors = 0;
 
         while (!frames.empty())
         {
@@ -200,6 +205,8 @@ namespace JRM
 
             for (; currentFrame.it != fs::directory_iterator(); ++currentFrame.it)
             {
+                ++iteratedOverTotal;
+
                 auto entry = *currentFrame.it;
 
                 const auto path = entry.path();
@@ -214,7 +221,7 @@ namespace JRM
                 }
                 else if (entry.is_directory() || entry.is_symlink())
                 {
-                    if (config.excludedPaths.contains(relPath))
+                    if (_config.excludedPaths.contains(relPath))
                     {
                         continue;
                     }
@@ -234,6 +241,7 @@ namespace JRM
                     continue;
                 }
 
+                ++iteratedOverParsable;
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
                     // std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
@@ -242,6 +250,7 @@ namespace JRM
 
                 std::cout << "[JustReflectMe] Processing: " << path.generic_string() << "\n";
 
+                ++processedTotal;
                 try
                 {
                     FileProcessor processor;
@@ -252,6 +261,7 @@ namespace JRM
                 }
                 catch (const std::exception& er)
                 {
+                    ++processedWithErrors;
                     std::cerr << "[JustReflectMe] Error while processing the source file: " << path
                               << " Message: " << er.what() << std::endl;
                 }
@@ -262,6 +272,10 @@ namespace JRM
                 frames.pop();
             }
         }
+
+        std::cout << "[JustReflectMe] ------------------------------------------- \n";
+        std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal << " files. Parsable: " << iteratedOverParsable << " files.\n";
+        std::cout << "[JustReflectMe] Need update " << processedTotal << " files. With errors " << processedWithErrors << " files.\n";
     }
 
     void JustReflectMe::printHelp()

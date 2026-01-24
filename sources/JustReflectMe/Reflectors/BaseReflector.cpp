@@ -120,7 +120,7 @@ namespace JRM
         return result;
     }
 
-    void BaseReflector::CerrWarnMessage(const char* source, std::size_t indexInFileWithError,
+    void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
                                              const std::string& filepath,
                                              const std::string& errorMessage)
     {
@@ -129,10 +129,10 @@ namespace JRM
         result.reserve(192);
         result = filepath;
         result += ":";
-        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": error: ";
+        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": warning: ";
         result += errorMessage;
 
-        std::cerr << result << "\n";
+        std::cout << result << "\n";
     }
 
     std::string BaseReflector::PrettyPrintScope(const Scope* scope)

@@ -52,13 +52,19 @@ namespace JRM
                 Yaml::Parse(yaml, (_projectDir / jrmFolder / jrmConfig).generic_string().c_str());
             }
 
-
-            if (!yaml[Config::propName_excludedPaths].IsNone())
+            if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
             {
-                auto item = yaml[Config::propName_excludedPaths];
                 for(auto it = item.Begin(); it != item.End(); it++)
                 {
                     config.excludedPaths.emplace((*it).second.As<std::string>());
+                }
+            }
+
+            if (auto&& item = yaml[Config::propName_parsableFileExtensions]; !item.IsNone())
+            {
+                for(auto it = item.Begin(); it != item.End(); it++)
+                {
+                    config.parsableFileExtensions.emplace_back((*it).second.As<std::string>());
                 }
             }
         }
@@ -74,7 +80,9 @@ namespace JRM
     void ConfigManager::spawnFallbackFileConfig()
     {
         std::error_code ec;
-        if (!std::filesystem::create_directory(_projectDir / jrmFolder, ec))
+        std::filesystem::create_directory(_projectDir / jrmFolder, ec);
+
+        if (ec)
         {
             std::cerr << "[JustReflectMe] Failed to create jrm folder at the project's root. Details: "
                       << ec.message() << "\n";
@@ -110,6 +118,12 @@ namespace JRM
         out += "  - .idea\n";
         out += "  - j\n";
         out += "  - "s + jrmFolder + "\n";
+        out += Config::propName_parsableFileExtensions + ":\n"s;
+        out += "  - .h\n";
+        out += "  - .hpp\n";
+        out += "  - .hxx\n";
+        out += "  - .hh\n";
+        out += "  - .h++\n";
 
         return out;
     }

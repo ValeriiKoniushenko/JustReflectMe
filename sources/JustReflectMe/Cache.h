@@ -48,6 +48,7 @@ namespace JRM
         [[nodiscard]] bool isNeedUpdate(const std::filesystem::path& path);
         [[nodiscard]] bool isNeedUpdate(const std::filesystem::path& path,
                                         const std::filesystem::file_time_type& time);
+
         void updateFile(const std::filesystem::path& path);
 
         void saveCache();
@@ -56,7 +57,6 @@ namespace JRM
         void initializeProjectAndLoadData(const std::filesystem::path& projectDir);
         void readCache();
         void writeCache();
-        [[nodiscard]] std::filesystem::path getTargetFile() const;
 
     private:
         std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> _files;
