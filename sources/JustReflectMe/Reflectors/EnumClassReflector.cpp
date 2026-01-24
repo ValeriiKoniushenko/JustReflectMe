@@ -146,20 +146,18 @@ namespace JRM
             p = GoToNextLine(p);
             if (!p)
             {
-                throw SyntaxException(
-                    std::string(getTriggerKeyword())
-                        + " keyword found, but 'enum class' wasn't found after it.",
-                    prevP - content.c_str());
+                CerrWarnMessage(content.c_str(), prevP - content.c_str(), fileData.getPath(), std::string(getTriggerKeyword())
+                        + " keyword found, but 'enum class' wasn't found after it.");
+                continue;
             }
 
             prevP = p;
             p = FindOnThisLine(p, "enum class");
             if (!p)
             {
-                throw SyntaxException(
-                    std::string(getTriggerKeyword())
-                        + " keyword found, but 'enum class' wasn't found after it.",
-                    prevP - content.c_str());
+                CerrWarnMessage(content.c_str(), prevP - content.c_str(), fileData.getPath(), std::string(getTriggerKeyword())
+                        + " keyword found, but 'enum class' wasn't found after it.");
+                continue;
             }
             static const auto enumClassLength = strlen("enum class");
             p += enumClassLength;

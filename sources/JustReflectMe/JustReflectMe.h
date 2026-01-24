@@ -41,7 +41,6 @@ namespace JRM
         JustReflectMe& operator=(JustReflectMe&&) noexcept = delete;
         ~JustReflectMe() = default;
 
-
         [[nodiscard]] int run(int argc, char** argv);
 
     private:

@@ -48,11 +48,15 @@ namespace JRM
         [[nodiscard]] const Scopes& getScopes() const noexcept;
         void setScope(Scopes&& scope);
 
+        [[nodiscard]] const std::string& getPath() const noexcept;
+        void setPath(const std::string& path);
+
         void scanScopes();
 
     protected:
         std::string _content;
         Scopes _scopes;
+        std::string _path;
     };
 
 } // namespace JRM

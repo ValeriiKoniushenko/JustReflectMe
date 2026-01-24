@@ -28,6 +28,8 @@
 #include "../Scopes.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
+#include <iostream>
+
 using namespace FileNavigator;
 
 namespace JRM
@@ -116,6 +118,21 @@ namespace JRM
         result += "\n\n} // namespace\n";
 
         return result;
+    }
+
+    void BaseReflector::CerrWarnMessage(const char* source, std::size_t indexInFileWithError,
+                                             const std::string& filepath,
+                                             const std::string& errorMessage)
+    {
+        const auto pos = GetLineNumberAndColumn(source, indexInFileWithError);
+        std::string result;
+        result.reserve(192);
+        result = filepath;
+        result += ":";
+        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": error: ";
+        result += errorMessage;
+
+        std::cerr << result << "\n";
     }
 
     std::string BaseReflector::PrettyPrintScope(const Scope* scope)

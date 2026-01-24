@@ -49,6 +49,16 @@ namespace JRM
         _scopes = std::move(scope);
     }
 
+    const std::string& FileData::getPath() const noexcept
+    {
+        return _path;
+    }
+
+    void FileData::setPath(const std::string& path)
+    {
+        _path = path;
+    }
+
     void FileData::scanScopes()
     {
         _scopes.scan(_content);

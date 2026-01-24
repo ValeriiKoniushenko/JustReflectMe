@@ -29,9 +29,9 @@
 #include "FileData.h"
 #include "Reflectors/BaseReflector.h"
 
+#include <array>
 #include <filesystem>
 #include <fstream>
-#include <array>
 
 namespace
 {
@@ -243,8 +243,10 @@ namespace JRM
             namespace fs = std::filesystem;
             using Path = std::filesystem::path;
 
-            headerPath = fs::relative(headerPath, Path(_path).parent_path().generic_string()).generic_string();
-            sourcePath = fs::relative(sourcePath, Path(_path).parent_path().generic_string()).generic_string();
+            headerPath = fs::relative(headerPath, Path(_path).parent_path().generic_string())
+                             .generic_string();
+            sourcePath = fs::relative(sourcePath, Path(_path).parent_path().generic_string())
+                             .generic_string();
         }
 
         return { headerPath, sourcePath };
@@ -441,6 +443,7 @@ namespace JRM
         try
         {
             data.setContent(getFileContent(_path));
+            data.setPath(_path);
 
             onPreGenerateContent(data.getContent());
 
