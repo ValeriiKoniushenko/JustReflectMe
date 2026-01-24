@@ -91,7 +91,8 @@ namespace JRM
             return 1;
         }
 
-        std::cout << "[JustReflectMe] Code generation\n";
+        std::cout << "[JustReflectMe] <<< Started >>>\n";
+
         std::cout << "[JustReflectMe] Finding all files with extensions: ";
         for (auto&& ext : _parseableFileExtensions)
         {
@@ -99,6 +100,7 @@ namespace JRM
         }
         std::cout << "\n";
 
+        bool hasError = false;
         try
         {
             goThroughFiles();
@@ -107,7 +109,11 @@ namespace JRM
         {
             std::cerr << "[JustReflectMe] Error while processing the source tree: " << er.what()
                       << std::endl;
+            hasError = true;
         }
+
+        std::cout << "[JustReflectMe] <<< Ended "
+                  << (hasError ? "with errors" : "successfully") << " >>>\n";
 
         return 0;
     }
@@ -230,7 +236,7 @@ namespace JRM
 
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
-                    std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
+                    // std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
                     continue;
                 }
 
