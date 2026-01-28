@@ -93,6 +93,8 @@ namespace JRM
 
         std::cout << "[JustReflectMe] <<< Started >>>\n";
 
+        const auto start = std::chrono::high_resolution_clock::now();
+
         bool hasError = false;
         try
         {
@@ -115,6 +117,10 @@ namespace JRM
             hasError = true;
         }
 
+        const auto end = std::chrono::high_resolution_clock::now();
+        const double duration = std::chrono::duration<double>(end - start).count();
+
+        std::cout << "[JustReflectMe] Took " << duration << " seconds \n";
         std::cout << "[JustReflectMe] <<< Ended "
                   << (hasError ? "with errors" : "successfully") << " >>>\n";
 
@@ -248,7 +254,7 @@ namespace JRM
                     continue;
                 }
 
-                std::cout << "[JustReflectMe] Up: " << path.generic_string() << "\n";
+                std::cout << "[JustReflectMe] Picked up: " << path.generic_string() << "\n";
 
                 ++processedTotal;
                 try

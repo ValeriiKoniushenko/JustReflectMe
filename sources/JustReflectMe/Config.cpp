@@ -116,7 +116,6 @@ namespace JRM
         out += "  - .cache\n";
         out += "  - .git\n";
         out += "  - .idea\n";
-        out += "  - j\n";
         out += "  - "s + jrmFolder + "\n";
         out += Config::propName_parsableFileExtensions + ":\n"s;
         out += "  - .h\n";
