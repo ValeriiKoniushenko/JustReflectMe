@@ -19,10 +19,9 @@ Put `set(JRM_DISABLE_TESTS ON)` before connecting this library to disable tests.
 3. Connect the adapter to your CMake's target: `target_link_libraries(YourTarget PUBLIC JustReflectMe::Adapter)`
 4. Add auto-run of the code generator for your main target:
    ```cmake
-   add_custom_command(
-    TARGET Draft
-    PRE_BUILD
-    COMMAND jrm ${CMAKE_SOURCE_DIR}
+   add_custom_target(JRM ALL
+      COMMAND jrm ${CMAKE_SOURCE_DIR}
    )
+   add_dependencies(YourTargetHere JRM)
    ```
 That's it!
