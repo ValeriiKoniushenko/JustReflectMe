@@ -49,7 +49,8 @@ namespace JRM
         constexpr static const char* jrmFallbackConfig = "";
 
     public:
-        [[nodiscard]] Config initializeProjectAndLoadConfig(const std::filesystem::path& projectDir);
+        [[nodiscard]] Config initializeProjectAndLoadConfig(
+            const std::filesystem::path& projectDir);
 
     private:
         void spawnFallbackFileConfig();
@@ -58,4 +59,4 @@ namespace JRM
     private:
         std::filesystem::path _projectDir;
     };
-}
+} // namespace JRM

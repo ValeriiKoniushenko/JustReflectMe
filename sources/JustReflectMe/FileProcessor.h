@@ -81,10 +81,10 @@ namespace JRM
         void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
         void tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data);
 
-
-        void integrateHeaderIncludes(const BaseReflector* reflector, FileData& data, const std::string& generatedHpp);
-        void integrateSourceIncludes(const BaseReflector* reflector, FileData& data, const std::string& generatedCpp);
-
+        void integrateHeaderIncludes(const BaseReflector* reflector, FileData& data,
+                                     const std::string& generatedHpp);
+        void integrateSourceIncludes(const BaseReflector* reflector, FileData& data,
+                                     const std::string& generatedCpp);
 
         [[nodiscard]] static std::string extrudeImplPath(std::filesystem::path path);
 
@@ -107,7 +107,8 @@ namespace JRM
 #if defined(NDEBUG)
         if (hasReflector<T>())
         {
-            std::cerr << "[JustReflectMe] Such a reflector '" << typeid(T).name() << "' already registered!\n";
+            std::cerr << "[JustReflectMe] Such a reflector '" << typeid(T).name()
+                      << "' already registered!\n";
             return;
         }
 #endif

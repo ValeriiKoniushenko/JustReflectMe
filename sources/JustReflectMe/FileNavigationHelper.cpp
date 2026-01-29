@@ -88,7 +88,6 @@ namespace FileNavigator
         }
 
         return source;
-
     }
 
     const char* GoToNotSpace(const char* source)

@@ -54,7 +54,7 @@ namespace JRM
 
             if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
             {
-                for(auto it = item.Begin(); it != item.End(); it++)
+                for (auto it = item.Begin(); it != item.End(); it++)
                 {
                     config.excludedPaths.emplace((*it).second.As<std::string>());
                 }
@@ -62,7 +62,7 @@ namespace JRM
 
             if (auto&& item = yaml[Config::propName_parsableFileExtensions]; !item.IsNone())
             {
-                for(auto it = item.Begin(); it != item.End(); it++)
+                for (auto it = item.Begin(); it != item.End(); it++)
                 {
                     config.parsableFileExtensions.emplace_back((*it).second.As<std::string>());
                 }
@@ -70,7 +70,8 @@ namespace JRM
         }
         catch (Yaml::Exception& ex)
         {
-            std::cerr << "[JustReflectMe] Failed to parse .yaml config file. Details: " << ex.what() << std::endl;
+            std::cerr << "[JustReflectMe] Failed to parse .yaml config file. Details: " << ex.what()
+                      << std::endl;
             std::cerr << "[JustReflectMe] The JRM is configured incompletely!\n";
         }
 
@@ -84,8 +85,9 @@ namespace JRM
 
         if (ec)
         {
-            std::cerr << "[JustReflectMe] Failed to create jrm folder at the project's root. Details: "
-                      << ec.message() << "\n";
+            std::cerr
+                << "[JustReflectMe] Failed to create jrm folder at the project's root. Details: "
+                << ec.message() << "\n";
             return;
         }
 
@@ -93,14 +95,17 @@ namespace JRM
             std::ofstream out(_projectDir / jrmFolder / jrmConfig);
             if (!out.is_open())
             {
-                std::cerr << "[JustReflectMe] Failed to spawn a jrm fallback config at: <project_root>/"
-                          << jrmFolder << "/" << jrmConfig << "\n";
+                std::cerr
+                    << "[JustReflectMe] Failed to spawn a jrm fallback config at: <project_root>/"
+                    << jrmFolder << "/" << jrmConfig << "\n";
                 return;
             }
             out << spawnFallbackConfigAsString();
         }
 
-        std::cout << "[JustReflectMe] Config wasn't found. So, fallback config spawned at: <project_root>/" << jrmFolder << "/" << jrmConfig << "\n";
+        std::cout << "[JustReflectMe] Config wasn't found. So, fallback config spawned at: "
+                     "<project_root>/"
+                  << jrmFolder << "/" << jrmConfig << "\n";
     }
 
     std::string ConfigManager::spawnFallbackConfigAsString()

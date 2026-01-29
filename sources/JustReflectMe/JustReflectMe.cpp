@@ -121,8 +121,8 @@ namespace JRM
         const double duration = std::chrono::duration<double>(end - start).count();
 
         std::cout << "[JustReflectMe] Took " << duration << " seconds \n";
-        std::cout << "[JustReflectMe] <<< Ended "
-                  << (hasError ? "with errors" : "successfully") << " >>>\n";
+        std::cout << "[JustReflectMe] <<< Ended " << (hasError ? "with errors" : "successfully")
+                  << " >>>\n";
 
         return 0;
     }
@@ -280,8 +280,10 @@ namespace JRM
         }
 
         std::cout << "[JustReflectMe] ------------------------------------------- \n";
-        std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal << " files. Parsable: " << iteratedOverParsable << " files.\n";
-        std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors " << processedWithErrors << " files.\n";
+        std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal
+                  << " files. Parsable: " << iteratedOverParsable << " files.\n";
+        std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors "
+                  << processedWithErrors << " files.\n";
     }
 
     void JustReflectMe::printHelp()

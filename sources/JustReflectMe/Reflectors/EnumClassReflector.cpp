@@ -109,7 +109,6 @@ namespace JRM
         }
 
         return result;
-
     }
 
     void EnumClassReflector::onScan(const FileData& fileData)
@@ -152,8 +151,9 @@ namespace JRM
                 p = GoToNextLine(p);
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(), std::string(getTriggerKeyword())
-                            + " keyword found, but 'enum class' wasn't found after it.");
+                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                std::string(getTriggerKeyword())
+                                    + " keyword found, but 'enum class' wasn't found after it.");
                     continue;
                 }
 
@@ -161,8 +161,9 @@ namespace JRM
                 p = FindOnThisLine(p, "enum class");
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(), std::string(getTriggerKeyword())
-                            + " keyword found, but 'enum class' wasn't found after it.");
+                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                std::string(getTriggerKeyword())
+                                    + " keyword found, but 'enum class' wasn't found after it.");
                     continue;
                 }
             }

@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Config.h"
+
 #include <filesystem>
 #include <string>
 #include <unordered_map>
@@ -56,7 +57,8 @@ namespace JRM
         void printVersion();
         [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
                                                                                 char** argv) const;
-        [[nodiscard]] bool isParseableFileEntry(const std::filesystem::directory_entry& entry) const;
+        [[nodiscard]] bool isParseableFileEntry(
+            const std::filesystem::directory_entry& entry) const;
         void goThroughFiles();
 
     private:

@@ -72,7 +72,8 @@ namespace JRM
         const auto& content = data.getContent();
 
         auto pos = content.find(triggerKeyword);
-        while (pos != std::string::npos && pos + len < content.size() - 1 && !std::isalnum(content[pos + len]))
+        while (pos != std::string::npos && pos + len < content.size() - 1
+               && !std::isalnum(content[pos + len]))
         {
             _tokens.emplace_back(pos);
             pos = content.find(triggerKeyword, pos + 1);

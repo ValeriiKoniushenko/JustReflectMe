@@ -37,9 +37,9 @@ namespace JRM
             Undefined,
             File,
             Namespace,
-            EnumClass
+            EnumClass,
+            Class
         };
-
 
         [[nodiscard]] bool isValid() const noexcept;
         [[nodiscard]] bool operator==(const Scope& other) const noexcept;

@@ -160,6 +160,7 @@ namespace JRM
 
         static const std::string namespaceKeyword = "namespace";
         static const std::string enumClassKeyword = "enum class";
+        static const std::string classKeyword = "class";
 
         if (strncmp(p, namespaceKeyword.c_str(), namespaceKeyword.size()) == 0)
         {
@@ -170,6 +171,11 @@ namespace JRM
         {
             scope.type = Scope::Type::EnumClass;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + enumClassKeyword.size());
+        }
+        else if (strncmp(p, classKeyword.c_str(), classKeyword.size()) == 0)
+        {
+            scope.type = Scope::Type::Class;
+            scope.identifierStart = FileNavigator::GoToNotSpace(p + classKeyword.size());
         }
         else
         {
