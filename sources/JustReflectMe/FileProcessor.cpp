@@ -30,6 +30,7 @@
 #include "Reflectors/BaseReflector.h"
 
 #include <array>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 
@@ -211,6 +212,30 @@ namespace JRM
             }
         }
         content2.resize(0);
+
+        // normalizing enum<x spaces>class -> enum<one space>class
+        if (const auto pos = content1.find("enum  "); pos != std::string::npos)
+        {
+            constexpr std::size_t enumStrSize = 4;
+            for (std::size_t i = 0; i < content1.size() - enumStrSize && content1[i]; ++i)
+            {
+                if (strncmp(content1.data() + i, "enum", enumStrSize) == 0)
+                {
+                    content2.append("enum ");
+                    i += enumStrSize + 1;
+
+                    while (i < content1.size() && content1[i] == ' ')
+                    {
+                        ++i;
+                    }
+                    --i;
+                }
+                else
+                {
+                    content2.push_back(content1[i]);
+                }
+            }
+        }
 
         return content1;
     }
