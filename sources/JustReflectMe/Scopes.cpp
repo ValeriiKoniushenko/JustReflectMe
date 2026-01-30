@@ -161,6 +161,7 @@ namespace JRM
         static const std::string namespaceKeyword = "namespace";
         static const std::string enumClassKeyword = "enum class";
         static const std::string classKeyword = "class";
+        static const std::string structKeyword = "struct";
 
         if (strncmp(p, namespaceKeyword.c_str(), namespaceKeyword.size()) == 0)
         {
@@ -176,6 +177,11 @@ namespace JRM
         {
             scope.type = Scope::Type::Class;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + classKeyword.size());
+        }
+        else if (strncmp(p, structKeyword.c_str(), structKeyword.size()) == 0)
+        {
+            scope.type = Scope::Type::Struct;
+            scope.identifierStart = FileNavigator::GoToNotSpace(p + structKeyword.size());
         }
         else
         {

@@ -38,7 +38,8 @@ namespace JRM
             File,
             Namespace,
             EnumClass,
-            Class
+            Class,
+            Struct
         };
 
         [[nodiscard]] bool isValid() const noexcept;
