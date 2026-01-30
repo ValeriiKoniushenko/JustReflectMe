@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30.0..)
 
-project(JustReflectMe VERSION 0.9.0 LANGUAGES CXX)
+project(JustReflectMe VERSION 1.0.5 LANGUAGES CXX)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Features.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Flags.cmake)
