@@ -42,6 +42,7 @@
 namespace JRM
 {
     class FileData;
+    class Config;
 
     class FileProcessor
     {
@@ -56,7 +57,7 @@ namespace JRM
         virtual ~FileProcessor() = default;
 
         void generateNewContent(FileData& data);
-        void run(const std::filesystem::path& path);
+        void run(const std::filesystem::path& path, const Config& config);
 
         template<IsBaseReflector T>
         void registerReflector();
@@ -92,6 +93,7 @@ namespace JRM
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
         std::string _path;     // to .h   - must be filled
         std::string _pathImpl; // to .cpp - can be empty
+        const Config* _config = nullptr;
 
 #if defined(JRM_ENABLE_TESTS)
         FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);

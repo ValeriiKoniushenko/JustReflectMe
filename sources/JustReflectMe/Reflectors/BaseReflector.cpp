@@ -26,6 +26,7 @@
 
 #include "../FileData.h"
 #include "../Scopes.h"
+#include "../Config.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
 #include <cstring>
@@ -89,7 +90,7 @@ namespace JRM
         onScan(data);
     }
 
-    std::string BaseReflector::generateHeaderFile(FileData& data) const
+    std::string BaseReflector::generateHeaderFile(FileData& data, const Config& config) const
     {
         std::string result;
         result.reserve(1024);
@@ -100,7 +101,7 @@ namespace JRM
         result += onGenerateHeaderFilePreNamespace(data);
 
         result += "namespace ";
-        result += namespaceName;
+        result += config.namespaceName;
         result += "\n{\n";
 
         result += onGenerateHeaderFile(data);
@@ -110,8 +111,8 @@ namespace JRM
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath,
-                                                  FileData& data) const
+    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath, FileData& data,
+                                                  const Config& config) const
     {
         std::string result;
         result.reserve(1024);
@@ -120,7 +121,7 @@ namespace JRM
         result += "\n\n";
 
         result += "namespace ";
-        result += namespaceName;
+        result += config.namespaceName;
         result += "\n{\n";
 
         result += onGenerateSourceFile(data);

@@ -261,7 +261,7 @@ namespace JRM
                 {
                     FileProcessor processor;
                     processor.registerReflector<EnumClassReflector>();
-                    processor.run(path);
+                    processor.run(path, _config);
 
                     cache.updateFile(path);
                 }
@@ -278,8 +278,7 @@ namespace JRM
                 frames.pop();
             }
         }
-
-        std::cout << "[JustReflectMe] ------------------------------------------- \n";
+        
         std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal
                   << " files. Parsable: " << iteratedOverParsable << " files.\n";
         std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors "

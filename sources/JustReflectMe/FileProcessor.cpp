@@ -279,7 +279,7 @@ namespace JRM
 
     void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data)
     {
-        const std::string src = reflector->generateHeaderFile(data);
+        const std::string src = reflector->generateHeaderFile(data, *_config);
 
         const auto hppPath = generateFilenames(reflector).first;
         std::ofstream out(hppPath);
@@ -304,7 +304,7 @@ namespace JRM
         }
 
         const std::string src
-            = reflector->generateSourceFile(generateFilenames(reflector, true).first, data);
+            = reflector->generateSourceFile(generateFilenames(reflector, true).first, data, *_config);
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
@@ -449,8 +449,9 @@ namespace JRM
         }
     }
 
-    void FileProcessor::run(const std::filesystem::path& path)
+    void FileProcessor::run(const std::filesystem::path& path, const Config& config)
     {
+        _config = &config;
         _path = path.generic_string();
 
         if (!std::filesystem::exists(_path))

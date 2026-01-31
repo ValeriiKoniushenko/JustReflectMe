@@ -36,7 +36,10 @@ namespace JRM
         std::set<std::filesystem::path> excludedPaths;
 
         constexpr static const char* propName_parsableFileExtensions = "parsableFileExtensions";
-        std::vector<std::string> parsableFileExtensions;
+        std::vector<std::string> parsableFileExtensions = { ".h", ".hpp" };
+
+        constexpr static const char* propName_namespace = "namespace";
+        std::string namespaceName = "R";
 
         // std::optional<std::string> enumClassTemplate;
     };

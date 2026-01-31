@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "JustReflectMe/Config.h"
 #include "JustReflectMe/FileProcessor.h"
 #include "JustReflectMe/Reflectors/EnumClassReflector.h"
 
@@ -120,7 +121,9 @@ std::string sss = "////////"; // 19
                 //
             }));
 
-    processor.run(file);
+    JRM::Config dummy;
+
+    processor.run(file, dummy);
 }
 
 TEST_F(FileProcessorTests, FindEnumClassAtNamespace)
@@ -176,5 +179,7 @@ namespace NS
 
     processor.registerReflector<JRM::EnumClassReflector>();
 
-    processor.run(header);
+    JRM::Config dummy;
+
+    processor.run(header, dummy);
 }

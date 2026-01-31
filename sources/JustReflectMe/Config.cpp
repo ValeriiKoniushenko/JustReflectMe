@@ -54,6 +54,7 @@ namespace JRM
 
             if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
             {
+                config.excludedPaths.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
                 {
                     config.excludedPaths.emplace((*it).second.As<std::string>());
@@ -62,10 +63,16 @@ namespace JRM
 
             if (auto&& item = yaml[Config::propName_parsableFileExtensions]; !item.IsNone())
             {
+                config.parsableFileExtensions.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
                 {
                     config.parsableFileExtensions.emplace_back((*it).second.As<std::string>());
                 }
+            }
+
+            if (auto&& item = yaml[Config::propName_namespace]; !item.IsNone())
+            {
+                config.namespaceName = item.As<std::string>();
             }
         }
         catch (Yaml::Exception& ex)
@@ -128,6 +135,7 @@ namespace JRM
         out += "  - .hxx\n";
         out += "  - .hh\n";
         out += "  - .h++\n";
+        out += Config::propName_namespace + ": R"s;
 
         return out;
     }

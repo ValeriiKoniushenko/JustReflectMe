@@ -35,6 +35,7 @@
 
 namespace JRM
 {
+    struct Config;
     struct Scope;
     class FileData;
 
@@ -70,8 +71,6 @@ namespace JRM
  * Your changes will be replaced next time
  */)";
 
-        static constexpr const char* namespaceName = "Reflect";
-
         BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
@@ -84,9 +83,9 @@ namespace JRM
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual const char* getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
+        [[nodiscard]] std::string generateHeaderFile(FileData& data, const Config& config) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
-                                                     FileData& data) const;
+                                                     FileData& data, const Config& config) const;
 
         void setHasImplTranslationUnit(bool val) noexcept { _hasImplTranslationUnit = val; }
         [[nodiscard]] bool hasImplTranslationUnit() const noexcept
