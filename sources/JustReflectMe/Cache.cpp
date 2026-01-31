@@ -107,7 +107,8 @@ namespace JRM
 
     void Cache::updateFile(const fs::path& path)
     {
-        _files[path] = fs::file_time_type(fs::last_write_time(path));
+        _files[path.is_absolute() ? path.lexically_relative(_projectDir) : path]
+            = fs::file_time_type(fs::last_write_time(path));
     }
 
     void Cache::saveCache()

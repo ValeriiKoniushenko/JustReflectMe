@@ -98,13 +98,13 @@ namespace JRM
         result += warningCommentAtFileTop;
         result += "\n\n";
 
-        result += onGenerateHeaderFilePreNamespace(data);
+        result += onGenerateHeaderFilePreNamespace(data, config);
 
         result += "namespace ";
         result += config.namespaceName;
         result += "\n{\n";
 
-        result += onGenerateHeaderFile(data);
+        result += onGenerateHeaderFile(data, config);
 
         result += "\n} // namespace\n";
 
@@ -124,7 +124,7 @@ namespace JRM
         result += config.namespaceName;
         result += "\n{\n";
 
-        result += onGenerateSourceFile(data);
+        result += onGenerateSourceFile(data, config);
 
         result += "\n\n} // namespace\n";
 

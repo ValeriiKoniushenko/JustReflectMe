@@ -237,7 +237,7 @@ namespace JRM
             }
         }
 
-        return content1;
+        return content2;
     }
 
     std::pair<std::string, std::string> FileProcessor::generateFilenames(

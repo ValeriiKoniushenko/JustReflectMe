@@ -121,10 +121,10 @@ namespace JRM
                                 const std::string& filepath, const std::string& errorMessage);
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
 
-        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(FileData& data) const
+        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(FileData& data, const Config& config) const
             = 0;
-        [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data) const = 0;
-        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data) const = 0;
+        [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data, const Config& config) const = 0;
+        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data, const Config& config) const = 0;
         virtual void onScan(const FileData& content) = 0;
 
     protected:

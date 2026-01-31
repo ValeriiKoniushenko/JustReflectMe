@@ -36,8 +36,8 @@ namespace JRM
     {
     public:
         FileData() = default;
-        FileData(const FileData&) = default;
-        FileData& operator=(const FileData&) = default;
+        FileData(const FileData&) = delete;
+        FileData& operator=(const FileData&) = delete;
         FileData(FileData&&) noexcept = default;
         FileData& operator=(FileData&&) noexcept = default;
         virtual ~FileData() = default;

@@ -24,6 +24,7 @@
 
 #include "EnumClassReflector.h"
 
+#include "../Config.h"
 #include "JustReflectMe/FileData.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 #include "JustReflectMe/StringHelper.h"
@@ -47,7 +48,8 @@ namespace JRM
         return parentSpace + "::" + name;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData&) const
+    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData&,
+                                                                     const Config& config) const
     {
         std::string result;
         result.reserve(512);
@@ -61,7 +63,8 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData) const
+    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData,
+                                                         const Config& config) const
     {
         std::string result;
         result.reserve(1024);
@@ -78,11 +81,11 @@ namespace JRM
             std::string finalString;
             finalString.reserve(1024 * 4);
 
-            finalString += generateDeclaration(data);
+            finalString += generateDeclaration(data, config);
 
             if (!_hasImplTranslationUnit)
             {
-                finalString += generateImplementation(data);
+                finalString += generateImplementation(data, config);
             }
 
             result += finalString;
@@ -91,7 +94,8 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateSourceFile(FileData& fileData) const
+    std::string EnumClassReflector::onGenerateSourceFile(FileData& fileData,
+                                                         const Config& config) const
     {
         std::string result;
         result.reserve(1024);
@@ -105,7 +109,7 @@ namespace JRM
                     "enum's class name.");
             }
 
-            result += generateImplementation(data);
+            result += generateImplementation(data, config);
         }
 
         return result;
@@ -248,7 +252,8 @@ namespace JRM
         }
     }
 
-    std::string EnumClassReflector::generateDeclaration(const TokenData& data) const
+    std::string EnumClassReflector::generateDeclaration(const TokenData& data,
+                                                        const Config& config) const
     {
         std::string finalString = R"(
     namespace @@NAME_
@@ -278,7 +283,8 @@ namespace JRM
         return finalString;
     }
 
-    std::string EnumClassReflector::generateImplementation(const TokenData& data) const
+    std::string EnumClassReflector::generateImplementation(const TokenData& data,
+                                                           const Config& config) const
     {
         std::string finalString = R"(
     namespace @@NAME_
@@ -290,7 +296,7 @@ namespace JRM
 
         @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
         {
-            const auto& data = Reflect::@@NAME_::ToMapCN();
+            const auto& data = @@NAMESPACE_::@@NAME_::ToMapCN();
             const auto it = data.find(value);
             if (it != data.end()) [[likely]]
             {
@@ -302,7 +308,7 @@ namespace JRM
 
         @@FUNC_PREF_ std::optional<::@@NAME_> FromString(const std::string& value)
         {
-            const auto& data = Reflect::@@NAME_::ToMapNC();
+            const auto& data = @@NAMESPACE_::@@NAME_::ToMapNC();
             const auto it = data.find(value);
             if (it != data.end()) [[likely]]
             {
@@ -468,6 +474,7 @@ namespace JRM
         FindAndReplaceAll(finalString, realNameMark, data.name);
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
+        FindAndReplaceAll(finalString, namespaceMark, config.namespaceName);
 
         std::string funcPref = !_hasImplTranslationUnit ? "inline" : "";
         FindAndReplaceAll(finalString, funcPrefMark, funcPref);
