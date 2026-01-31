@@ -97,6 +97,7 @@ namespace JRM
 
         result += warningCommentAtFileTop;
         result += "\n\n";
+        result += "#pragma once\n";
 
         result += onGenerateHeaderFilePreNamespace(data, config);
 
