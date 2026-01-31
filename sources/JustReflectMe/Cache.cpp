@@ -33,6 +33,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <map>
 
 namespace fs = std::filesystem;
 
@@ -212,7 +213,13 @@ namespace JRM
 
         std::array<char, 32> timeAsString;
 
-        for (const auto& [path, time] : _files)
+        std::map<std::filesystem::path, std::filesystem::file_time_type> files;
+        for (auto&& [path, time] : _files)
+        {
+            files.emplace(path, time);
+        }
+
+        for (const auto& [path, time] : files)
         {
             auto sys = std::chrono::clock_cast<std::chrono::system_clock>(time);
             const int64_t unixNs
@@ -242,7 +249,7 @@ namespace JRM
         }
 
         std::ofstream cacheFile(_targetFile);
-        if (!cacheFile.is_open())
+        if (!cacheFile.is_open()) [[unlikely]]
         {
             std::cerr << "[JustReflectMe] Failed to open cache file for write. File: "
                       << _targetFile << "\n";
