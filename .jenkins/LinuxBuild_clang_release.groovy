@@ -45,7 +45,8 @@ pipeline {
                                       -DCMAKE_C_COMPILER=${C_COMPILER}          \
                                       -DCMAKE_CXX_COMPILER=${CPP_COMPILER}      \
                                       -DCMAKE_BUILD_TYPE=${BUILD_TYPE}          \
-                                      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+                                      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON        \
+                                      -DJRM_DISABLE_TESTS=ON
 
                                 cmake --build ${buildDir} -- -j4
                             """
