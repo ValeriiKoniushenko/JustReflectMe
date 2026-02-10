@@ -237,7 +237,7 @@ namespace JRM
             }
         }
 
-        return content2;
+        return content1.empty() ? content2 : content1;
     }
 
     std::pair<std::string, std::string> FileProcessor::generateFilenames(
