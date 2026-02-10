@@ -42,7 +42,7 @@
 namespace JRM
 {
     class FileData;
-    class Config;
+    struct Config;
 
     class FileProcessor
     {
