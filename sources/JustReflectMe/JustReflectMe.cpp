@@ -278,7 +278,7 @@ namespace JRM
                 frames.pop();
             }
         }
-        
+
         std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal
                   << " files. Parsable: " << iteratedOverParsable << " files.\n";
         std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors "

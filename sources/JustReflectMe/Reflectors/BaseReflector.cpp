@@ -24,9 +24,9 @@
 
 #include "BaseReflector.h"
 
+#include "../Config.h"
 #include "../FileData.h"
 #include "../Scopes.h"
-#include "../Config.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
 #include <cstring>

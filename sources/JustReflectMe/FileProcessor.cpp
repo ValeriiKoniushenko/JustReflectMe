@@ -303,8 +303,8 @@ namespace JRM
             return;
         }
 
-        const std::string src
-            = reflector->generateSourceFile(generateFilenames(reflector, true).first, data, *_config);
+        const std::string src = reflector->generateSourceFile(
+            generateFilenames(reflector, true).first, data, *_config);
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
