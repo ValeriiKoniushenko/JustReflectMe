@@ -254,13 +254,7 @@ namespace JRM
                     continue;
                 }
 
-                if (entry.path()
-                    == "/home/valerii/workspace/Nexium/sources/AssetsManager/AssetsManager.h")
-                {
-                    int i = 1;
-                }
-
-                std::cout << "[JustReflectMe] Picked up: " << path.generic_string() << "\n";
+                std::cout << "[JustReflectMe] Reflecting: " << path.generic_string() << "\n";
 
                 ++processedTotal;
                 try
@@ -285,9 +279,8 @@ namespace JRM
             }
         }
 
-        std::cout << "[JustReflectMe] Iterated over " << iteratedOverTotal
-                  << " files. Parsable: " << iteratedOverParsable << " files.\n";
-        std::cout << "[JustReflectMe] Needed update " << processedTotal << " files. With errors "
+        std::cout << "[JustReflectMe] Scanned " << iteratedOverTotal
+                  << " files. Parsable: " << iteratedOverParsable << " files. | Updated " << processedTotal << " files. With errors "
                   << processedWithErrors << " files.\n";
     }
 
