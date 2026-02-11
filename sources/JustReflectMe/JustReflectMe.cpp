@@ -120,9 +120,9 @@ namespace JRM
         const auto end = std::chrono::high_resolution_clock::now();
         const double duration = std::chrono::duration<double>(end - start).count();
 
-        std::cout << "[JustReflectMe] Took " << duration << " seconds \n";
-        std::cout << "[JustReflectMe] <<< Ended " << (hasError ? "with errors" : "successfully")
-                  << " >>>\n";
+        std::cout << std::fixed <<  std::setprecision(2);
+        std::cout << "[JustReflectMe] <<< Ended " << (hasError ? "with ERRORS" : "SUCCESSFULLY")
+                  << " in " << duration << " sec >>>\n";
 
         return 0;
     }
@@ -280,8 +280,8 @@ namespace JRM
         }
 
         std::cout << "[JustReflectMe] Scanned " << iteratedOverTotal
-                  << " files. Parsable: " << iteratedOverParsable << " files. | Updated " << processedTotal << " files. With errors "
-                  << processedWithErrors << " files.\n";
+                  << " files [parsable: " << iteratedOverParsable << " | updated: " << processedTotal << " | with errors: "
+                  << processedWithErrors << "]\n";
     }
 
     void JustReflectMe::printHelp()
