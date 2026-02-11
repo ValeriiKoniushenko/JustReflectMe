@@ -28,6 +28,11 @@
 #include <set>
 #include <vector>
 
+namespace Yaml
+{
+    class Node;
+}
+
 namespace JRM
 {
     struct Config
@@ -58,6 +63,8 @@ namespace JRM
     private:
         void spawnFallbackFileConfig();
         [[nodiscard]] std::string spawnFallbackConfigAsString();
+
+        void validateTopLevelFields(const Yaml::Node& config);
 
     private:
         std::filesystem::path _projectDir;

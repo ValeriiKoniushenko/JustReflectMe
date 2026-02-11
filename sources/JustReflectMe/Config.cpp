@@ -52,6 +52,8 @@ namespace JRM
                 Yaml::Parse(yaml, (_projectDir / jrmFolder / jrmConfig).generic_string().c_str());
             }
 
+            validateTopLevelFields(yaml);
+
             if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
             {
                 config.excludedPaths.clear();
@@ -138,6 +140,33 @@ namespace JRM
         out += Config::propName_namespace + ": R"s;
 
         return out;
+    }
+
+    void ConfigManager::validateTopLevelFields(const Yaml::Node& config)
+    {
+        std::set<std::string> foundFields;
+        for (auto it = config.Begin(); it != config.End(); it++)
+        {
+            foundFields.emplace((*it).first);
+        }
+
+        foundFields.erase(Config::propName_excludedPaths);
+        foundFields.erase(Config::propName_parsableFileExtensions);
+        foundFields.erase(Config::propName_namespace);
+
+        if (foundFields.size() > 0)
+        {
+            std::string out;
+            for (auto&& field : foundFields)
+            {
+                out += "'" + field + "', ";
+            }
+            out.pop_back();
+            out.pop_back();
+
+            std::cerr << "[JustReflectMe] Unknown fields in the config file: "
+                      << out << "\n";
+        }
     }
 
 } // namespace JRM
