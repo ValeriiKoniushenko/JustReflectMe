@@ -291,10 +291,10 @@ namespace JRM
     {
 
         // =================== IMPLEMENTATIONS =====================
-        @@FUNC_PREF_ const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
-        @@FUNC_PREF_ const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
+       @@FUNC_PREF_ const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
+       @@FUNC_PREF_ const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
 
-        @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
+       @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
         {
             const auto& data = @@NAMESPACE_::@@NAME_::ToMapCN();
             const auto it = data.find(value);
@@ -306,7 +306,7 @@ namespace JRM
             return empty;
         }
 
-        @@FUNC_PREF_ std::optional<::@@NAME_> FromString(const std::string& value)
+       @@FUNC_PREF_ std::optional<::@@NAME_> FromString(const std::string& value)
         {
             const auto& data = @@NAMESPACE_::@@NAME_::ToMapNC();
             const auto it = data.find(value);
@@ -317,25 +317,25 @@ namespace JRM
             return std::nullopt;
         }
 
-        @@FUNC_PREF_ const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
+       @@FUNC_PREF_ const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
         {
-            static constexpr std::array<::@@NAME_, @@COUNT_> constants = {
+            static const std::array<::@@NAME_, @@COUNT_> constants = {
 @@TO_ARRAY_C_
             };
 
             return constants;
         }
 
-        @@FUNC_PREF_ const std::array<std::string, @@COUNT_>& ToArrayN()
+       @@FUNC_PREF_ const std::array<std::string, @@COUNT_>& ToArrayN()
         {
-            static constexpr std::array<std::string, @@COUNT_> names = {
+            static const std::array<std::string, @@COUNT_> names = {
 @@TO_ARRAY_N_
             };
 
             return names;
         }
 
-        @@FUNC_PREF_ const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
+       @@FUNC_PREF_ const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
         {
             static const std::unordered_map<::@@NAME_, std::string> map = {
 @@TO_ARRAY_CN_
@@ -344,7 +344,7 @@ namespace JRM
             return map;
         }
 
-        @@FUNC_PREF_ const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
+       @@FUNC_PREF_ const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
         {
             static const std::unordered_map<std::string, ::@@NAME_> map = {
 @@TO_ARRAY_NC_

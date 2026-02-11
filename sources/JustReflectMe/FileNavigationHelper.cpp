@@ -114,8 +114,7 @@ namespace FileNavigator
     {
         if ((source = GoToNotSpace(source)))
         {
-            if (!((*source > 'a' && *source <= 'z') || (*source > 'A' && *source <= 'Z')
-                  || *source == '_'))
+            if (!isalpha(*source) && *source != '_')
             {
                 return {};
             }

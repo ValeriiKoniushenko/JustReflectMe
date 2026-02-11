@@ -254,6 +254,12 @@ namespace JRM
                     continue;
                 }
 
+                if (entry.path()
+                    == "/home/valerii/workspace/Nexium/sources/AssetsManager/AssetsManager.h")
+                {
+                    int i = 1;
+                }
+
                 std::cout << "[JustReflectMe] Picked up: " << path.generic_string() << "\n";
 
                 ++processedTotal;
