@@ -30,10 +30,41 @@
 
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 namespace JRM
 {
+
+    std::string Scope::ToString(Type type)
+    {
+        if (type == Type::Undefined)
+        {
+            return "undefined";
+        }
+        if (type == Type::File)
+        {
+            return "file";
+        }
+        if (type == Type::Namespace)
+        {
+            return "namespace";
+        }
+        if (type == Type::EnumClass)
+        {
+            return "enum class";
+        }
+        if (type == Type::Class)
+        {
+            return "class";
+        }
+        if (type == Type::Struct)
+        {
+            return "struct";
+        }
+
+        return "undefined";
+    }
 
     bool Scope::isValid() const noexcept
     {
@@ -107,6 +138,7 @@ namespace JRM
                 parent->start = p;
                 parent->end = nullptr;
                 tryToDetermineScopeType(*parent, p, content.c_str());
+                tryToDetermineScopeAttribute(*parent, p, content.c_str());
             }
             else if (*p == '}')
             {
@@ -158,27 +190,27 @@ namespace JRM
             ++p;
         }
 
-        static const std::string namespaceKeyword = "namespace";
-        static const std::string enumClassKeyword = "enum class";
-        static const std::string classKeyword = "class";
-        static const std::string structKeyword = "struct";
+        static constexpr std::string_view namespaceKeyword = "namespace";
+        static constexpr std::string_view enumClassKeyword = "enum class";
+        static constexpr std::string_view classKeyword = "class";
+        static constexpr std::string_view structKeyword = "struct";
 
-        if (strncmp(p, namespaceKeyword.c_str(), namespaceKeyword.size()) == 0)
+        if (strncmp(p, namespaceKeyword.data(), namespaceKeyword.size()) == 0)
         {
             scope.type = Scope::Type::Namespace;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + namespaceKeyword.size());
         }
-        else if (strncmp(p, enumClassKeyword.c_str(), enumClassKeyword.size()) == 0)
+        else if (strncmp(p, enumClassKeyword.data(), enumClassKeyword.size()) == 0)
         {
             scope.type = Scope::Type::EnumClass;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + enumClassKeyword.size());
         }
-        else if (strncmp(p, classKeyword.c_str(), classKeyword.size()) == 0)
+        else if (strncmp(p, classKeyword.data(), classKeyword.size()) == 0)
         {
             scope.type = Scope::Type::Class;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + classKeyword.size());
         }
-        else if (strncmp(p, structKeyword.c_str(), structKeyword.size()) == 0)
+        else if (strncmp(p, structKeyword.data(), structKeyword.size()) == 0)
         {
             scope.type = Scope::Type::Struct;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + structKeyword.size());
@@ -187,6 +219,40 @@ namespace JRM
         {
             scope.identifierStart = nullptr;
             scope.type = Scope::Type::Undefined;
+        }
+    }
+
+    void Scopes::tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start)
+    {
+        using namespace FileNavigator;
+
+        static constexpr std::string_view templateKeyword = "template";
+
+        if (!scope.identifierStart)
+        {
+            return;
+        }
+
+        if (scope.type == Scope::Type::Class || scope.type == Scope::Type::Struct)
+        {
+            // 1. Find or on the current line, or go to the line above
+            // 2. Skip the first spaces on the line
+            // 3. try to find the 'template' keyword
+
+            const char* begin = scope.identifierStart;
+            int numberLinesToCheck = 2;
+            while (numberLinesToCheck-- > 0 && begin > start)
+            {
+                const char* lineStart = begin = GoToLineStart(begin, start);
+                begin = SkipAllBlanks(begin);
+                if (strncmp(begin, templateKeyword.data(), templateKeyword.size()) == 0)
+                {
+                    scope.attribute = Scope::Attr_Template;
+                    break;
+                }
+
+                begin = lineStart - 2; // 2 - to move a shift to \n and skip it
+            }
         }
     }
 

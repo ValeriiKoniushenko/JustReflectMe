@@ -29,6 +29,35 @@
 namespace FileNavigator
 {
 
+    const char* GoToLineStart(const char* p, const char* begin)
+    {
+        if (!begin || !p) [[unlikely]]
+        {
+            return nullptr;
+        }
+
+        while (p > begin && *p != '\n')
+        {
+            --p;
+        }
+        return ++p;
+    }
+
+    const char* GoToPrevLine(const char* p, const char* begin)
+    {
+        if (!begin || !p) [[unlikely]]
+        {
+            return nullptr;
+        }
+
+        p = GoToLineStart(p, begin);
+        if (p - 1 > begin)
+        {
+            p = GoToLineStart(p - 1, begin);
+        }
+        return ++p;
+    }
+
     const char* GoToNextLine(const char* p)
     {
         if (auto* out = strchr(p, '\n'))

@@ -163,4 +163,15 @@ namespace JRM
         return out;
     }
 
+    std::string BaseReflector::PrettyPrintIdentifier(const Scope* scope)
+    {
+        std::string out;
+
+        out += Scope::ToString(scope->type);
+        out += " ";
+        out += PrettyPrintScope(scope);
+
+        return out;
+    }
+
 } // namespace JRM

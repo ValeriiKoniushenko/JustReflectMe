@@ -30,6 +30,7 @@
 #include "JustReflectMe/StringHelper.h"
 
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 using namespace FileNavigator;
@@ -184,6 +185,14 @@ namespace JRM
 
             if (const Scope* scope = fileData.getScopes().getScopeAt(p))
             {
+                if (scope->attribute & Scope::Attr_Template)
+                {
+                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                                "The current version of JRM can't process 'enum class' inside a "
+                                "template scope: \""
+                                    + PrettyPrintIdentifier(scope) + "\"");
+                    continue;
+                }
                 data.parentSpace = PrettyPrintScope(scope);
             }
 

@@ -41,6 +41,13 @@ namespace JRM
             Class,
             Struct
         };
+        static std::string ToString(Type type);
+
+        enum Attr
+        {
+            Attr_None = 0,
+            Attr_Template = 1 << 0
+        };
 
         [[nodiscard]] bool isValid() const noexcept;
         [[nodiscard]] bool operator==(const Scope& other) const noexcept;
@@ -49,12 +56,13 @@ namespace JRM
         [[nodiscard]] std::string getIdentifier() const;
         void revalidateTree();
 
+        std::vector<Scope> children;
+        const char* identifierStart = nullptr;
         const char* start = nullptr;
         const char* end = nullptr;
-        Type type = Type::Undefined;
         Scope* parent = nullptr;
-        const char* identifierStart = nullptr;
-        std::vector<Scope> children;
+        Type type = Type::Undefined;
+        Attr attribute = Attr_None;
     };
 
     class Scopes
@@ -73,6 +81,7 @@ namespace JRM
 
     private:
         void tryToDetermineScopeType(Scope& scope, const char* p, const char* start);
+        void tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start);
 
     protected:
         Scope _root;

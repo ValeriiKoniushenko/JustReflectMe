@@ -120,6 +120,7 @@ namespace JRM
         static void WarnMessage(const char* source, std::size_t indexInFileWithError,
                                 const std::string& filepath, const std::string& errorMessage);
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
+        [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
         [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(
             FileData& data, const Config& config) const

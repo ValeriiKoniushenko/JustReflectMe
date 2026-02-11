@@ -29,6 +29,8 @@
 namespace FileNavigator
 {
 
+    [[nodiscard]] const char* GoToLineStart(const char* p, const char* begin);
+    [[nodiscard]] const char* GoToPrevLine(const char* p, const char* begin);
     [[nodiscard]] const char* GoToNextLine(const char* p);
 
     // limit = 0 -- only on this line
