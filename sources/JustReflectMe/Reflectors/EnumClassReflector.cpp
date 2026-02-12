@@ -273,8 +273,8 @@ namespace JRM
         [[nodiscard]] const std::string& ParentScope();
         [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT_; }
 
-        [[nodiscard]] const std::string& ToString(::@@NAME_ value);
         [[nodiscard]] std::optional<::@@NAME_> FromString(const std::string& value);
+        [[nodiscard]] const std::string& ToString(::@@NAME_ value);
 
         [[nodiscard]] const std::array<::@@NAME_, @@COUNT_>& ToArrayC();
         [[nodiscard]] const std::array<std::string, @@COUNT_>& ToArrayN();
@@ -282,6 +282,8 @@ namespace JRM
         [[nodiscard]] const std::unordered_map<std::string, ::@@NAME_>& ToMapNC();
 
     } // namespace @@NAME_
+
+    [[nodiscard]] const std::string& ToString(::@@NAME_ value);
 )";
 
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
@@ -363,6 +365,11 @@ namespace JRM
         }
 
     } // namespace @@NAME_
+
+   @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
+    {
+        return @@NAME_::ToString(value);
+    }
 )";
 
         // Impl ToArrayC
