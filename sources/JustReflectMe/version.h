@@ -1,8 +1,8 @@
 #pragma once
 
-#define APP_NAME    "JustReflectMe"
-#define APP_VERSION "1.0.5"
+#define APP_NAME "JustReflectMe"
+#define APP_VERSION "1.1.0"
 
 #define APP_VERSION_MAJOR 1
-#define APP_VERSION_MINOR 0
-#define APP_VERSION_PATCH 5
+#define APP_VERSION_MINOR 1
+#define APP_VERSION_PATCH 0
