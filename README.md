@@ -26,6 +26,29 @@ Put `set(JRM_DISABLE_TESTS ON)` before connecting this library to disable tests.
    ```
 That's it!
 
+## Code example
+
+```cpp
+ENUM_CLASS;
+enum class Color {
+   Red,
+   Green,
+   Blue
+};
+
+int main(){
+   std::cout << R::Color::Name() << std::endl; // > Color
+   std::cout << R::Color::Size() << std::endl; // > 3
+
+   std::cout << R::Color::ToString(Color::Red) << std::endl; // > Red
+   std::cout << (int)R::Color::FromString("Red").value() << std::endl; // > 0
+
+   std::array<std::string> names = R::Color::ToArrayN();
+   std::array<Color> constants = R::Color::ToArrayC();
+   return 0;
+}
+```
+
 ---
 
 **Builds**:
