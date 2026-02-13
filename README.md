@@ -43,8 +43,8 @@ int main(){
    std::cout << R::Color::ToString(Color::Red) << std::endl; // > Red
    std::cout << (int)R::Color::FromString("Red").value() << std::endl; // > 0
 
-   std::array<std::string> names = R::Color::ToArrayN();
-   std::array<Color> constants = R::Color::ToArrayC();
+   std::array names = R::Color::ToArrayN();
+   std::array constants = R::Color::ToArrayC();
    return 0;
 }
 ```

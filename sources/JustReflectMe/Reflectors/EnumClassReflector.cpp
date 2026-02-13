@@ -312,7 +312,7 @@ namespace JRM
             {
                 return it->second;
             }
-            static constexpr std::string empty{};
+            static const std::string empty{};
             return empty;
         }
 
@@ -491,7 +491,7 @@ namespace JRM
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
         FindAndReplaceAll(finalString, namespaceMark, config.namespaceName);
 
-        std::string funcPref = !_hasImplTranslationUnit ? "inline" : "";
+        std::string funcPref = !_hasImplTranslationUnit ? " inline" : "";
         FindAndReplaceAll(finalString, funcPrefMark, funcPref);
 
         return finalString;

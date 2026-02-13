@@ -6,3 +6,6 @@ build
 out
 scripts/__pycache__
 *.output
+
+tests/**/*.generated*
+tests/**/.jrm
