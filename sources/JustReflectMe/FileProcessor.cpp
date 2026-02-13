@@ -63,7 +63,7 @@ namespace
 namespace JRM
 {
 
-    std::string FileProcessor::getHeaderFilename() const
+    const std::string& FileProcessor::getHeaderFilename() const
     {
         return _path;
     }
@@ -102,7 +102,7 @@ namespace JRM
         }
     }
 
-    std::string FileProcessor::getFileContent(const std::string& filename) const
+    std::string FileProcessor::getFileContent(const std::string& filename)
     {
         std::string content1 = ReadFile(filename);
 
@@ -313,7 +313,7 @@ namespace JRM
         out.write(src.c_str(), src.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data)
+    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector, const FileData& data)
     {
         const auto [generatedHpp, generatedCpp] = generateFilenames(reflector, true);
 
@@ -328,7 +328,8 @@ namespace JRM
         integrateSourceIncludes(reflector, data, generatedCpp);
     }
 
-    void FileProcessor::integrateHeaderIncludes(const BaseReflector* reflector, FileData& data,
+    void FileProcessor::integrateHeaderIncludes(const BaseReflector* reflector,
+                                                const FileData& data,
                                                 const std::string& generatedHpp)
     {
         const auto includeString = "\n#include \"" + generatedHpp + "\"";
@@ -356,7 +357,8 @@ namespace JRM
         onPostGenerateHeaderContent(originalSources);
     }
 
-    void FileProcessor::integrateSourceIncludes(const BaseReflector* reflector, FileData& data,
+    void FileProcessor::integrateSourceIncludes(const BaseReflector* reflector,
+                                                const FileData& data,
                                                 const std::string& generatedCpp)
     {
         if (generatedCpp.empty() || _pathImpl.empty())
@@ -418,22 +420,15 @@ namespace JRM
         static const std::array extensions
             = { std::string(".cpp"), std::string(".cxx"), std::string(".cc") };
 
-        std::string implExt;
-        for (const auto& ext : extensions)
-        {
-            if (std::filesystem::exists(strPath + ext))
-            {
-                implExt = ext;
-                break;
-            }
-        }
+        const auto found = std::ranges::find_if(extensions, [&](const auto& ext)
+                                                { return std::filesystem::exists(strPath + ext); });
 
-        if (implExt.empty())
+        if (found == extensions.end())
         {
             return {};
         }
 
-        return strPath + implExt;
+        return strPath + *found;
     }
 
     void FileProcessor::generateNewContent(FileData& data)
@@ -468,7 +463,7 @@ namespace JRM
         FileData data;
         try
         {
-            data.setContent(getFileContent(_path));
+            data.setContent(FileProcessor::getFileContent(_path));
             data.setPath(_path);
 
             onPreGenerateContent(data.getContent());

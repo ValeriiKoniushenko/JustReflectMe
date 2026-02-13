@@ -137,8 +137,8 @@ namespace JRM
                 parent = child;
                 parent->start = p;
                 parent->end = nullptr;
-                tryToDetermineScopeType(*parent, p, content.c_str());
-                tryToDetermineScopeAttribute(*parent, p, content.c_str());
+                Scopes::tryToDetermineScopeType(*parent, p, content.c_str());
+                Scopes::tryToDetermineScopeAttribute(*parent, p, content.c_str());
             }
             else if (*p == '}')
             {

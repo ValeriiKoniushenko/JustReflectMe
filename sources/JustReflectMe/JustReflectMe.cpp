@@ -50,19 +50,19 @@ namespace JRM
         const std::string first = argv[1];
         if (first == "--help" || first == "-h")
         {
-            printHelp();
+            JustReflectMe::printHelp();
             return false;
         }
 
         if (first == "--version" || first == "-v")
         {
-            printVersion();
+            JustReflectMe::printVersion();
             return false;
         }
 
         try
         {
-            const auto args = parseInputArgs(argc, argv);
+            const auto args = JustReflectMe::parseInputArgs(argc, argv);
             if (!args.contains(InputArgs::ProjectDir))
             {
                 throw std::runtime_error("Project directory is not specified!");
@@ -120,7 +120,7 @@ namespace JRM
         const auto end = std::chrono::high_resolution_clock::now();
         const double duration = std::chrono::duration<double>(end - start).count();
 
-        std::cout << std::fixed <<  std::setprecision(2);
+        std::cout << std::fixed << std::setprecision(2);
         std::cout << "[JustReflectMe] <<< Ended " << (hasError ? "with ERRORS" : "SUCCESSFULLY")
                   << " in " << duration << " sec >>>\n";
 
@@ -128,7 +128,7 @@ namespace JRM
     }
 
     std::unordered_map<JustReflectMe::InputArgs, std::string> JustReflectMe::parseInputArgs(
-        int argc, char** argv) const
+        int argc, char** argv)
     {
         if (!argv)
         {
@@ -280,8 +280,9 @@ namespace JRM
         }
 
         std::cout << "[JustReflectMe] Scanned " << iteratedOverTotal
-                  << " files [parsable: " << iteratedOverParsable << " | updated: " << processedTotal << " | with errors: "
-                  << processedWithErrors << "]\n";
+                  << " files [parsable: " << iteratedOverParsable
+                  << " | updated: " << processedTotal << " | with errors: " << processedWithErrors
+                  << "]\n";
     }
 
     void JustReflectMe::printHelp()

@@ -7,11 +7,12 @@ pipeline {
                 script {
                     sh '''
                         cppcheck --enable=all \
+                            --check-level=exhaustive \
+                            --suppress=functionStatic \
+                            --suppress=useStlAlgorithm \
                             --suppress=missingIncludeSystem \
                             --suppress=unusedFunction \
                             --suppress=missingInclude \
-                            --suppress=identicalInnerCondition \
-                            --suppress=knownConditionTrueFalse \
                             --suppress=noExplicitConstructor \
                             --xml --xml-version=2 sources/ 2> cppcheck.xml
                     '''

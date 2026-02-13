@@ -53,10 +53,10 @@ namespace JRM
 
     private:
         [[nodiscard]] bool processArgs(int argc, char** argv);
-        void printHelp();
-        void printVersion();
-        [[nodiscard]] std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
-                                                                                char** argv) const;
+        static void printHelp();
+        static void printVersion();
+        [[nodiscard]] static std::unordered_map<InputArgs, std::string> parseInputArgs(int argc,
+                                                                                       char** argv);
         [[nodiscard]] bool isParseableFileEntry(
             const std::filesystem::directory_entry& entry) const;
         void goThroughFiles();

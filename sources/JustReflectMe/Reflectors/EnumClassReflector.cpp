@@ -146,7 +146,6 @@ namespace JRM
                                       prevP - content.c_str());
             }
 
-            prevP = p;
             p = FindOnThisLine(p, "enum class");
             if (!p)
             {

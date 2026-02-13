@@ -170,7 +170,7 @@ namespace FileNavigator
         std::size_t count = 0;
 
         std::size_t iter = 0;
-        while (source[iter] != '\0' && iter < i)
+        while (iter < i && source[iter] != '\0')
         {
             if (source[iter] == '\n')
             {
@@ -193,7 +193,7 @@ namespace FileNavigator
         std::size_t count = 0;
 
         std::size_t iter = 0;
-        while (source[iter] != '\0' && iter < i)
+        while (iter < i && source[iter] != '\0')
         {
             if (source[iter] == '\n')
             {

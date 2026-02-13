@@ -80,8 +80,8 @@ namespace JRM
         [[nodiscard]] const Scope* getScopeAt(const char* p) const;
 
     private:
-        void tryToDetermineScopeType(Scope& scope, const char* p, const char* start);
-        void tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start);
+        static void tryToDetermineScopeType(Scope& scope, const char* p, const char* start);
+        static void tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start);
 
     protected:
         Scope _root;

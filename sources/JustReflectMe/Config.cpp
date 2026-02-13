@@ -45,14 +45,14 @@ namespace JRM
                 || !std::filesystem::exists(_projectDir / jrmFolder / jrmConfig))
             {
                 spawnFallbackFileConfig();
-                Yaml::Parse(yaml, spawnFallbackConfigAsString());
+                Yaml::Parse(yaml,  ConfigManager::spawnFallbackConfigAsString());
             }
             else
             {
                 Yaml::Parse(yaml, (_projectDir / jrmFolder / jrmConfig).generic_string().c_str());
             }
 
-            validateTopLevelFields(yaml);
+            ConfigManager::validateTopLevelFields(yaml);
 
             if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
             {
@@ -109,7 +109,7 @@ namespace JRM
                     << jrmFolder << "/" << jrmConfig << "\n";
                 return;
             }
-            out << spawnFallbackConfigAsString();
+            out << ConfigManager::spawnFallbackConfigAsString();
         }
 
         std::cout << "[JustReflectMe] Config wasn't found. So, fallback config spawned at: "

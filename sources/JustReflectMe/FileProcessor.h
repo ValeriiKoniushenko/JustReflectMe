@@ -65,7 +65,7 @@ namespace JRM
         template<IsBaseReflector T>
         [[nodiscard]] bool hasReflector();
 
-        [[nodiscard]] std::string getHeaderFilename() const;
+        [[nodiscard]] const std::string& getHeaderFilename() const;
         [[nodiscard]] std::string getSourceFilename() const;
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
 
@@ -75,16 +75,16 @@ namespace JRM
 
     private:
         void scanContent(FileData& data) const;
-        [[nodiscard]] std::string getFileContent(const std::string& filename) const;
+        [[nodiscard]] static std::string getFileContent(const std::string& filename);
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
             const BaseReflector* reflector, bool onlyFileNames = false) const;
         void tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data);
         void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
-        void tryToIntegrateIncludes(const BaseReflector* reflector, FileData& data);
+        void tryToIntegrateIncludes(const BaseReflector* reflector, const FileData& data);
 
-        void integrateHeaderIncludes(const BaseReflector* reflector, FileData& data,
+        void integrateHeaderIncludes(const BaseReflector* reflector, const FileData& data,
                                      const std::string& generatedHpp);
-        void integrateSourceIncludes(const BaseReflector* reflector, FileData& data,
+        void integrateSourceIncludes(const BaseReflector* reflector, const FileData& data,
                                      const std::string& generatedCpp);
 
         [[nodiscard]] static std::string extrudeImplPath(std::filesystem::path path);
