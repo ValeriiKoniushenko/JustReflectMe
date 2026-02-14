@@ -28,5 +28,5 @@
 
 namespace StringHelper
 {
-    void FindAndReplaceAll(std::string& str, const std::string& from, const std::string& to);
+    void FindAndReplaceAll(std::string& str, std::string_view from, const std::string& to);
 }

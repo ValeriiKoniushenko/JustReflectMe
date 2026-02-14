@@ -58,12 +58,12 @@ namespace JRM
             [[nodiscard]] std::string fullNamePath() const;
         };
 
-        inline static const std::string nameMark = "@@NAME_";
-        inline static const std::string countMark = "@@COUNT_";
-        inline static const std::string realNameMark = "@@REAL_NAME_";
-        inline static const std::string parentsMark = "@@PARENTS_";
-        inline static const std::string funcPrefMark = "@@FUNC_PREF_";
-        inline static const std::string namespaceMark = "@@NAMESPACE_";
+        static constexpr std::string_view nameMark = "@@NAME_";
+        static constexpr std::string_view countMark = "@@COUNT_";
+        static constexpr std::string_view realNameMark = "@@REAL_NAME_";
+        static constexpr std::string_view parentsMark = "@@PARENTS_";
+        static constexpr std::string_view funcPrefMark = "@@FUNC_PREF_";
+        static constexpr std::string_view namespaceMark = "@@NAMESPACE_";
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(
             FileData& data, const Config& config) const override;
