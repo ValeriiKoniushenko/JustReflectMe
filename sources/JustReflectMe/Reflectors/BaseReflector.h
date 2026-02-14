@@ -108,7 +108,7 @@ namespace JRM
         static constexpr std::string_view nameMark = "@@NAME_";
 
         /**
-         * Parent mark - full path to an entity without final name.
+         * Parent mark - full path to an entity without the final name.
          * @code
          * namespace Foo {
          *     class Bar{
