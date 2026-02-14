@@ -94,6 +94,42 @@ namespace JRM
         }
 
     protected:
+        /**
+         * Name mark - full name with namespaces & all nesting.
+         * @code
+         * namespace Foo {
+         *     class Bar{
+         *         struct Hello{};
+         *     };
+         * }
+         * @endcode
+         * In such a case the name mark for Hello is 'Foo::Bar::Hello'
+         */
+        static constexpr std::string_view nameMark = "@@NAME_";
+
+        /**
+         * Parent mark - full path to an entity without final name.
+         * @code
+         * namespace Foo {
+         *     class Bar{
+         *         struct Hello{};
+         *     };
+         * }
+         * @endcode
+         * In such a case the parent mark for Hello is 'Foo::Bar'
+         */
+        static constexpr std::string_view parentsMark = "@@PARENTS_";
+
+        /**
+         * Function prefix - compiler adjuster strings. I.g.: inline keyword
+         */
+        static constexpr std::string_view funcPrefMark = "@@FUNC_PREF_";
+
+        /**
+         * Main namespace name from the config. By default: 'R'
+         */
+        static constexpr std::string_view namespaceMark = "@@NAMESPACE_";
+
         struct TokenEntry final
         {
             struct Hasher
