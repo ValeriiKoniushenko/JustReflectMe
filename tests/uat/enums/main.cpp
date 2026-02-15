@@ -54,7 +54,7 @@ int main()
     ASSERT_EQ(n[1], "Green");
     ASSERT_EQ(n[2], "Blue");
 
-    ASSERT_EQ(R::Color::ParentScope(), "");
+    ASSERT_EQ(R<Color>::ParentScope(), "");
 
     return 0;
 }
