@@ -33,3 +33,5 @@ enum class Color
     Green,
     Blue
 };
+
+#include "header.generated.inl" // added by the code generator. Better don't move it.

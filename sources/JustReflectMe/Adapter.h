@@ -24,6 +24,11 @@
 
 #pragma once
 
+template<class T>
+struct R
+{
+};
+
 #define ENUM_CLASS(...) static_assert(true, "")
 
 #define CLASS(...) static_assert(true, "")

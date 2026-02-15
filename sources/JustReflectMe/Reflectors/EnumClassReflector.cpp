@@ -77,7 +77,7 @@ namespace JRM
                                                          const Config& config) const
     {
         std::string result;
-        result.reserve(1024);
+        result.reserve(1024 * 4);
 
         for (const auto& [_, data] : _data)
         {
@@ -88,17 +88,20 @@ namespace JRM
                     "enum's class name.");
             }
 
-            std::string finalString;
-            finalString.reserve(1024 * 4);
-
-            finalString += generateDeclaration(data, config);
-
-            if (!_hasImplTranslationUnit)
+            auto endLines = std::count(result.rbegin(), result.rend(), '\n');
+            while (!result.empty() && endLines < 2)
             {
-                finalString += generateImplementation(data, config);
+                ++endLines;
+                result.push_back('\n');
             }
 
-            result += finalString;
+            auto structName = "struct " + config.namespaceName + "<" + data.fullNamePath() + ">";
+
+            result += "template<>\n";
+            result += structName;
+            result += "\n{";
+            result += generateSources(data, config);
+            result += "\n}; // " + structName;
         }
 
         return result;
@@ -107,22 +110,7 @@ namespace JRM
     std::string EnumClassReflector::onGenerateSourceFile(FileData& fileData,
                                                          const Config& config) const
     {
-        std::string result;
-        result.reserve(1024);
-
-        for (const auto& [_, data] : _data)
-        {
-            if (data.name.empty()) [[unlikely]]
-            {
-                throw GenerationException(
-                    "Can't process generation of the source file due to unexpected empty the "
-                    "enum's class name.");
-            }
-
-            result += generateImplementation(data, config);
-        }
-
-        return result;
+        return {};
     }
 
     void EnumClassReflector::onScan(const FileData& fileData)
@@ -269,116 +257,72 @@ namespace JRM
         }
     }
 
-    std::string EnumClassReflector::generateDeclaration(const TokenData& data,
-                                                        const Config& config) const
+    std::string EnumClassReflector::generateSources(const TokenData& data,
+                                                    const Config& config) const
     {
         std::string finalString = R"(
-    namespace @@NAME_
+    @@FUNC_PREF_std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_std::size_t Size() { return @@COUNT_; }
+    @@FUNC_PREF_std::string_view ParentScope() { return "@@PARENTS_"; }
+
+    @@FUNC_PREF_std::string_view ToString(::@@NAME_ value)
     {
-
-        // =================== DECLARATIONS =====================
-        [[nodiscard]] const std::string& Name();
-        [[nodiscard]] const std::string& ParentScope();
-        [[nodiscard]] constexpr std::size_t Size() noexcept { return @@COUNT_; }
-
-        [[nodiscard]] std::optional<::@@NAME_> FromString(const std::string& value);
-        [[nodiscard]] const std::string& ToString(::@@NAME_ value);
-
-        [[nodiscard]] const std::array<::@@NAME_, @@COUNT_>& ToArrayC();
-        [[nodiscard]] const std::array<std::string, @@COUNT_>& ToArrayN();
-        [[nodiscard]] const std::unordered_map<::@@NAME_, std::string>& ToMapCN();
-        [[nodiscard]] const std::unordered_map<std::string, ::@@NAME_>& ToMapNC();
-
-    } // namespace @@NAME_
-
-    [[nodiscard]] const std::string& ToString(::@@NAME_ value);
-)";
-
-        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
-        FindAndReplaceAll(finalString, realNameMark, data.name);
-        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
-        FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-
-        return finalString;
+        const auto& data = @@NAMESPACE_<@@NAME_>::ToMapCN();
+        const auto it = data.find(value);
+        if (it != data.end()) [[likely]]
+        {
+            return it->second;
+        }
+        static const std::string_view empty{};
+        return empty;
     }
 
-    std::string EnumClassReflector::generateImplementation(const TokenData& data,
-                                                           const Config& config) const
+    @@FUNC_PREF_std::optional<::@@NAME_> FromString(std::string_view value)
     {
-        std::string finalString = R"(
-    namespace @@NAME_
+        const auto& data = @@NAMESPACE_<@@NAME_>::ToMapNC();
+        const auto it = data.find(value);
+        if (it != data.end()) [[likely]]
+        {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+
+    @@FUNC_PREF_consteval const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
     {
-
-        // =================== IMPLEMENTATIONS =====================
-       @@FUNC_PREF_ const std::string& Name() { static const std::string name = "@@REAL_NAME_"; return name; }
-       @@FUNC_PREF_ const std::string& ParentScope() { static const std::string name = "@@PARENTS_"; return name; }
-
-       @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
-        {
-            const auto& data = @@NAMESPACE_::@@NAME_::ToMapCN();
-            const auto it = data.find(value);
-            if (it != data.end()) [[likely]]
-            {
-                return it->second;
-            }
-            static const std::string empty{};
-            return empty;
-        }
-
-       @@FUNC_PREF_ std::optional<::@@NAME_> FromString(const std::string& value)
-        {
-            const auto& data = @@NAMESPACE_::@@NAME_::ToMapNC();
-            const auto it = data.find(value);
-            if (it != data.end()) [[likely]]
-            {
-                return it->second;
-            }
-            return std::nullopt;
-        }
-
-       @@FUNC_PREF_ const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
-        {
-            static const std::array<::@@NAME_, @@COUNT_> constants = {
+        static constexpr std::array<::@@NAME_, @@COUNT_> constants = {
 @@TO_ARRAY_C_
-            };
+        };
 
-            return constants;
-        }
-
-       @@FUNC_PREF_ const std::array<std::string, @@COUNT_>& ToArrayN()
-        {
-            static const std::array<std::string, @@COUNT_> names = {
-@@TO_ARRAY_N_
-            };
-
-            return names;
-        }
-
-       @@FUNC_PREF_ const std::unordered_map<::@@NAME_, std::string>& ToMapCN()
-        {
-            static const std::unordered_map<::@@NAME_, std::string> map = {
-@@TO_ARRAY_CN_
-            };
-
-            return map;
-        }
-
-       @@FUNC_PREF_ const std::unordered_map<std::string, ::@@NAME_>& ToMapNC()
-        {
-            static const std::unordered_map<std::string, ::@@NAME_> map = {
-@@TO_ARRAY_NC_
-            };
-
-            return map;
-        }
-
-    } // namespace @@NAME_
-
-   @@FUNC_PREF_ const std::string& ToString(::@@NAME_ value)
-    {
-        return @@NAME_::ToString(value);
+        return constants;
     }
-)";
+
+    @@FUNC_PREF_consteval const std::array<std::string_view, @@COUNT_>& ToArrayN()
+    {
+        static constexpr std::array<std::string_view, @@COUNT_> names = {
+@@TO_ARRAY_N_
+        };
+
+        return names;
+    }
+
+    @@FUNC_PREF_const std::unordered_map<::@@NAME_, std::string_view>& ToMapCN()
+    {
+        static const std::unordered_map<::@@NAME_, std::string_view> map = {
+@@TO_ARRAY_CN_
+        };
+
+        return map;
+    }
+
+    @@FUNC_PREF_const std::unordered_map<std::string_view, ::@@NAME_>& ToMapNC()
+    {
+        static const std::unordered_map<std::string_view, ::@@NAME_> map = {
+@@TO_ARRAY_NC_
+        };
+
+        return map;
+    })";
 
         // Impl ToArrayC
         {
@@ -414,7 +358,7 @@ namespace JRM
             str.reserve(48 * (data.constants.size() + 1));
             for (const auto& [name, _] : data.constants)
             {
-                str += "\t\t\t\tstd::string(\"";
+                str += "\t\t\t\tstd::string_view(\"";
                 str += name;
                 str += "\"),\n";
             }
@@ -495,13 +439,11 @@ namespace JRM
         }
 
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
-        FindAndReplaceAll(finalString, realNameMark, data.name);
+        FindAndReplaceAll(finalString, onlyNameMark, data.name);
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
         FindAndReplaceAll(finalString, namespaceMark, config.namespaceName);
-
-        std::string funcPref = !_hasImplTranslationUnit ? " inline" : "";
-        FindAndReplaceAll(finalString, funcPrefMark, funcPref);
+        FindAndReplaceAll(finalString, funcPrefMark, "static ");
 
         return finalString;
     }

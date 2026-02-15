@@ -106,15 +106,12 @@ namespace JRM
         std::string result;
         result.reserve(1024);
 
-        result += "namespace ";
-        result += config.namespaceName;
-        result += "\n{\n";
-
         result += onGenerateSourceFile(data, config);
 
-        result += "\n} // namespace";
-        result += config.namespaceName;
-        result += "\n";
+        if (!result.empty() && result.back() != '\n')
+        {
+            result += '\n';
+        }
 
         return result;
     }

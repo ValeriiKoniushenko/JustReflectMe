@@ -61,7 +61,7 @@ namespace JRM
         };
 
         static constexpr std::string_view countMark = "@@COUNT_";
-        static constexpr std::string_view realNameMark = "@@REAL_NAME_";
+        static constexpr std::string_view onlyNameMark = "@@ONLY_NAME_";
 
         [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(
             FileData& data, const Config& config) const override;
@@ -72,10 +72,8 @@ namespace JRM
         void onScan(const FileData& fileData) override;
 
     private:
-        [[nodiscard]] std::string generateDeclaration(const TokenData& data,
-                                                      const Config& config) const;
-        [[nodiscard]] std::string generateImplementation(const TokenData& data,
-                                                         const Config& config) const;
+        [[nodiscard]] std::string generateSources(const TokenData& data,
+                                                  const Config& config) const;
 
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;

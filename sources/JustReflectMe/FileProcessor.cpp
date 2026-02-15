@@ -305,11 +305,6 @@ namespace JRM
         }
         result += "\n";
 
-        // MAIN NAMESPACE
-        result += "namespace ";
-        result += _config->namespaceName;
-        result += "\n{\n";
-
         for (const auto& reflector : _reflectors)
         {
             if (!reflector->hasTokens())
@@ -318,10 +313,6 @@ namespace JRM
             }
             result += reflector->generateHeaderFile(data, *_config);
         }
-
-        result += "\n} // namespace";
-        result += _config->namespaceName;
-        result += "\n\n"; // End Of File
 
         const auto hppPath = generateFilenames().first;
         std::ofstream out(hppPath);
@@ -388,7 +379,7 @@ namespace JRM
         }
 
         std::string integrationString;
-        for (auto i = std::count(originalSources.rend(), originalSources.rbegin(), '\n'); i < 2;
+        for (auto i = std::count(originalSources.rbegin(), originalSources.rend(), '\n'); i < 2;
              ++i)
         {
             integrationString += "\n";
@@ -426,7 +417,7 @@ namespace JRM
         }
 
         std::string integrationString;
-        for (auto i = std::count(originalSources.rend(), originalSources.rbegin(), '\n'); i < 2;
+        for (auto i = std::count(originalSources.rbegin(), originalSources.rend(), '\n'); i < 2;
              ++i)
         {
             integrationString += "\n";
