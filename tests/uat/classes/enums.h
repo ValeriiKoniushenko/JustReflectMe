@@ -34,4 +34,4 @@ enum class Color
     Blue
 };
 
-#include "enums.generated.inl" // added by the code generator. Better don't move it.
+#include "enums.generated.inl"

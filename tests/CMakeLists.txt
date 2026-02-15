@@ -1,7 +1,9 @@
 
 if (NOT JRM_DISABLE_TESTS)
 
-    add_subdirectory(uat)
+    if (JRM_ENABLE_UAT)
+        add_subdirectory(uat)
+    endif ()
 
     add_executable(JRMTests BaseFixture.cpp FileProcessorTests.cpp main.cpp)
     target_link_libraries(JRMTests PUBLIC gtest gmock JustReflectMe::Core)
