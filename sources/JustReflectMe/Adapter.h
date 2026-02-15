@@ -24,14 +24,6 @@
 
 #pragma once
 
-#include "JustReflectMe/Adapter.h"
+#define ENUM_CLASS(...)
 
-ENUM_CLASS();
-enum class Color
-{
-    Red,
-    Green,
-    Blue
-};
-
-#include "enums.generated.inl" // added by the code generator. Better don't move it.
+#define CLASS(...)
