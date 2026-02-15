@@ -341,7 +341,14 @@ namespace JRM
             return;
         }
 
-        std::string integrationString = includeString;
+        std::string integrationString;
+        for (auto i = std::count(originalSources.rend(), originalSources.rbegin(), '\n'); i < 2;
+             ++i)
+        {
+            integrationString += "\n";
+        }
+
+        integrationString += includeString;
         integrationString += " // added by the code generator. Better don't move it.\n";
 
         originalSources += integrationString;
@@ -374,6 +381,12 @@ namespace JRM
         }
 
         std::string integrationString;
+        for (auto i = std::count(originalSources.rend(), originalSources.rbegin(), '\n'); i < 2;
+             ++i)
+        {
+            integrationString += "\n";
+        }
+
         integrationString += "\n";
         integrationString += includeString;
         integrationString += " // this line added by the code generator.\n";
