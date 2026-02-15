@@ -27,6 +27,7 @@
 #include <concepts>
 #include <limits>
 #include <optional>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -63,14 +64,6 @@ namespace JRM
     class BaseReflector
     {
     public:
-        static constexpr const char* warningCommentAtFileTop = R"(/*
- * This code was generated automatically with
- * https://github.com/ValeriiKoniushenko/JustReflectMe
- *
- * DO NOT EDIT MANUALLY!
- * Your changes will be replaced next time
- */)";
-
         BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
@@ -87,11 +80,11 @@ namespace JRM
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
                                                      FileData& data, const Config& config) const;
 
-        void setHasImplTranslationUnit(bool val) noexcept { _hasImplTranslationUnit = val; }
-        [[nodiscard]] bool hasImplTranslationUnit() const noexcept
-        {
-            return _hasImplTranslationUnit;
-        }
+        [[nodiscard]] virtual std::set<std::string> getIncludes() const;
+
+        void setHasImplTranslationUnit(bool val) noexcept;
+        [[nodiscard]] bool hasImplTranslationUnit() const noexcept;
+        [[nodiscard]] bool isSupportImplTranslationUnit() const noexcept;
 
     protected:
         /**
@@ -159,18 +152,16 @@ namespace JRM
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
         [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(
-            FileData& data, const Config& config) const
-            = 0;
+            FileData& data, const Config& config) const = 0;
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data,
-                                                               const Config& config) const
-            = 0;
+                                                               const Config& config) const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data,
-                                                               const Config& config) const
-            = 0;
+                                                               const Config& config) const = 0;
         virtual void onScan(const FileData& content) = 0;
 
     protected:
         std::vector<TokenEntry> _tokens;
+        bool _isSupportImplTranslationUnit = false;
         bool _hasImplTranslationUnit = false;
     };
 

@@ -39,6 +39,15 @@ using namespace StringHelper;
 namespace JRM
 {
 
+    std::set<std::string> EnumClassReflector::getIncludes() const
+    {
+        auto out = BaseReflector::getIncludes();
+        out.emplace("optional");
+        out.emplace("unordered_map");
+        out.emplace("array");
+        return out;
+    }
+
     std::string EnumClassReflector::TokenData::fullNamePath() const
     {
         if (parentSpace.empty())

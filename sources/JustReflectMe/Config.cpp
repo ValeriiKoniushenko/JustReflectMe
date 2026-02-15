@@ -148,9 +148,9 @@ namespace JRM
         out += "  - .hxx\n";
         out += "  - .hh\n";
         out += "  - .h++\n";
-        out += Config::propName_namespace.data() + ": R"s;
-        out += Config::propName_showEveryIteratedFilePath.data() + ": false"s;
-        out += Config::propName_showSkippedFiles.data() + ": false"s;
+        out += Config::propName_namespace.data() + ": R\n"s;
+        out += Config::propName_showEveryIteratedFilePath.data() + ": false\n"s;
+        out += Config::propName_showSkippedFiles.data() + ": false\n"s;
 
         return out;
     }

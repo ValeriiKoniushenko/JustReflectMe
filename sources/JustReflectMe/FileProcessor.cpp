@@ -26,6 +26,7 @@
 
 #include "FileProcessor.h"
 
+#include "Config.h"
 #include "FileData.h"
 #include "Reflectors/BaseReflector.h"
 
@@ -92,6 +93,17 @@ namespace JRM
         }
 
         return false;
+    }
+
+    std::set<std::string> FileProcessor::getAllRequiredIncludes() const
+    {
+        std::set<std::string> out;
+        for (const auto& reflector : _reflectors)
+        {
+            auto tmp = reflector->getIncludes();
+            out.insert(tmp.begin(), tmp.end());
+        }
+        return out;
     }
 
     void FileProcessor::scanContent(FileData& data) const
@@ -241,7 +253,7 @@ namespace JRM
     }
 
     std::pair<std::string, std::string> FileProcessor::generateFilenames(
-        const BaseReflector* reflector, bool onlyFileNames /* = false*/) const
+        bool onlyFileNames /* = false*/) const
     {
         const auto extIndex = _path.find_last_of(".");
         if (extIndex == std::string::npos)
@@ -277,34 +289,69 @@ namespace JRM
         return { headerPath, sourcePath };
     }
 
-    void FileProcessor::tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data)
+    void FileProcessor::tryToGenerateHeaderContent(FileData& data)
     {
-        const std::string src = reflector->generateHeaderFile(data, *_config);
+        std::string result;
+        result.reserve(1024);
 
-        const auto hppPath = generateFilenames(reflector).first;
+        // HEADER
+        result += warningCommentAtFileTop;
+        result += "\n\n";
+
+        // INCLUDES
+        for (auto&& include : getAllRequiredIncludes())
+        {
+            result += "#include <" + include + ">\n";
+        }
+        result += "\n";
+
+        // MAIN NAMESPACE
+        result += "namespace ";
+        result += _config->namespaceName;
+        result += "\n{\n";
+
+        for (const auto& reflector : _reflectors)
+        {
+            if (!reflector->hasTokens())
+            {
+                continue;
+            }
+            result += reflector->generateHeaderFile(data, *_config);
+        }
+
+        result += "\n} // namespace";
+        result += _config->namespaceName;
+        result += "\n\n"; // End Of File
+
+        const auto hppPath = generateFilenames().first;
         std::ofstream out(hppPath);
         if (!out.is_open())
         {
             throw std::runtime_error("Cannot open file for write: " + hppPath);
         }
-        out.write(src.c_str(), src.size() * sizeof(char));
+        out.write(result.c_str(), result.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data)
+    void FileProcessor::tryToGenerateSourceContent(FileData& data)
     {
-        if (_pathImpl.empty())
-        {
-            return;
-        }
-
-        const auto cppPath = generateFilenames(reflector).second;
+        const auto cppPath = generateFilenames().second;
         if (cppPath.empty()) [[unlikely]]
         {
             return;
         }
 
-        const std::string src = reflector->generateSourceFile(
-            generateFilenames(reflector, true).first, data, *_config);
+        std::string src;
+
+        for (const auto& reflector : _reflectors)
+        {
+            if (!reflector->hasTokens() || !reflector->hasImplTranslationUnit())
+            {
+                continue;
+            }
+
+            src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
+        }
+
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
@@ -313,11 +360,11 @@ namespace JRM
         out.write(src.c_str(), src.size() * sizeof(char));
     }
 
-    void FileProcessor::tryToIntegrateIncludes(const BaseReflector* reflector, const FileData& data)
+    void FileProcessor::tryToIntegrateIncludes(const FileData& data)
     {
-        const auto [generatedHpp, generatedCpp] = generateFilenames(reflector, true);
+        const auto [generatedHpp, generatedCpp] = generateFilenames(true);
 
-        integrateHeaderIncludes(reflector, data, generatedHpp);
+        integrateHeaderIncludes(data, generatedHpp);
 
         // ============ SOURCE =================
         if (_pathImpl.empty())
@@ -325,11 +372,10 @@ namespace JRM
             return;
         }
 
-        integrateSourceIncludes(reflector, data, generatedCpp);
+        integrateSourceIncludes(data, generatedCpp);
     }
 
-    void FileProcessor::integrateHeaderIncludes(const BaseReflector* reflector,
-                                                const FileData& data,
+    void FileProcessor::integrateHeaderIncludes(const FileData& data,
                                                 const std::string& generatedHpp)
     {
         const auto includeString = "\n#include \"" + generatedHpp + "\"";
@@ -364,8 +410,7 @@ namespace JRM
         onPostGenerateHeaderContent(originalSources);
     }
 
-    void FileProcessor::integrateSourceIncludes(const BaseReflector* reflector,
-                                                const FileData& data,
+    void FileProcessor::integrateSourceIncludes(const FileData& data,
                                                 const std::string& generatedCpp)
     {
         if (generatedCpp.empty() || _pathImpl.empty())
@@ -446,15 +491,9 @@ namespace JRM
 
     void FileProcessor::generateNewContent(FileData& data)
     {
-        for (const auto& reflector : _reflectors)
-        {
-            if (reflector->hasTokens())
-            {
-                tryToGenerateHeaderContent(reflector.get(), data);
-                tryToGenerateSourceContent(reflector.get(), data);
-                tryToIntegrateIncludes(reflector.get(), data);
-            }
-        }
+        tryToGenerateHeaderContent(data);
+        tryToGenerateSourceContent(data);
+        tryToIntegrateIncludes(data);
     }
 
     void FileProcessor::run(const std::filesystem::path& path, const Config& config)

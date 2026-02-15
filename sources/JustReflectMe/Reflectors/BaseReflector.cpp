@@ -95,19 +95,7 @@ namespace JRM
         std::string result;
         result.reserve(1024);
 
-        result += warningCommentAtFileTop;
-        result += "\n\n";
-        result += "#pragma once\n";
-
-        result += onGenerateHeaderFilePreNamespace(data, config);
-
-        result += "namespace ";
-        result += config.namespaceName;
-        result += "\n{\n";
-
         result += onGenerateHeaderFile(data, config);
-
-        result += "\n} // namespace\n";
 
         return result;
     }
@@ -118,18 +106,40 @@ namespace JRM
         std::string result;
         result.reserve(1024);
 
-        result += warningCommentAtFileTop;
-        result += "\n\n";
-
         result += "namespace ";
         result += config.namespaceName;
         result += "\n{\n";
 
         result += onGenerateSourceFile(data, config);
 
-        result += "\n\n} // namespace\n";
+        result += "\n} // namespace";
+        result += config.namespaceName;
+        result += "\n";
 
         return result;
+    }
+
+    std::set<std::string> BaseReflector::getIncludes() const
+    {
+        return { "string" };
+    }
+
+    void BaseReflector::setHasImplTranslationUnit(bool val) noexcept
+    {
+        if (_isSupportImplTranslationUnit)
+        {
+            _hasImplTranslationUnit = val;
+        }
+    }
+
+    bool BaseReflector::hasImplTranslationUnit() const noexcept
+    {
+        return _isSupportImplTranslationUnit && _hasImplTranslationUnit;
+    }
+
+    bool BaseReflector::isSupportImplTranslationUnit() const noexcept
+    {
+        return _isSupportImplTranslationUnit;
     }
 
     void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,

@@ -33,5 +33,3 @@ enum class Color
     Green,
     Blue
 };
-
-#include "enums.generated.inl"

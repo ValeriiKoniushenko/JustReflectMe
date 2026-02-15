@@ -47,6 +47,14 @@ namespace JRM
     class FileProcessor
     {
     public:
+        static constexpr const char* warningCommentAtFileTop = R"(/*
+ * This code was generated automatically with
+ * https://github.com/ValeriiKoniushenko/JustReflectMe
+ *
+ * DO NOT EDIT MANUALLY!
+ * Your changes will be replaced next time
+ */)";
+
         inline static const char* newFileExtension = ".generated";
 
         FileProcessor() = default;
@@ -72,20 +80,19 @@ namespace JRM
     protected:
         virtual void onPreGenerateContent(const std::string& content) const {}
         virtual void onPostGenerateHeaderContent(const std::string& content) const {}
+        [[nodiscard]] std::set<std::string> getAllRequiredIncludes() const;
 
     private:
         void scanContent(FileData& data) const;
         [[nodiscard]] static std::string getFileContent(const std::string& filename);
-        [[nodiscard]] std::pair<std::string, std::string> generateFilenames(
-            const BaseReflector* reflector, bool onlyFileNames = false) const;
-        void tryToGenerateHeaderContent(const BaseReflector* reflector, FileData& data);
-        void tryToGenerateSourceContent(const BaseReflector* reflector, FileData& data);
-        void tryToIntegrateIncludes(const BaseReflector* reflector, const FileData& data);
+        [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
+                                                                            = false) const;
+        void tryToGenerateHeaderContent(FileData& data);
+        void tryToGenerateSourceContent(FileData& data);
+        void tryToIntegrateIncludes(const FileData& data);
 
-        void integrateHeaderIncludes(const BaseReflector* reflector, const FileData& data,
-                                     const std::string& generatedHpp);
-        void integrateSourceIncludes(const BaseReflector* reflector, const FileData& data,
-                                     const std::string& generatedCpp);
+        void integrateHeaderIncludes(const FileData& data, const std::string& generatedHpp);
+        void integrateSourceIncludes(const FileData& data, const std::string& generatedCpp);
 
         [[nodiscard]] static std::string extrudeImplPath(std::filesystem::path path);
 

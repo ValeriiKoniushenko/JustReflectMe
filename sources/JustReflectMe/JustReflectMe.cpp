@@ -278,7 +278,7 @@ namespace JRM
                 {
                     FileProcessor processor;
                     processor.registerReflector<EnumClassReflector>();
-                    processor.registerReflector<ClassReflector>();
+                    // processor.registerReflector<ClassReflector>();
                     processor.run(path, _config);
 
                     cache.updateFile(path);

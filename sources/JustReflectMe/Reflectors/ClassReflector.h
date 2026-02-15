@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -33,22 +31,18 @@
 namespace JRM
 {
 
-    class EnumClassReflector : public BaseReflector
+    class ClassReflector : public BaseReflector
     {
     public:
-        EnumClassReflector() = default;
-        EnumClassReflector(const EnumClassReflector&) = default;
-        EnumClassReflector& operator=(const EnumClassReflector&) = default;
-        EnumClassReflector(EnumClassReflector&&) noexcept = default;
-        EnumClassReflector& operator=(EnumClassReflector&&) noexcept = default;
-        ~EnumClassReflector() override = default;
+        ClassReflector() = default;
+        ClassReflector(const ClassReflector&) = default;
+        ClassReflector& operator=(const ClassReflector&) = default;
+        ClassReflector(ClassReflector&&) noexcept = default;
+        ClassReflector& operator=(ClassReflector&&) noexcept = default;
+        ~ClassReflector() override = default;
 
+        [[nodiscard]] const char* getTriggerKeyword() const noexcept override { return "CLASS"; }
         [[nodiscard]] std::set<std::string> getIncludes() const override;
-
-        [[nodiscard]] const char* getTriggerKeyword() const noexcept override
-        {
-            return "ENUM_CLASS";
-        }
 
     protected:
         struct TokenData
@@ -63,8 +57,6 @@ namespace JRM
         static constexpr std::string_view countMark = "@@COUNT_";
         static constexpr std::string_view realNameMark = "@@REAL_NAME_";
 
-        [[nodiscard]] std::string onGenerateHeaderFilePreNamespace(
-            FileData& data, const Config& config) const override;
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
                                                        const Config& config) const override;
         [[nodiscard]] std::string onGenerateSourceFile(FileData& fileData,
