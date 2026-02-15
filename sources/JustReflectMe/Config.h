@@ -37,24 +37,30 @@ namespace JRM
 {
     struct Config
     {
-        constexpr static const char* propName_excludedPaths = "excludedPaths";
+        constexpr static std::string_view propName_excludedPaths = "excludedPaths";
         std::set<std::filesystem::path> excludedPaths;
 
-        constexpr static const char* propName_parsableFileExtensions = "parsableFileExtensions";
+        constexpr static std::string_view propName_parsableFileExtensions
+            = "parsableFileExtensions";
         std::vector<std::string> parsableFileExtensions = { ".h", ".hpp" };
 
-        constexpr static const char* propName_namespace = "namespace";
+        constexpr static std::string_view propName_namespace = "namespace";
         std::string namespaceName = "R";
 
-        // std::optional<std::string> enumClassTemplate;
+        constexpr static std::string_view propName_showEveryIteratedFilePath
+            = "showEveryIteratedFilePath";
+        bool showEveryIteratedFilePath = false;
+
+        constexpr static std::string_view propName_showSkippedFiles = "showSkippedFiles";
+        bool showSkippedFiles = false;
     };
 
     class ConfigManager final
     {
     public:
-        constexpr static const char* jrmFolder = ".jrm";
-        constexpr static const char* jrmConfig = "config.yaml";
-        constexpr static const char* jrmFallbackConfig = "";
+        constexpr static std::string_view jrmFolder = ".jrm";
+        constexpr static std::string_view jrmConfig = "config.yaml";
+        constexpr static std::string_view jrmFallbackConfig = "";
 
     public:
         [[nodiscard]] Config initializeProjectAndLoadConfig(

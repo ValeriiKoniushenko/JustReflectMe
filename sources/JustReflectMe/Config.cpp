@@ -45,7 +45,7 @@ namespace JRM
                 || !std::filesystem::exists(_projectDir / jrmFolder / jrmConfig))
             {
                 spawnFallbackFileConfig();
-                Yaml::Parse(yaml,  ConfigManager::spawnFallbackConfigAsString());
+                Yaml::Parse(yaml, ConfigManager::spawnFallbackConfigAsString());
             }
             else
             {
@@ -54,7 +54,7 @@ namespace JRM
 
             ConfigManager::validateTopLevelFields(yaml);
 
-            if (auto&& item = yaml[Config::propName_excludedPaths]; !item.IsNone())
+            if (auto&& item = yaml[Config::propName_excludedPaths.data()]; !item.IsNone())
             {
                 config.excludedPaths.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
@@ -63,7 +63,7 @@ namespace JRM
                 }
             }
 
-            if (auto&& item = yaml[Config::propName_parsableFileExtensions]; !item.IsNone())
+            if (auto&& item = yaml[Config::propName_parsableFileExtensions.data()]; !item.IsNone())
             {
                 config.parsableFileExtensions.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
@@ -72,9 +72,20 @@ namespace JRM
                 }
             }
 
-            if (auto&& item = yaml[Config::propName_namespace]; !item.IsNone())
+            if (auto&& item = yaml[Config::propName_namespace.data()]; !item.IsNone())
             {
                 config.namespaceName = item.As<std::string>();
+            }
+
+            if (auto&& item = yaml[Config::propName_showEveryIteratedFilePath.data()];
+                !item.IsNone())
+            {
+                config.showEveryIteratedFilePath = item.As<bool>();
+            }
+
+            if (auto&& item = yaml[Config::propName_showSkippedFiles.data()]; !item.IsNone())
+            {
+                config.showSkippedFiles = item.As<bool>();
             }
         }
         catch (Yaml::Exception& ex)
@@ -124,20 +135,22 @@ namespace JRM
         std::string out;
         out.reserve(128);
 
-        out += Config::propName_excludedPaths + ":\n"s;
+        out += Config::propName_excludedPaths.data() + ":\n"s;
         out += "  - build\n";
         out += "  - .vscode\n";
         out += "  - .cache\n";
         out += "  - .git\n";
         out += "  - .idea\n";
-        out += "  - "s + jrmFolder + "\n";
-        out += Config::propName_parsableFileExtensions + ":\n"s;
+        out += "  - "s + jrmFolder.data() + "\n";
+        out += Config::propName_parsableFileExtensions.data() + ":\n"s;
         out += "  - .h\n";
         out += "  - .hpp\n";
         out += "  - .hxx\n";
         out += "  - .hh\n";
         out += "  - .h++\n";
-        out += Config::propName_namespace + ": R"s;
+        out += Config::propName_namespace.data() + ": R"s;
+        out += Config::propName_showEveryIteratedFilePath.data() + ": false"s;
+        out += Config::propName_showSkippedFiles.data() + ": false"s;
 
         return out;
     }
@@ -150,9 +163,11 @@ namespace JRM
             foundFields.emplace((*it).first);
         }
 
-        foundFields.erase(Config::propName_excludedPaths);
-        foundFields.erase(Config::propName_parsableFileExtensions);
-        foundFields.erase(Config::propName_namespace);
+        foundFields.erase(Config::propName_excludedPaths.data());
+        foundFields.erase(Config::propName_parsableFileExtensions.data());
+        foundFields.erase(Config::propName_namespace.data());
+        foundFields.erase(Config::propName_showEveryIteratedFilePath.data());
+        foundFields.erase(Config::propName_showSkippedFiles.data());
 
         if (foundFields.size() > 0)
         {
@@ -164,8 +179,7 @@ namespace JRM
             out.pop_back();
             out.pop_back();
 
-            std::cerr << "[JustReflectMe] Unknown fields in the config file: "
-                      << out << "\n";
+            std::cerr << "[JustReflectMe] Unknown fields in the config file: " << out << "\n";
         }
     }
 

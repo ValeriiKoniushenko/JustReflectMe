@@ -22,59 +22,12 @@
  * SOFTWARE.
  */
 
-/*
- * MIT License
- *
- * Copyright (c) 2018-2026 Valerii Koniushenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/*
- * MIT License
- *
- * Copyright (c) 2018-2026 Valerii Koniushenko
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "JustReflectMe.h"
 
 #include "Cache.h"
 #include "Config.h"
 #include "FileProcessor.h"
+#include "Reflectors/ClassReflector.h"
 #include "Reflectors/EnumClassReflector.h"
 #include "version.h"
 
@@ -273,6 +226,11 @@ namespace JRM
                 const auto path = entry.path();
                 const auto relPath = path.lexically_relative(_sourcePath);
 
+                if (_config.showEveryIteratedFilePath)
+                {
+                    std::cout << "[JustReflectMe] Looking at: " << path.generic_string() << "\n";
+                }
+
                 if (entry.is_regular_file())
                 {
                     if (!isParseableFileEntry(entry))
@@ -305,7 +263,11 @@ namespace JRM
                 ++iteratedOverParsable;
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
-                    // std::cout << "[JustReflectMe] Skipped: " << path.generic_string() << "\n";
+                    if (_config.showSkippedFiles)
+                    {
+                        std::cout << "[JustReflectMe] No need update: " << path.generic_string()
+                                  << "\n";
+                    }
                     continue;
                 }
 
@@ -316,6 +278,7 @@ namespace JRM
                 {
                     FileProcessor processor;
                     processor.registerReflector<EnumClassReflector>();
+                    processor.registerReflector<ClassReflector>();
                     processor.run(path, _config);
 
                     cache.updateFile(path);
