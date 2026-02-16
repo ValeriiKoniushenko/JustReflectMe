@@ -70,7 +70,7 @@ pipeline {
 
                     sh """
                         rm -f ${ARCHIVE_NAME}
-                        tar czf ${ARCHIVE_NAME} ${BUILD_PATH}/bin/*
+                        tar czf ${ARCHIVE_NAME} ${BUILD_PATH}/bin/jrm
                     """
                     archiveArtifacts artifacts: "${ARCHIVE_NAME}", fingerprint: true
                 }

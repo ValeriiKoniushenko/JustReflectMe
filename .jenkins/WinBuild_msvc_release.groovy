@@ -63,7 +63,7 @@ pipeline {
 
                     bat """
                         if exist ${ARCHIVE_NAME} del /Q ${ARCHIVE_NAME}
-                        powershell Compress-Archive -Path ${BUILD_PATH}\\bin\\%BUILD_TYPE%\\* -DestinationPath ${ARCHIVE_NAME}
+                        powershell Compress-Archive -Path ${BUILD_PATH}\\bin\\%BUILD_TYPE%\\jrm.exe -DestinationPath ${ARCHIVE_NAME}
                     """
                     archiveArtifacts artifacts: "${ARCHIVE_NAME}", fingerprint: true
                 }
