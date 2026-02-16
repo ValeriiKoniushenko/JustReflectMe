@@ -23,14 +23,7 @@ pipeline {
                         stage('Prepare') {
                             steps {
                                 script {
-                                    def isTriggeredByCron =
-                                        currentBuild.getBuildCauses(
-                                            'hudson.triggers.TimerTrigger$TimerTriggerCause'
-                                        )
-
-                                    if (isTriggeredByCron) {
-                                        sh "rm -rf build"
-                                    }
+                                    sh "rm -rf build"
                                 }
                             }
                         }
@@ -160,9 +153,8 @@ pipeline {
 
                 script {
                     // Generate build metadata
-                    sh '''
-                        cat <<EOF > release/BUILD_INFO.txt
-                        Tag: \${env.TAG_NAME}
+                    sh '''cat <<EOF > release/BUILD_INFO.txt
+                        Tag: ${env.TAG_NAME}
                         Built at: $(date -u)
                         EOF
                     '''
