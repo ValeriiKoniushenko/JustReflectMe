@@ -64,6 +64,8 @@ namespace JRM
     class BaseReflector
     {
     public:
+        constexpr static std::string_view namespaceName = "R";
+
         BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
@@ -119,7 +121,7 @@ namespace JRM
         static constexpr std::string_view funcPrefMark = "@@FUNC_PREF_";
 
         /**
-         * Main namespace name from the config. By default: 'R'
+         * Main namespace/struct name from the config. By default: 'R'
          */
         static constexpr std::string_view namespaceMark = "@@NAMESPACE_";
 

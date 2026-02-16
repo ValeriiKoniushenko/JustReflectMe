@@ -110,7 +110,7 @@ namespace JRM
             _config = configManager.initializeProjectAndLoadConfig(_sourcePath);
 
             std::cout << "[JustReflectMe] Processing files with extensions: ";
-            for (auto&& ext : _config.parsableFileExtensions)
+            for (auto&& ext : _config.parsableFileExtensions->value)
             {
                 std::cout << ext << " ";
             }
@@ -184,7 +184,7 @@ namespace JRM
             return false;
         }
 
-        for (const auto& validExt : _config.parsableFileExtensions)
+        for (const auto& validExt : _config.parsableFileExtensions->value)
         {
             if (ext == validExt)
             {
@@ -226,7 +226,7 @@ namespace JRM
                 const auto path = entry.path();
                 const auto relPath = path.lexically_relative(_sourcePath);
 
-                if (_config.showEveryIteratedFilePath)
+                if (_config.showEveryIteratedFilePath->value)
                 {
                     std::cout << "[JustReflectMe] Looking at: " << path.generic_string() << "\n";
                 }
@@ -240,7 +240,7 @@ namespace JRM
                 }
                 else if (entry.is_directory() || entry.is_symlink())
                 {
-                    if (_config.excludedPaths.contains(relPath))
+                    if (_config.excludedPaths->value.contains(relPath))
                     {
                         continue;
                     }
@@ -263,7 +263,7 @@ namespace JRM
                 ++iteratedOverParsable;
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
-                    if (_config.showSkippedFiles)
+                    if (_config.showSkippedFiles->value)
                     {
                         std::cout << "[JustReflectMe] No need update: " << path.generic_string()
                                   << "\n";

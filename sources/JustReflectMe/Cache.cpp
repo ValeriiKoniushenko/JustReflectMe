@@ -53,7 +53,7 @@ namespace JRM
     void Cache::initializeProjectAndLoadData(const fs::path& projectDir)
     {
         _projectDir = projectDir;
-        _targetFile = _projectDir / ConfigManager::jrmFolder / jrmCacheFileName;
+        _targetFile = _projectDir / Config::jrmFolder / jrmCacheFileName;
 
         if (!fs::exists(_projectDir))
         {
@@ -62,10 +62,10 @@ namespace JRM
             return;
         }
 
-        if (!fs::exists(_projectDir / ConfigManager::jrmFolder))
+        if (!fs::exists(_projectDir / Config::jrmFolder))
         {
             std::error_code ec;
-            if (!fs::create_directory(_projectDir / ConfigManager::jrmFolder, ec))
+            if (!fs::create_directory(_projectDir / Config::jrmFolder, ec))
             {
                 std::cerr << "[JustReflectMe] Failed to create jrm folder at the project's root. "
                              "Details: "

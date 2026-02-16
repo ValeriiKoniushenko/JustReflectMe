@@ -35,6 +35,7 @@
 
 using namespace FileNavigator;
 using namespace StringHelper;
+using namespace std::string_literals;
 
 namespace JRM
 {
@@ -95,7 +96,7 @@ namespace JRM
                 result.push_back('\n');
             }
 
-            auto structName = "struct " + config.namespaceName + "<" + data.fullNamePath() + ">";
+            auto structName = "struct "s + namespaceName.data() + "<" + data.fullNamePath() + ">";
 
             result += "template<>\n";
             result += structName;
@@ -442,7 +443,7 @@ namespace JRM
         FindAndReplaceAll(finalString, onlyNameMark, data.name);
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, countMark, std::to_string(data.constants.size()));
-        FindAndReplaceAll(finalString, namespaceMark, config.namespaceName);
+        FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
         FindAndReplaceAll(finalString, funcPrefMark, "static ");
 
         return finalString;

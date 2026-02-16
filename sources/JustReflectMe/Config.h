@@ -35,33 +35,78 @@ namespace Yaml
 
 namespace JRM
 {
-    struct Config
+    class BaseConfigParam;
+
+    class BaseConfig
     {
-        constexpr static std::string_view propName_excludedPaths = "excludedPaths";
-        std::set<std::filesystem::path> excludedPaths;
+    public:
+        [[nodiscard]] const std::vector<std::shared_ptr<BaseConfigParam>>& getParams()
+            const noexcept;
 
-        constexpr static std::string_view propName_parsableFileExtensions
-            = "parsableFileExtensions";
-        std::vector<std::string> parsableFileExtensions = { ".h", ".hpp" };
+        virtual ~BaseConfig() = default;
 
-        constexpr static std::string_view propName_namespace = "namespace";
-        std::string namespaceName = "R";
+    protected:
+        BaseConfig() = default;
 
-        constexpr static std::string_view propName_showEveryIteratedFilePath
-            = "showEveryIteratedFilePath";
-        bool showEveryIteratedFilePath = false;
-
-        constexpr static std::string_view propName_showSkippedFiles = "showSkippedFiles";
-        bool showSkippedFiles = false;
+        std::vector<std::shared_ptr<BaseConfigParam>> _params;
     };
+
+    class BaseConfigParam
+    {
+    public:
+        BaseConfigParam(std::string_view paramName, std::string_view description);
+        virtual ~BaseConfigParam() = default;
+
+    public:
+        std::string_view paramName;
+        std::string_view description;
+    };
+
+    template<class ValueT>
+    struct Param : public BaseConfigParam
+    {
+        using Ptr = std::shared_ptr<Param>;
+
+        Param(std::string_view paramName, std::string_view description, ValueT&& defaultValue)
+            : BaseConfigParam(paramName, description),
+              value(std::forward<ValueT>(defaultValue))
+        {
+        }
+
+        ValueT value{};
+    };
+
+    using BoolParam = Param<bool>;
+    using StringParam = Param<std::string>;
+    using PathSetParam = Param<std::set<std::filesystem::path>>;
+    using StringVectorParam = Param<std::vector<std::string>>;
+
+#define PARAM(type, name, description, ...)                                                        \
+    Param<type>::Ptr name = std::make_shared<Param<type>>(#name, description, type{ __VA_ARGS__ })
+
+    struct Config : public BaseConfig
+    {
+        constexpr static std::string_view jrmFolder = ".jrm";
+        constexpr static std::string_view jrmConfig = "config.yaml";
+
+        Config();
+        ~Config() override = default;
+
+        PARAM(std::set<std::filesystem::path>, excludedPaths,
+              "Pass an array of the relative paths that should be ignored.",
+              { "build", ".vscode", ".cache", ".git", ".idea", jrmFolder });
+
+        PARAM(std::vector<std::string>, parsableFileExtensions,
+              "Array of the file extensions that will be scanned through the filesystem.",
+              { ".h", ".hpp", ".hxx", ".hh", ".h++" });
+
+        PARAM(bool, showEveryIteratedFilePath, "Show every file path while running.", false);
+        PARAM(bool, showSkippedFiles, "Show skipped(no need update) files while running.", false);
+    };
+#undef PARAM
 
     class ConfigManager final
     {
-    public:
-        constexpr static std::string_view jrmFolder = ".jrm";
-        constexpr static std::string_view jrmConfig = "config.yaml";
-        constexpr static std::string_view jrmFallbackConfig = "";
-
     public:
         [[nodiscard]] Config initializeProjectAndLoadConfig(
             const std::filesystem::path& projectDir);

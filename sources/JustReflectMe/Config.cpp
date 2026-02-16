@@ -29,10 +29,31 @@
 #include <fstream>
 #include <iostream>
 
+namespace fs = std::filesystem;
+
 namespace JRM
 {
 
-    Config ConfigManager::initializeProjectAndLoadConfig(const std::filesystem::path& projectDir)
+    const std::vector<std::shared_ptr<BaseConfigParam>>& BaseConfig::getParams() const noexcept
+    {
+        return _params;
+    }
+
+    BaseConfigParam::BaseConfigParam(std::string_view paramName_, std::string_view description_)
+        : paramName(paramName_),
+          description(description_)
+    {
+    }
+
+    Config::Config()
+    {
+        _params.emplace_back(excludedPaths);
+        _params.emplace_back(parsableFileExtensions);
+        _params.emplace_back(showEveryIteratedFilePath);
+        _params.emplace_back(showSkippedFiles);
+    }
+
+    Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir)
     {
         _projectDir = projectDir;
 
@@ -41,51 +62,49 @@ namespace JRM
         try
         {
             Yaml::Node yaml;
-            if (!std::filesystem::exists(_projectDir / jrmFolder)
-                || !std::filesystem::exists(_projectDir / jrmFolder / jrmConfig))
+            if (!fs::exists(_projectDir / Config::jrmFolder)
+                || !fs::exists(_projectDir / Config::jrmFolder / Config::jrmConfig))
             {
                 spawnFallbackFileConfig();
                 Yaml::Parse(yaml, ConfigManager::spawnFallbackConfigAsString());
             }
             else
             {
-                Yaml::Parse(yaml, (_projectDir / jrmFolder / jrmConfig).generic_string().c_str());
+                Yaml::Parse(
+                    yaml,
+                    (_projectDir / Config::jrmFolder / Config::jrmConfig).generic_string().c_str());
             }
 
             ConfigManager::validateTopLevelFields(yaml);
 
-            if (auto&& item = yaml[Config::propName_excludedPaths.data()]; !item.IsNone())
+            if (auto&& item = yaml[config.excludedPaths->paramName.data()]; !item.IsNone())
             {
-                config.excludedPaths.clear();
+                config.excludedPaths->value.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
                 {
-                    config.excludedPaths.emplace((*it).second.As<std::string>());
+                    config.excludedPaths->value.emplace((*it).second.As<std::string>());
                 }
             }
 
-            if (auto&& item = yaml[Config::propName_parsableFileExtensions.data()]; !item.IsNone())
+            if (auto&& item = yaml[config.parsableFileExtensions->paramName.data()]; !item.IsNone())
             {
-                config.parsableFileExtensions.clear();
+                config.parsableFileExtensions->value.clear();
                 for (auto it = item.Begin(); it != item.End(); it++)
                 {
-                    config.parsableFileExtensions.emplace_back((*it).second.As<std::string>());
+                    config.parsableFileExtensions->value.emplace_back(
+                        (*it).second.As<std::string>());
                 }
             }
 
-            if (auto&& item = yaml[Config::propName_namespace.data()]; !item.IsNone())
-            {
-                config.namespaceName = item.As<std::string>();
-            }
-
-            if (auto&& item = yaml[Config::propName_showEveryIteratedFilePath.data()];
+            if (auto&& item = yaml[config.showEveryIteratedFilePath->paramName.data()];
                 !item.IsNone())
             {
-                config.showEveryIteratedFilePath = item.As<bool>();
+                config.showEveryIteratedFilePath->value = item.As<bool>();
             }
 
-            if (auto&& item = yaml[Config::propName_showSkippedFiles.data()]; !item.IsNone())
+            if (auto&& item = yaml[config.showSkippedFiles->paramName.data()]; !item.IsNone())
             {
-                config.showSkippedFiles = item.As<bool>();
+                config.showSkippedFiles->value = item.As<bool>();
             }
         }
         catch (Yaml::Exception& ex)
@@ -101,7 +120,7 @@ namespace JRM
     void ConfigManager::spawnFallbackFileConfig()
     {
         std::error_code ec;
-        std::filesystem::create_directory(_projectDir / jrmFolder, ec);
+        fs::create_directory(_projectDir / Config::jrmFolder, ec);
 
         if (ec)
         {
@@ -112,12 +131,12 @@ namespace JRM
         }
 
         {
-            std::ofstream out(_projectDir / jrmFolder / jrmConfig);
+            std::ofstream out(_projectDir / Config::jrmFolder / Config::jrmConfig);
             if (!out.is_open())
             {
                 std::cerr
                     << "[JustReflectMe] Failed to spawn a jrm fallback config at: <project_root>/"
-                    << jrmFolder << "/" << jrmConfig << "\n";
+                    << Config::jrmFolder << "/" << Config::jrmConfig << "\n";
                 return;
             }
             out << ConfigManager::spawnFallbackConfigAsString();
@@ -125,7 +144,7 @@ namespace JRM
 
         std::cout << "[JustReflectMe] Config wasn't found. So, fallback config spawned at: "
                      "<project_root>/"
-                  << jrmFolder << "/" << jrmConfig << "\n";
+                  << Config::jrmFolder << "/" << Config::jrmConfig << "\n";
     }
 
     std::string ConfigManager::spawnFallbackConfigAsString()
@@ -135,22 +154,33 @@ namespace JRM
         std::string out;
         out.reserve(128);
 
-        out += Config::propName_excludedPaths.data() + ":\n"s;
-        out += "  - build\n";
-        out += "  - .vscode\n";
-        out += "  - .cache\n";
-        out += "  - .git\n";
-        out += "  - .idea\n";
-        out += "  - "s + jrmFolder.data() + "\n";
-        out += Config::propName_parsableFileExtensions.data() + ":\n"s;
-        out += "  - .h\n";
-        out += "  - .hpp\n";
-        out += "  - .hxx\n";
-        out += "  - .hh\n";
-        out += "  - .h++\n";
-        out += Config::propName_namespace.data() + ": R\n"s;
-        out += Config::propName_showEveryIteratedFilePath.data() + ": false\n"s;
-        out += Config::propName_showSkippedFiles.data() + ": false\n"s;
+        Config config;
+
+        out += "# "s + config.excludedPaths->description.data();
+        out += config.excludedPaths->paramName.data() + ":\n"s;
+        for (const auto& path : config.excludedPaths->value)
+        {
+            out += "  - "s + path.generic_string() + "\n";
+        }
+        out += "\n";
+
+        out += "# "s + config.parsableFileExtensions->description.data();
+        out += config.parsableFileExtensions->paramName.data() + ":\n"s;
+        for (const auto& path : config.parsableFileExtensions->value)
+        {
+            out += "  - "s + path + "\n";
+        }
+        out += "\n";
+
+        out += "# "s + config.showEveryIteratedFilePath->description.data();
+        out += config.showEveryIteratedFilePath->paramName.data() + ": "s
+               + (config.showEveryIteratedFilePath->value ? "true" : "false") + "\n"s;
+        out += "\n";
+
+        out += "# "s + config.showSkippedFiles->description.data();
+        out += config.showSkippedFiles->paramName.data() + ": "s
+               + (config.showSkippedFiles->value ? "true" : "false") + "\n"s;
+        out += "\n";
 
         return out;
     }
@@ -160,14 +190,20 @@ namespace JRM
         std::set<std::string> foundFields;
         for (auto it = config.Begin(); it != config.End(); it++)
         {
-            foundFields.emplace((*it).first);
+            auto s = (*it).first;
+            if (s.empty())
+            {
+                break;
+            }
+
+            foundFields.emplace(std::move(s));
         }
 
-        foundFields.erase(Config::propName_excludedPaths.data());
-        foundFields.erase(Config::propName_parsableFileExtensions.data());
-        foundFields.erase(Config::propName_namespace.data());
-        foundFields.erase(Config::propName_showEveryIteratedFilePath.data());
-        foundFields.erase(Config::propName_showSkippedFiles.data());
+        const Config tmp;
+        for (auto&& param : tmp.getParams())
+        {
+            foundFields.erase(param->paramName.data());
+        }
 
         if (foundFields.size() > 0)
         {
