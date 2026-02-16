@@ -151,34 +151,33 @@ namespace JRM
     {
         using namespace std::string_literals;
 
+        auto genKey = [](const BaseConfigParam& v)
+        { return "# "s + v.description.data() + "\n"s + v.paramName.data() + ": "; };
+
         std::string out;
         out.reserve(128);
 
         Config config;
 
-        out += "# "s + config.excludedPaths->description.data();
-        out += config.excludedPaths->paramName.data() + ":\n"s;
+        out += genKey(*config.excludedPaths) + "\n";
         for (const auto& path : config.excludedPaths->value)
         {
             out += "  - "s + path.generic_string() + "\n";
         }
         out += "\n";
 
-        out += "# "s + config.parsableFileExtensions->description.data();
-        out += config.parsableFileExtensions->paramName.data() + ":\n"s;
+        out += genKey(*config.parsableFileExtensions) + "\n";
         for (const auto& path : config.parsableFileExtensions->value)
         {
             out += "  - "s + path + "\n";
         }
         out += "\n";
 
-        out += "# "s + config.showEveryIteratedFilePath->description.data();
-        out += config.showEveryIteratedFilePath->paramName.data() + ": "s
+        out += genKey(*config.showEveryIteratedFilePath)
                + (config.showEveryIteratedFilePath->value ? "true" : "false") + "\n"s;
         out += "\n";
 
-        out += "# "s + config.showSkippedFiles->description.data();
-        out += config.showSkippedFiles->paramName.data() + ": "s
+        out += genKey(*config.showSkippedFiles)
                + (config.showSkippedFiles->value ? "true" : "false") + "\n"s;
         out += "\n";
 
