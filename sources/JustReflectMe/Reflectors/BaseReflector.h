@@ -55,7 +55,7 @@ namespace JRM
     class GenerationException : public std::runtime_error
     {
     public:
-        GenerationException(const std::string& message)
+        explicit GenerationException(const std::string& message)
             : std::runtime_error(message)
         {
         }

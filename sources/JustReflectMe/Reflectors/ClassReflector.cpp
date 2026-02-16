@@ -57,7 +57,8 @@ namespace JRM
 
         return parentSpace + "::" + name;
     }
- std::string ClassReflector::onGenerateHeaderFile(FileData& fileData, const Config& config) const
+
+    std::string ClassReflector::onGenerateHeaderFile(FileData& fileData, const Config& config) const
     {
         std::string result;
         result.reserve(1024);
