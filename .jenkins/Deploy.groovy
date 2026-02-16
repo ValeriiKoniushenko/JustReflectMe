@@ -44,6 +44,7 @@ pipeline {
                                             rm -rf ${buildDir}
 
                                             cmake -S . -B ${buildDir} \
+                                                  -DJRM_ENABLE_UAT=ON \
                                                   -DCMAKE_C_COMPILER=${C_COMPILER} \
                                                   -DCMAKE_CXX_COMPILER=${CPP_COMPILER} \
                                                   -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
@@ -105,7 +106,8 @@ pipeline {
                                             cmake -S . -B build ^
                                                 -G "Visual Studio 17 2022" ^
                                                 -A x64 ^
-                                                -DJRM_DISABLE_TESTS=ON
+                                                -DJRM_DISABLE_TESTS=ON ^
+                                                -DJRM_ENABLE_UAT=ON
 
                                             cmake --build build --config %BUILD_TYPE% -- /m:2
                                         """
@@ -160,7 +162,7 @@ pipeline {
                     // Generate build metadata
                     sh """
                         cat <<EOF > release/BUILD_INFO.txt
-                        Tag: ${env.TAG_NAME}
+                        Tag: \${env.TAG_NAME}
                         Built at: $(date -u)
                         EOF
                     """
