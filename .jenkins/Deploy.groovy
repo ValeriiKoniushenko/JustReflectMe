@@ -160,12 +160,12 @@ pipeline {
 
                 script {
                     // Generate build metadata
-                    sh """
+                    sh '''
                         cat <<EOF > release/BUILD_INFO.txt
                         Tag: \${env.TAG_NAME}
                         Built at: $(date -u)
                         EOF
-                    """
+                    '''
 
                     sh "ls -R release"
                 }
