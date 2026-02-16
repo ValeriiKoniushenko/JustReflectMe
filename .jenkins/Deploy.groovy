@@ -130,7 +130,7 @@ pipeline {
             }
         }
 
-        stage('Deploy (Prepare Release Bundle)') {
+        /*stage('Deploy (Prepare Release Bundle)') {
             agent { label 'Linux' }
 
             steps {
@@ -182,7 +182,7 @@ Built at: \$(date -u)
 
                 archiveArtifacts artifacts: "release/**", fingerprint: true
             }
-        }
+        }*/
 
     }
 }
