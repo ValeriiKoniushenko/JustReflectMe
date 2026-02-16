@@ -133,14 +133,8 @@ pipeline {
         stage('Deploy (Prepare Release Bundle)') {
             agent { label 'Linux' }
 
-            // when {
-            //     buildingTag()
-            // }
-
             steps {
                 script {
-                    echo "Preparing release bundle for tag: ${env.TAG_NAME}"
-
                     sh "rm -rf release"
                 }
 
@@ -155,10 +149,30 @@ pipeline {
                     // Generate build metadata
                     sh """
                     #!/bin/bash
-                    mkdir -p release
-                    cat <<EOF > release/BUILD_INFO.txt
-                    Tag: ${env.TAG_NAME}
-                    Built at: \$(date -u)
+
+                    cd release
+                    ls -lhat
+                    tar -xf *.tar.gz
+                    unzip *.zip
+                    ls -lhat
+
+                    rm -rf *.zip
+                    rm -rf *.tar.gz
+                    ls -lhat
+
+                    cat <<EOF > notes.md
+# Release ${./jrm --version | grep "jrm (JustReflectMe)" | sed -E "s/jrm \(\w+\)\s+//"}
+
+# Tested Env:
+- Win11 | MSVC 2022
+- Debian Linux | GCC 15.2 | Clang 21.1.6
+
+## Stability:
+- [![MSVC Debug](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FWinBuild_MSVC_Debug%2F&label=MSVC%20Debug)](https://jenkins.vakon.space/job/JustReflectMe/job/WinBuild_MSVC_Debug/replace_it_with_your_number/) [![MSVC Release](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FWinBuild_MSVC_Release%2F&label=MSVC%20Release)](https://jenkins.vakon.space/job/JustReflectMe/job/WinBuild_MSVC_Release/replace_it_with_your_number/)
+- [![GCC Debug](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FLinuxBuild_GCC_Debug%2F&label=GCC%20Debug)](https://jenkins.vakon.space/job/JustReflectMe/job/LinuxBuild_GCC_Debug/replace_it_with_your_number/) [![GCC Release](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FLinuxBuild_GCC_Release%2F&label=GCC%20Release)](https://jenkins.vakon.space/job/JustReflectMe/job/LinuxBuild_GCC_Release/replace_it_with_your_number/)
+- [![Clang Debug](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FLinuxBuild_Clang_Debug%2F&label=Clang%20Debug)](https://jenkins.vakon.space/job/JustReflectMe/job/LinuxBuild_Clang_Debug/replace_it_with_your_number/) [![Clang Release](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FLinuxBuild_Clang_Release%2F&label=Clang%20Release)](https://jenkins.vakon.space/job/JustReflectMe/job/LinuxBuild_Clang_Release/replace_it_with_your_number/)
+- [![StaticCodeAnalysis](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.vakon.space%2Fjob%2FJustReflectMe%2Fjob%2FLinuxBuild_Clang_Debug%2F&label=Static%20Code%20Analysis)](https://jenkins.vakon.space/job/JustReflectMe/job/StaticCodeAnalysis/replace_it_with_your_number/)
+Built at: \$(date -u)
                     EOF
                     """
 
