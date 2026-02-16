@@ -153,11 +153,15 @@ pipeline {
 
                 script {
                     // Generate build metadata
-                    sh '''cat <<EOF > release/BUILD_INFO.txt
-                        Tag: ${env.TAG_NAME}
-                        Built at: $(date -u)
-                        EOF
-                    '''
+                    sh """
+                    #!/bin/bash
+                    mkdir -p release
+                    cat <<EOF > release/BUILD_INFO.txt
+                    Tag: ${env.TAG_NAME}
+                    Built at: \$(date -u)
+                    EOF
+                    """
+
 
                     sh "ls -R release"
                 }
