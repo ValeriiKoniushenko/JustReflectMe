@@ -161,8 +161,6 @@ pipeline {
                     sh """
                         cat <<EOF > release/BUILD_INFO.txt
                         Tag: ${env.TAG_NAME}
-                        Build number: ${env.BUILD_NUMBER}
-                        Commit: ${env.GIT_COMMIT}
                         Built at: $(date -u)
                         EOF
                     """
