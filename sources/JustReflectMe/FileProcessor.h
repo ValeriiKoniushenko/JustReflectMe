@@ -33,6 +33,8 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <typeindex>
+#include <unordered_set>
 #include <vector>
 
 #if defined(JRM_ENABLE_TESTS)
@@ -98,6 +100,7 @@ namespace JRM
 
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
+        std::unordered_set<std::type_index> _reflectorsMeta;
         std::string _path;     // to .h   - must be filled
         std::string _pathImpl; // to .cpp - can be empty
         const Config* _config = nullptr;
@@ -123,20 +126,13 @@ namespace JRM
 #endif
 
         _reflectors.emplace_back(std::make_unique<T>());
+        _reflectorsMeta.emplace(std::type_index(typeid(T)));
     }
 
     template<IsBaseReflector T>
     bool FileProcessor::hasReflector()
     {
-        for (auto&& reflector : _reflectors)
-        {
-            if (typeid(*reflector) == typeid(T))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return _reflectorsMeta.contains(std::type_index(typeid(T)));
     }
 
 } // namespace JRM
