@@ -49,16 +49,6 @@ namespace JRM
         return out;
     }
 
-    std::string EnumClassReflector::TokenData::fullNamePath() const
-    {
-        if (parentSpace.empty())
-        {
-            return name;
-        }
-
-        return parentSpace + "::" + name;
-    }
-
     std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData,
                                                          const Config& config) const
     {

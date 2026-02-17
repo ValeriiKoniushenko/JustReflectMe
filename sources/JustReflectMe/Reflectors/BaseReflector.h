@@ -150,6 +150,16 @@ namespace JRM
             }
         };
 
+        struct BaseTokenData
+        {
+            virtual ~BaseTokenData() = default;
+
+            std::string name;
+            std::string parentSpace;
+
+            [[nodiscard]] virtual std::string fullNamePath() const;
+        };
+
         static void WarnMessage(const char* source, std::size_t indexInFileWithError,
                                 const std::string& filepath, const std::string& errorMessage);
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);

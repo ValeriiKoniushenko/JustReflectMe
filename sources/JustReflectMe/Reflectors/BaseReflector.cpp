@@ -151,6 +151,16 @@ namespace JRM
         }
     }
 
+    std::string BaseReflector::BaseTokenData::fullNamePath() const
+    {
+        if (parentSpace.empty())
+        {
+            return name;
+        }
+
+        return parentSpace + "::" + name;
+    }
+
     void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
                                     const std::string& filepath, const std::string& errorMessage)
     {

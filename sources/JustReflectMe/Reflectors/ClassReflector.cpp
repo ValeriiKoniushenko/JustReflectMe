@@ -49,16 +49,6 @@ namespace JRM
         return out;
     }
 
-    std::string ClassReflector::TokenData::fullNamePath() const
-    {
-        if (parentSpace.empty())
-        {
-            return name;
-        }
-
-        return parentSpace + "::" + name;
-    }
-
     std::string ClassReflector::onGenerateHeaderFile(FileData& fileData, const Config& config) const
     {
         std::string result;

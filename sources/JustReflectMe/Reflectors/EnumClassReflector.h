@@ -51,13 +51,9 @@ namespace JRM
         }
 
     protected:
-        struct TokenData
+        struct TokenData : public BaseTokenData
         {
-            std::string name;
             std::vector<std::pair<std::string, std::string>> constants;
-            std::string parentSpace;
-
-            [[nodiscard]] std::string fullNamePath() const;
         };
 
         static constexpr std::string_view countMark = "@@COUNT_";

@@ -48,13 +48,10 @@ namespace JRM
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
     protected:
-        struct TokenData
+        struct TokenData : public BaseTokenData
         {
-            std::string name;
-            std::string parentSpace;
-
-            [[nodiscard]] std::string fullNamePath() const;
         };
+
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
                                                        const Config& config) const override;
         void onScan(const FileData& fileData) override;
