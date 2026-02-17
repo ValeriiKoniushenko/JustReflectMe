@@ -76,6 +76,8 @@ namespace JRM
 
     void ClassReflector::onScan(const FileData& fileData)
     {
+        static const auto keyword = getTriggerKeyword();
+
         const auto& content = fileData.getContent();
 
         for (const auto& token : _tokens)
@@ -96,11 +98,11 @@ namespace JRM
             const char* prevP = p;
 
             // Validating token definition
-            static const auto keywordLength = strlen(getTriggerKeyword());
-            if (strncmp(p, getTriggerKeyword(), keywordLength) != 0) [[unlikely]]
+
+            if (strncmp(p, keyword.data(), keyword.size()) != 0) [[unlikely]]
             {
                 throw SyntaxException("Invalid keyword was found. But expected: "
-                                          + std::string(getTriggerKeyword()),
+                                          + std::string(keyword),
                                       prevP - content.c_str());
             }
 

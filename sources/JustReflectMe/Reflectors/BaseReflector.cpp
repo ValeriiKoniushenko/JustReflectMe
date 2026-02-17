@@ -61,7 +61,7 @@ namespace JRM
             return false;
         }
 
-        const auto len = strlen(getTriggerKeyword());
+        const auto len = getTriggerKeyword().size();
         return pos + len < content.size() - 1 && !std::isalnum(content[pos + len]);
     }
 

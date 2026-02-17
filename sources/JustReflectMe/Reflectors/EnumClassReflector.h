@@ -45,7 +45,7 @@ namespace JRM
 
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
-        [[nodiscard]] const char* getTriggerKeyword() const noexcept override
+        [[nodiscard]] std::string_view getTriggerKeyword() const noexcept override
         {
             return "ENUM_CLASS";
         }

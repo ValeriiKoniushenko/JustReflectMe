@@ -101,6 +101,7 @@ namespace JRM
 
     void EnumClassReflector::onScan(const FileData& fileData)
     {
+        static const auto triggeredKeyword = getTriggerKeyword();
         const auto& content = fileData.getContent();
 
         for (const auto& token : _tokens)
@@ -111,8 +112,7 @@ namespace JRM
             const char* prevP = p;
 
             // Validating token definition
-            static const auto keywordLength = strlen(getTriggerKeyword());
-            if (strncmp(p, getTriggerKeyword(), keywordLength) != 0) [[unlikely]]
+            if (strncmp(p, triggeredKeyword.data(), triggeredKeyword.size()) != 0) [[unlikely]]
             {
                 throw SyntaxException("Invalid keyword was found. But expected: "
                                           + std::string(getTriggerKeyword()),
