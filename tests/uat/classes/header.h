@@ -92,8 +92,8 @@ public:
     Car(const Car&) = delete;
     Car& operator=(const Car&) = delete;
 
-    Car(Car&&) noexcept = default;
-    Car& operator=(Car&&) noexcept = default;
+    Car(Car&&) noexcept = delete;
+    Car& operator=(Car&&) noexcept = delete;
 
     ~Car() = default;
 

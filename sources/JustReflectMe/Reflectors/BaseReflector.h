@@ -77,7 +77,7 @@ namespace JRM
         void scanContent(FileData& data);
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
-        [[nodiscard]] virtual std::string_view getTriggerKeyword() const noexcept = 0;
+        [[nodiscard]] virtual constexpr std::string_view getTriggerKeyword() const noexcept = 0;
         [[nodiscard]] std::string generateHeaderFile(FileData& data, const Config& config) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
                                                      FileData& data, const Config& config) const;

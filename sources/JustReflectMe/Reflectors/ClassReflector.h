@@ -41,7 +41,7 @@ namespace JRM
         ClassReflector& operator=(ClassReflector&&) noexcept = default;
         ~ClassReflector() override = default;
 
-        [[nodiscard]] std::string_view getTriggerKeyword() const noexcept override
+        [[nodiscard]] constexpr std::string_view getTriggerKeyword() const noexcept override
         {
             return "CLASS";
         }
