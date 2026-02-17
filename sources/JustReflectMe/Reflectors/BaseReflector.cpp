@@ -198,7 +198,7 @@ namespace JRM
     {
         if (const auto pos = content.find(keyword, offset); pos != std::string::npos)
         {
-            return isWord(content, keyword, offset) ? pos : std::string::npos;
+            return isWord(content, keyword, pos) ? pos : std::string::npos;
         }
 
         return std::string::npos;

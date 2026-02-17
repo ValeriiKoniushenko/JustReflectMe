@@ -161,6 +161,8 @@ namespace JRM
                 }
                 data.parentSpace = PrettyPrintScope(scope);
             }
+
+            _data.emplace(token, std::move(data));
         }
     }
 
@@ -173,6 +175,9 @@ namespace JRM
 
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
         FindAndReplaceAll(finalString, onlyNameMark, data.name);
+        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
+        FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
+        FindAndReplaceAll(finalString, funcPrefMark, "static ");
 
         return finalString;
     }
