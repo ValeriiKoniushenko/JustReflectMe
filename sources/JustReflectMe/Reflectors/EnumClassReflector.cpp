@@ -59,21 +59,6 @@ namespace JRM
         return parentSpace + "::" + name;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFilePreNamespace(FileData&,
-                                                                     const Config& config) const
-    {
-        std::string result;
-        result.reserve(512);
-
-        result += "#include <optional>\n";
-        result += "#include <string>\n";
-        result += "#include <array>\n";
-        result += "#include <unordered_map>\n";
-        result += "\n";
-
-        return result;
-    }
-
     std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData,
                                                          const Config& config) const
     {

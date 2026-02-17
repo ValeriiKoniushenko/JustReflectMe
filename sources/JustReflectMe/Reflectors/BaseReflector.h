@@ -153,8 +153,6 @@ namespace JRM
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
-        [[nodiscard]] virtual std::string onGenerateHeaderFilePreNamespace(
-            FileData& data, const Config& config) const = 0;
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data,
                                                                const Config& config) const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data,
