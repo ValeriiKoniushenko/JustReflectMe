@@ -60,7 +60,7 @@ namespace JRM
             {
                 throw GenerationException(
                     "Can't process generation of the header file due to unexpected empty the "
-                    "enum's class name.");
+                    "class's name.");
             }
 
             auto endLines = std::count(result.rbegin(), result.rend(), '\n');
@@ -103,7 +103,7 @@ namespace JRM
                                       prevP - content.c_str());
             }
 
-            p = FindWordOnThisLine(p, "enum");
+            p = FindWordOnThisLine(p, "class");
             if (!p)
             {
                 p = prevP;
