@@ -32,3 +32,4 @@ struct R
 #define ENUM_CLASS(...) static_assert(true, "")
 
 #define CLASS(...) static_assert(true, "")
+#define FIELD(...) static_assert(true, "")

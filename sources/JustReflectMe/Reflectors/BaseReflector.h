@@ -138,6 +138,7 @@ namespace JRM
             static constexpr std::size_t invalidPosition = std::numeric_limits<std::size_t>::max();
             std::size_t begin = invalidPosition;
 
+            void requireValidTokenBasedOnContent(const std::string& content) const;
             [[nodiscard]] constexpr bool isValid() const noexcept
             {
                 return begin != invalidPosition;
@@ -158,6 +159,11 @@ namespace JRM
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data,
                                                                const Config& config) const = 0;
         virtual void onScan(const FileData& content) = 0;
+
+    protected:
+        [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
+                                                            std::string_view keyword,
+                                                            std::size_t offset);
 
     protected:
         std::vector<TokenEntry> _tokens;

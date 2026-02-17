@@ -105,22 +105,12 @@ namespace JRM
 
         for (const auto& token : _tokens)
         {
-            if (!token.isValid()) [[unlikely]]
-            {
-                throw std::runtime_error("Invalid token was found.");
-            }
-
-            if (token.begin >= content.size()) [[unlikely]]
-            {
-                throw std::runtime_error(
-                    "Token begin position is out of range: " + std::to_string(token.begin)
-                    + " But content length is: " + std::to_string(content.size()));
-            }
+            token.requireValidTokenBasedOnContent(content);
 
             const char* p = content.c_str() + token.begin;
             const char* prevP = p;
 
-            // Validating define
+            // Validating token definition
             static const auto keywordLength = strlen(getTriggerKeyword());
             if (strncmp(p, getTriggerKeyword(), keywordLength) != 0) [[unlikely]]
             {
@@ -129,7 +119,7 @@ namespace JRM
                                       prevP - content.c_str());
             }
 
-            p = FindOnThisLine(p, "enum class");
+            p = FindWordOnThisLine(p, "enum class");
             if (!p)
             {
                 p = prevP;
@@ -145,7 +135,7 @@ namespace JRM
                 }
 
                 prevP = p;
-                p = FindOnThisLine(p, "enum class");
+                p = FindWordOnThisLine(p, "enum class");
                 if (!p)
                 {
                     WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),

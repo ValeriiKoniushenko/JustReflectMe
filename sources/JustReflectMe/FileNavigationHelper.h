@@ -37,6 +37,8 @@ namespace FileNavigator
     [[nodiscard]] const char* FindFirstWithLineLimit(const char* source, const char* keyword,
                                                      std::size_t limit);
     [[nodiscard]] const char* FindOnThisLine(const char* source, const char* keyword);
+    [[nodiscard]] const char* FindWordOnThisLine(const std::string& content, std::string_view word);
+
     [[nodiscard]] const char* GoToSpace(const char* source);
     [[nodiscard]] const char* GoToNotSpace(const char* source);
     [[nodiscard]] const char* SkipAllBlanks(const char* source);
@@ -45,5 +47,7 @@ namespace FileNavigator
     [[nodiscard]] std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source,
                                                                              std::size_t i);
     [[nodiscard]] const char* FindScopeEnd(const char* source);
+    [[nodiscard]] bool isWord(const std::string& content, std::string_view word,
+                              std::size_t wordPos);
 
 } // namespace FileNavigator

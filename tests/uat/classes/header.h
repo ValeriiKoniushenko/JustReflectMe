@@ -26,12 +26,143 @@
 
 #include "JustReflectMe/Adapter.h"
 
-ENUM_CLASS();
-enum class Color
+#include <array>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+
+CLASS();
+class Car final
 {
-    Red,
-    Green,
-    Blue
+public:
+    enum class EngineType : unsigned char
+    {
+        Petrol,
+        Diesel,
+        Electric,
+        Hybrid
+    };
+
+    struct Spec
+    {
+        unsigned horsepower{};
+        double torqueNm{};
+        constexpr Spec(unsigned hp = 0u, double tq = 0.0) noexcept
+            : horsepower{ hp },
+              torqueNm{ tq }
+        {
+        }
+    };
+
+private:
+    static inline unsigned s_globalIdCounter = 0;
+
+    const unsigned _id{ ++s_globalIdCounter };
+    std::string _brand{ "Unknown" };
+    std::string _model{ "Undefined" };
+    EngineType _engine{ EngineType::Petrol };
+    Spec _spec{ 100u, 150.0 };
+
+    std::array<double, 4> _tirePressure{ 2.2, 2.2, 2.2, 2.2 };
+
+    std::unique_ptr<int> _diagnosticCode{};
+
+    bool _running : 1 { false };
+    bool _hasError : 1 { false };
+
+public:
+    constexpr static double MaxSpeedLimit = 320.0;
+
+    Car() = default;
+
+    explicit Car(std::string brand, std::string model)
+        : _brand(std::move(brand)),
+          _model(std::move(model))
+    {
+    }
+
+    Car(std::string brand, std::string model, EngineType engine, Spec spec) noexcept
+        : Car(std::move(brand), std::move(model))
+    {
+        _engine = engine;
+        _spec = spec;
+    }
+
+    Car(const Car&) = delete;
+    Car& operator=(const Car&) = delete;
+
+    Car(Car&&) noexcept = default;
+    Car& operator=(Car&&) noexcept = default;
+
+    ~Car() = default;
+
+public:
+    [[nodiscard]]
+    auto id() const noexcept -> unsigned
+    {
+        return _id;
+    }
+
+    [[nodiscard]]
+    auto fullName() const& -> std::string
+    {
+        return _brand + " " + _model;
+    }
+
+    [[nodiscard]]
+    auto fullName() && -> std::string
+    {
+        return std::move(_brand) + " " + std::move(_model);
+    }
+
+    void start() noexcept
+    {
+        if (!_hasError)
+        {
+            _running = true;
+        }
+    }
+
+    void stop() noexcept { _running = false; }
+
+    void setDiagnostic(int code)
+    {
+        _diagnosticCode = std::make_unique<int>(code);
+        _hasError = true;
+    }
+
+    void clearDiagnostic() noexcept
+    {
+        _diagnosticCode.reset();
+        _hasError = false;
+    }
+
+    [[nodiscard]]
+    constexpr bool isRunning() const noexcept
+    {
+        return _running;
+    }
+
+    [[nodiscard]]
+    constexpr EngineType engineType() const noexcept
+    {
+        return _engine;
+    }
+
+    void inflateTire(std::size_t index, double value)
+    {
+        if (index < _tirePressure.size())
+        {
+            _tirePressure[index] = value;
+        }
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Car& car)
+    {
+        return os << "Car{id=" << car._id << ", name=" << car._brand << " " << car._model
+                  << ", hp=" << car._spec.horsepower << ", running=" << car._running << "}";
+    }
 };
 
 #include "header.generated.inl" // added by the code generator. Better don't move it.

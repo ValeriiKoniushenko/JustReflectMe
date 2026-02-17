@@ -67,17 +67,13 @@ namespace JRM
 
     void BaseReflector::scanContent(FileData& data)
     {
-        const char* triggerKeyword = getTriggerKeyword();
-        const auto len = strlen(getTriggerKeyword());
-
         const auto& content = data.getContent();
 
-        auto pos = content.find(triggerKeyword);
-        while (pos != std::string::npos && pos + len < content.size() - 1
-               && !std::isalnum(content[pos + len]))
+        auto pos = findTriggerKeyword(content, getTriggerKeyword(), 0);
+        while (pos != std::string::npos)
         {
             _tokens.emplace_back(pos);
-            pos = content.find(triggerKeyword, pos + 1);
+            pos = findTriggerKeyword(content, getTriggerKeyword(), pos + 1);
         }
 
         if (_tokens.empty())
@@ -139,6 +135,22 @@ namespace JRM
         return _isSupportImplTranslationUnit;
     }
 
+    void BaseReflector::TokenEntry::requireValidTokenBasedOnContent(
+        const std::string& content) const
+    {
+        if (!isValid()) [[unlikely]]
+        {
+            throw std::runtime_error("Invalid token was found.");
+        }
+
+        if (begin >= content.size()) [[unlikely]]
+        {
+            throw std::runtime_error("Token begin position is out of range: "
+                                     + std::to_string(begin)
+                                     + " But content length is: " + std::to_string(content.size()));
+        }
+    }
+
     void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
                                     const std::string& filepath, const std::string& errorMessage)
     {
@@ -179,6 +191,17 @@ namespace JRM
         out += PrettyPrintScope(scope);
 
         return out;
+    }
+
+    std::size_t BaseReflector::findTriggerKeyword(const std::string& content,
+                                                  std::string_view keyword, std::size_t offset)
+    {
+        if (const auto pos = content.find(keyword, offset); pos != std::string::npos)
+        {
+            return isWord(content, keyword, offset) ? pos : std::string::npos;
+        }
+
+        return std::string::npos;
     }
 
 } // namespace JRM

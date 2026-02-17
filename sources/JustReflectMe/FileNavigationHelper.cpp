@@ -109,6 +109,12 @@ namespace FileNavigator
         return out && out < endLine ? out : nullptr;
     }
 
+    const char* FindWordOnThisLine(const std::string& content, std::string_view word)
+    {
+        const char* result = FindOnThisLine(content.c_str(), word.data());
+        return result && isWord(content, word, result - content.c_str()) ? result : nullptr;
+    }
+
     const char* GoToSpace(const char* source)
     {
         while (source && *source != '\0' && !(*source == ' ' || *source == '\t'))
@@ -256,6 +262,22 @@ namespace FileNavigator
         }
 
         return nullptr;
+    }
+
+    bool isWord(const std::string& content, std::string_view word, std::size_t wordPos)
+    {
+        if (wordPos > 0 && (std::isalnum(content[wordPos - 1]) || content[wordPos - 1] == '_'))
+        {
+            return false;
+        }
+
+        const auto end = word.size() + wordPos;
+        if (end < content.size() && (std::isalnum(content[end]) || content[end] == '_'))
+        {
+            return false;
+        }
+
+        return true;
     }
 
 } // namespace FileNavigator
