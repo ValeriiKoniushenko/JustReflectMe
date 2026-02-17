@@ -203,7 +203,7 @@ namespace JRM
             fs::path path;
         };
 
-        Cache cache(_sourcePath);
+        Cache cache(_sourcePath, _config.alwaysDirtyCache->value);
 
         std::stack<Frame> frames;
         frames.push(Frame{ fs::directory_iterator(_sourcePath), _sourcePath });

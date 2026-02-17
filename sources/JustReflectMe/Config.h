@@ -102,6 +102,10 @@ namespace JRM
 
         PARAM(bool, showEveryIteratedFilePath, "Show every file path while running.", false);
         PARAM(bool, showSkippedFiles, "Show skipped(no need update) files while running.", false);
+        PARAM(bool, alwaysDirtyCache,
+              "If true, it will always regenerate the files, regardless of whether they were "
+              "modified.",
+              false);
     };
 #undef PARAM
 

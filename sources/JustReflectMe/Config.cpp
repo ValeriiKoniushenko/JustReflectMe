@@ -51,6 +51,7 @@ namespace JRM
         _params.emplace_back(parsableFileExtensions);
         _params.emplace_back(showEveryIteratedFilePath);
         _params.emplace_back(showSkippedFiles);
+        _params.emplace_back(alwaysDirtyCache);
     }
 
     Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir)
@@ -105,6 +106,11 @@ namespace JRM
             if (auto&& item = yaml[config.showSkippedFiles->paramName.data()]; !item.IsNone())
             {
                 config.showSkippedFiles->value = item.As<bool>();
+            }
+
+            if (auto&& item = yaml[config.alwaysDirtyCache->paramName.data()]; !item.IsNone())
+            {
+                config.alwaysDirtyCache->value = item.As<bool>();
             }
         }
         catch (Yaml::Exception& ex)
@@ -174,12 +180,13 @@ namespace JRM
         out += "\n";
 
         out += genKey(*config.showEveryIteratedFilePath)
-               + (config.showEveryIteratedFilePath->value ? "true" : "false") + "\n"s;
-        out += "\n";
+               + (config.showEveryIteratedFilePath->value ? "true" : "false") + "\n\n"s;
 
         out += genKey(*config.showSkippedFiles)
-               + (config.showSkippedFiles->value ? "true" : "false") + "\n"s;
-        out += "\n";
+               + (config.showSkippedFiles->value ? "true" : "false") + "\n\n"s;
+
+        out += genKey(*config.alwaysDirtyCache)
+               + (config.alwaysDirtyCache->value ? "true" : "false") + "\n\n"s;
 
         return out;
     }

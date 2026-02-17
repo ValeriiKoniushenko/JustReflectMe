@@ -40,8 +40,10 @@ namespace fs = std::filesystem;
 namespace JRM
 {
 
-    Cache::Cache(const std::filesystem::path& projectDir)
+    Cache::Cache(const std::filesystem::path& projectDir, bool ignoreCacheRequests)
     {
+        ignoreAnyCacheRequestAndSave(ignoreCacheRequests);
+
         initializeProjectAndLoadData(projectDir);
     }
 
@@ -97,6 +99,11 @@ namespace JRM
                       << path.generic_string() << "\n";
         }
 #endif
+        if (_ignoreCacheRequests)
+        {
+            return true;
+        }
+
         if (!_files.contains(path))
         {
             return true;
@@ -107,6 +114,11 @@ namespace JRM
 
     void Cache::updateFile(const fs::path& path)
     {
+        if (_ignoreCacheRequests)
+        {
+            return;
+        }
+
         _files[path.is_absolute() ? path.lexically_relative(_projectDir) : path]
             = fs::file_time_type(fs::last_write_time(path));
     }
@@ -116,8 +128,18 @@ namespace JRM
         writeCache();
     }
 
+    void Cache::ignoreAnyCacheRequestAndSave(bool v) noexcept
+    {
+        _ignoreCacheRequests = v;
+    }
+
     void Cache::readCache()
     {
+        if (_ignoreCacheRequests)
+        {
+            return;
+        }
+
         if (_projectDir.empty()) [[unlikely]]
         {
             std::cerr << "[JustReflectMe] Can't read cache file. Internal error.\n";
@@ -201,6 +223,11 @@ namespace JRM
 
     void Cache::writeCache()
     {
+        if (_ignoreCacheRequests)
+        {
+            return;
+        }
+
         if (_projectDir.empty()) [[unlikely]]
         {
             std::cerr << "[JustReflectMe] Cache file corrupted(3). Delete it manually. It will be "

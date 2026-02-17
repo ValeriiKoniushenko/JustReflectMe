@@ -38,7 +38,7 @@ namespace JRM
         constexpr static const char* jrmCacheFileName = "cache.data";
 
     public:
-        Cache(const std::filesystem::path& projectDir);
+        Cache(const std::filesystem::path& projectDir, bool ignoreCacheRequests);
         Cache(const Cache&) = delete;
         Cache& operator=(const Cache&) = delete;
         Cache(Cache&&) noexcept = delete;
@@ -52,6 +52,7 @@ namespace JRM
         void updateFile(const std::filesystem::path& path);
 
         void saveCache();
+        void ignoreAnyCacheRequestAndSave(bool v) noexcept;
 
     private:
         void initializeProjectAndLoadData(const std::filesystem::path& projectDir);
@@ -62,6 +63,8 @@ namespace JRM
         std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> _files;
         std::filesystem::path _projectDir;
         std::filesystem::path _targetFile;
+
+        bool _ignoreCacheRequests = false;
     };
 
 } // namespace JRM
