@@ -61,11 +61,8 @@ namespace JRM
         };
 
         static constexpr std::string_view countMark = "@@COUNT_";
-        static constexpr std::string_view onlyNameMark = "@@ONLY_NAME_";
 
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
-                                                       const Config& config) const override;
-        [[nodiscard]] std::string onGenerateSourceFile(FileData& fileData,
                                                        const Config& config) const override;
         void onScan(const FileData& fileData) override;
 

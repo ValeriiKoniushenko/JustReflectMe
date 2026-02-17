@@ -124,6 +124,7 @@ namespace JRM
          * Main namespace/struct name from the config. By default: 'R'
          */
         static constexpr std::string_view namespaceMark = "@@NAMESPACE_";
+        static constexpr std::string_view onlyNameMark = "@@ONLY_NAME_";
 
         struct TokenEntry final
         {
@@ -157,7 +158,10 @@ namespace JRM
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data,
                                                                const Config& config) const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data,
-                                                               const Config& config) const = 0;
+                                                               const Config& config) const
+        {
+            return {};
+        }
         virtual void onScan(const FileData& content) = 0;
 
     protected:

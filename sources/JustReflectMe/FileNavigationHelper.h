@@ -37,7 +37,7 @@ namespace FileNavigator
     [[nodiscard]] const char* FindFirstWithLineLimit(const char* source, const char* keyword,
                                                      std::size_t limit);
     [[nodiscard]] const char* FindOnThisLine(const char* source, const char* keyword);
-    [[nodiscard]] const char* FindWordOnThisLine(const std::string& content, std::string_view word);
+    [[nodiscard]] const char* FindWordOnThisLine(std::string_view content, std::string_view word);
 
     [[nodiscard]] const char* GoToSpace(const char* source);
     [[nodiscard]] const char* GoToNotSpace(const char* source);

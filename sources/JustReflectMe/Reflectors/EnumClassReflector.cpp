@@ -93,12 +93,6 @@ namespace JRM
         return result;
     }
 
-    std::string EnumClassReflector::onGenerateSourceFile(FileData& fileData,
-                                                         const Config& config) const
-    {
-        return {};
-    }
-
     void EnumClassReflector::onScan(const FileData& fileData)
     {
         static const auto triggeredKeyword = getTriggerKeyword();

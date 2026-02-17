@@ -51,22 +51,17 @@ namespace JRM
         struct TokenData
         {
             std::string name;
-            std::vector<std::pair<std::string, std::string>> constants;
             std::string parentSpace;
 
             [[nodiscard]] std::string fullNamePath() const;
         };
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
                                                        const Config& config) const override;
-        [[nodiscard]] std::string onGenerateSourceFile(FileData& fileData,
-                                                       const Config& config) const override;
         void onScan(const FileData& fileData) override;
 
     private:
-        [[nodiscard]] std::string generateDeclaration(const TokenData& data,
-                                                      const Config& config) const;
-        [[nodiscard]] std::string generateImplementation(const TokenData& data,
-                                                         const Config& config) const;
+        [[nodiscard]] std::string generateSources(const TokenData& data,
+                                                  const Config& config) const;
 
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;

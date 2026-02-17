@@ -35,6 +35,7 @@
 
 using namespace FileNavigator;
 using namespace StringHelper;
+using namespace std::string_literals;
 
 namespace JRM
 {
@@ -61,69 +62,119 @@ namespace JRM
     std::string ClassReflector::onGenerateHeaderFile(FileData& fileData, const Config& config) const
     {
         std::string result;
-        result.reserve(1024);
+        result.reserve(1024 * 4);
 
-        return result;
-    }
+        for (const auto& [_, data] : _data)
+        {
+            if (data.name.empty()) [[unlikely]]
+            {
+                throw GenerationException(
+                    "Can't process generation of the header file due to unexpected empty the "
+                    "enum's class name.");
+            }
 
-    std::string ClassReflector::onGenerateSourceFile(FileData& fileData, const Config& config) const
-    {
-        std::string result;
-        result.reserve(1024);
+            auto endLines = std::count(result.rbegin(), result.rend(), '\n');
+            while (!result.empty() && endLines < 2)
+            {
+                ++endLines;
+                result.push_back('\n');
+            }
+
+            auto structName = "struct "s + namespaceName.data() + "<" + data.fullNamePath() + ">";
+
+            result += "template<>\n";
+            result += structName;
+            result += "\n{";
+            result += generateSources(data, config);
+            result += "\n}; // " + structName;
+        }
 
         return result;
     }
 
     void ClassReflector::onScan(const FileData& fileData)
     {
-        static const auto keyword = getTriggerKeyword();
+        static const auto triggeredKeyword = getTriggerKeyword();
 
         const auto& content = fileData.getContent();
 
         for (const auto& token : _tokens)
         {
-            if (!token.isValid()) [[unlikely]]
-            {
-                throw std::runtime_error("Invalid token was found.");
-            }
-
-            if (token.begin >= content.size()) [[unlikely]]
-            {
-                throw std::runtime_error(
-                    "Token begin position is out of range: " + std::to_string(token.begin)
-                    + " But content length is: " + std::to_string(content.size()));
-            }
+            token.requireValidTokenBasedOnContent(content);
 
             const char* p = content.c_str() + token.begin;
             const char* prevP = p;
 
             // Validating token definition
-
-            if (strncmp(p, keyword.data(), keyword.size()) != 0) [[unlikely]]
+            if (strncmp(p, triggeredKeyword.data(), triggeredKeyword.size()) != 0) [[unlikely]]
             {
                 throw SyntaxException("Invalid keyword was found. But expected: "
-                                          + std::string(keyword),
+                                          + std::string(getTriggerKeyword()),
                                       prevP - content.c_str());
             }
 
-            p = FindOnThisLine(p, "class");
+            p = FindWordOnThisLine(p, "enum");
+            if (!p)
+            {
+                p = prevP;
+                const char* startPtr = p;
+
+                p = GoToNextLine(p);
+                if (!p)
+                {
+                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                std::string(getTriggerKeyword())
+                                    + " keyword found, but 'class' wasn't found after it.");
+                    continue;
+                }
+
+                prevP = p;
+                p = FindWordOnThisLine(p, "class");
+                if (!p)
+                {
+                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                std::string(getTriggerKeyword())
+                                    + " keyword found, but 'class' wasn't found after it.");
+                    continue;
+                }
+            }
+
+            static const auto classLength = strlen("class");
+            p += classLength;
+
+            TokenData data;
+            data.name = ReadAsIdentifier(p);
+            if (data.name.empty())
+            {
+                throw SyntaxException("Not found class's identifier.", p - content.c_str());
+            }
+
+            if (const Scope* scope = fileData.getScopes().getScopeAt(p))
+            {
+                if (scope->attribute & Scope::Attr_Template)
+                {
+                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                                "The current version of JRM can't process 'class' inside a "
+                                "template scope: \""
+                                    + PrettyPrintIdentifier(scope) + "\"");
+                    continue;
+                }
+                data.parentSpace = PrettyPrintScope(scope);
+            }
         }
     }
 
-    std::string ClassReflector::generateDeclaration(const TokenData& data,
-                                                    const Config& config) const
+    std::string ClassReflector::generateSources(const TokenData& data, const Config& config) const
     {
-        std::string result;
+        std::string finalString = R"(
+    @@FUNC_PREF_std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_std::string_view ParentScope() { return "@@PARENTS_"; }
+        )";
 
-        return result;
-    }
+        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
+        FindAndReplaceAll(finalString, onlyNameMark, data.name);
 
-    std::string ClassReflector::generateImplementation(const TokenData& data,
-                                                       const Config& config) const
-    {
-        std::string result;
-
-        return result;
+        return finalString;
     }
 
 } // namespace JRM

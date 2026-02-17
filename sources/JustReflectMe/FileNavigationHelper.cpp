@@ -109,10 +109,10 @@ namespace FileNavigator
         return out && out < endLine ? out : nullptr;
     }
 
-    const char* FindWordOnThisLine(const std::string& content, std::string_view word)
+    const char* FindWordOnThisLine(std::string_view content, std::string_view word)
     {
-        const char* result = FindOnThisLine(content.c_str(), word.data());
-        return result && isWord(content, word, result - content.c_str()) ? result : nullptr;
+        const char* result = FindOnThisLine(content.data(), word.data());
+        return result && isWord(content.data(), word, result - content.data()) ? result : nullptr;
     }
 
     const char* GoToSpace(const char* source)
