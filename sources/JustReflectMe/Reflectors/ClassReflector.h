@@ -48,13 +48,23 @@ namespace JRM
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
     protected:
+        struct FieldData
+        {
+            std::string type;
+            std::string name;
+            std::string defaultValue;
+        };
+
         struct TokenData : public BaseTokenData
         {
+            std::vector<FieldData> fields;
         };
 
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
                                                        const Config& config) const override;
         void onScan(const FileData& fileData) override;
+
+        void processFields(const Scope* classScope, const FileData& fileData, TokenData& data);
 
     private:
         [[nodiscard]] std::string generateSources(const TokenData& data,

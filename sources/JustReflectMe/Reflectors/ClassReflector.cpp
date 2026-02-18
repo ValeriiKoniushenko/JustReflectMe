@@ -145,14 +145,167 @@ namespace JRM
                 {
                     WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                                 "The current version of JRM can't process 'class' inside a "
-                                "template scope: \""
-                                    + PrettyPrintIdentifier(scope) + "\"");
+                                "template scope: '"
+                                    + PrettyPrintIdentifier(scope) + "'");
                     continue;
                 }
                 data.parentSpace = PrettyPrintScope(scope);
             }
 
+            // Finding '{', but should check for ';'
+            prevP = p;
+            while (p && *p)
+            {
+                if (*p == '{')
+                {
+                    break;
+                }
+
+                if (*p == ';')
+                {
+                    WarnMessage(
+                        content.c_str(), p - content.c_str(), fileData.getPath(),
+                        "Expected class definition. But was found the forward declaration of the class: '"s
+                            + data.name + "'");
+                    continue;
+                }
+
+                ++p;
+            }
+
+            if (!p || *p != '{') [[unlikely]]
+            {
+                WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                            "Can't parse the class: '"s + data.name
+                                + "' due to overloaded syntax or syntax errors.");
+                continue;
+            }
+
+            const Scope* classScope = fileData.getScopes().getScopeAt(p);
+            if (!classScope || !classScope->isValid() || classScope->type != Scope::Type::Class)
+                [[unlikely]]
+            {
+                WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                            "Can't parse scopes of the class: '"s + data.name
+                                + "' due to overloaded syntax or syntax errors.");
+                continue;
+            }
+
+            processFields(classScope, fileData, data);
+
             _data.emplace(token, std::move(data));
+        }
+    }
+
+    void ClassReflector::processFields(const Scope* classScope, const FileData& fileData,
+                                       TokenData& data)
+    {
+        static std::string_view fieldKeyword = "FIELD";
+        std::vector<const char*> fields;
+
+        const char* it = classScope->start;
+        it = std::search(it, classScope->end, fieldKeyword.data(),
+                         fieldKeyword.data() + fieldKeyword.size());
+
+        while (it && it != classScope->end)
+        {
+            if (FileNavigator::IsWord(classScope->start, fieldKeyword, it - classScope->start))
+            {
+                if ((it = FindOnThisLine(it, ";")))
+                {
+                    if ((it = SkipAllBlanks(++it)))
+                    {
+                        fields.emplace_back(it);
+                    }
+                }
+            }
+
+            it = std::search(it, classScope->end, fieldKeyword.data(),
+                             fieldKeyword.data() + fieldKeyword.size());
+        }
+
+        for (const char* p : fields)
+        {
+            FieldData field;
+            field.type = ReadAsTypename(p);
+            if (field.type.empty())
+            {
+                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                            "Can't parse field of the class: '" + data.name
+                                + "'. Can't detect typename.");
+                continue;
+            }
+
+            p += field.type.size();
+            if (!std::isspace(*p))
+            {
+                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                            "Can't parse field of the class: '" + data.name
+                                + "'. Can't detect identifier.");
+                continue;
+            }
+
+            p = SkipAllBlanks(p);
+            if (!p)
+            {
+                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                            "Can't parse field of the class: '" + data.name
+                                + "'. Can't detect identifier(2).");
+                continue;
+            }
+
+            field.name = ReadAsIdentifier(p);
+            if (field.name.empty())
+            {
+                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                            "Can't parse field of the class: '" + data.name
+                                + "'. Can't detect field name.");
+            }
+            p += field.name.size();
+
+            p = SkipAllBlanks(p);
+            if (*p != ';')
+            {
+                if (*p == '=')
+                {
+                    p = SkipAllBlanks(p + 1);
+                }
+
+                if (*p == '{')
+                {
+                    auto s = classScope->findDeepest(p);
+                    if (!s || !s->isValid())
+                    {
+                        WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                                    "Can't parse field of the class: '" + data.name
+                                        + "'. Can't detect initializer.");
+                        continue;
+                    }
+
+                    p = SkipAllBlanks(s->start);
+                    field.defaultValue = std::string(p, s->end - p);
+                }
+                else
+                {
+                    const auto* end = strchr(p, ';');
+                    if (!end)
+                    {
+                        WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                                    "Can't parse field of the class: '" + data.name
+                                        + "'. Can't detect initializer(2).");
+                        continue;
+                    }
+
+                    field.defaultValue = std::string(p, end - p);
+                }
+
+                while (!field.defaultValue.empty() && std::isspace(field.defaultValue.back()))
+                {
+                    field.defaultValue.pop_back();
+                }
+            }
+
+            data.fields.emplace_back(std::move(field));
         }
     }
 

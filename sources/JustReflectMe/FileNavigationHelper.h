@@ -43,11 +43,11 @@ namespace FileNavigator
     [[nodiscard]] const char* GoToNotSpace(const char* source);
     [[nodiscard]] const char* SkipAllBlanks(const char* source);
     [[nodiscard]] std::string ReadAsIdentifier(const char* source);
+    [[nodiscard]] std::string ReadAsTypename(const char* source);
     [[nodiscard]] std::size_t GetLineNumber(const char* source, std::size_t i);
     [[nodiscard]] std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source,
                                                                              std::size_t i);
     [[nodiscard]] const char* FindScopeEnd(const char* source);
-    [[nodiscard]] bool isWord(const std::string& content, std::string_view word,
-                              std::size_t wordPos);
+    [[nodiscard]] bool IsWord(std::string_view content, std::string_view word, std::size_t wordPos);
 
 } // namespace FileNavigator

@@ -78,7 +78,7 @@ namespace JRM
 
     bool Scope::contains(const char* i) const noexcept
     {
-        return i > start && i < end;
+        return i >= start && i < end;
     }
 
     const Scope* Scope::findDeepest(const char* i) const

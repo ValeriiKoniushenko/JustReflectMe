@@ -112,7 +112,7 @@ namespace FileNavigator
     const char* FindWordOnThisLine(std::string_view content, std::string_view word)
     {
         const char* result = FindOnThisLine(content.data(), word.data());
-        return result && isWord(content.data(), word, result - content.data()) ? result : nullptr;
+        return result && IsWord(content.data(), word, result - content.data()) ? result : nullptr;
     }
 
     const char* GoToSpace(const char* source)
@@ -164,6 +164,40 @@ namespace FileNavigator
         }
 
         return {};
+    }
+
+    std::string ReadAsTypename(const char* source)
+    {
+        if (!source || (!isalpha(*source) && *source != '_'))
+        {
+            return {};
+        }
+        std::string result;
+
+        int triangScopes = 0;
+        while (*source)
+        {
+            result.push_back(*source);
+
+            if (*source == '<')
+            {
+                ++triangScopes;
+            }
+            else if (*source == '>')
+            {
+                --triangScopes;
+            }
+
+            if (std::isspace(*source) && triangScopes == 0)
+            {
+                result.pop_back();
+                break;
+            }
+
+            ++source;
+        }
+
+        return result;
     }
 
     std::size_t GetLineNumber(const char* source, std::size_t i)
@@ -264,7 +298,7 @@ namespace FileNavigator
         return nullptr;
     }
 
-    bool isWord(const std::string& content, std::string_view word, std::size_t wordPos)
+    bool IsWord(std::string_view content, std::string_view word, std::size_t wordPos)
     {
         if (wordPos > 0 && (std::isalnum(content[wordPos - 1]) || content[wordPos - 1] == '_'))
         {
