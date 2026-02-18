@@ -58,6 +58,9 @@ public:
 private:
     static inline unsigned s_globalIdCounter = 0;
 
+    FIELD();
+    int i = 1;
+
     const unsigned _id{ ++s_globalIdCounter };
     std::string _brand{ "Unknown" };
     std::string _model{ "Undefined" };
