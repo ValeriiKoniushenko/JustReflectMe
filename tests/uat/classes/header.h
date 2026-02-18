@@ -61,14 +61,37 @@ private:
     FIELD();
     int i = 1;
 
+    FIELD();
+    int a;
+
+    FIELD();
+    int b = { 123 };
+
+    FIELD();
+    int c{ 666 };
+
+    FIELD();
     const unsigned _id{ ++s_globalIdCounter };
+
+    FIELD();
     std::string _brand{ "Unknown" };
+
+    FIELD();
     std::string _model{ "Undefined" };
+
+    FIELD();
     EngineType _engine{ EngineType::Petrol };
+
+    FIELD();
+    char ch = 'b';
+
+    FIELD();
     Spec _spec{ 100u, 150.0 };
 
+    FIELD();
     std::array<double, 4> _tirePressure{ 2.2, 2.2, 2.2, 2.2 };
 
+    FIELD();
     std::unique_ptr<int> _diagnosticCode{};
 
     bool _running : 1 { false };

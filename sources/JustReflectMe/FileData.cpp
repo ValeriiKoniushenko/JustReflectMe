@@ -29,14 +29,14 @@
 namespace JRM
 {
 
-    void FileData::setContent(std::string&& content)
+    void FileData::setContent(PostProcessedFile&& content)
     {
         _content = std::move(content);
     }
 
     const std::string& FileData::getContent() const noexcept
     {
-        return _content;
+        return _content.content;
     }
 
     const Scopes& FileData::getScopes() const noexcept
@@ -61,7 +61,7 @@ namespace JRM
 
     void FileData::scanScopes()
     {
-        _scopes.scan(_content);
+        _scopes.scan(_content.content);
     }
 
 } // namespace JRM

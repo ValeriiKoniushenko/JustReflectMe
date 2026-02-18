@@ -114,8 +114,10 @@ namespace JRM
         }
     }
 
-    std::string FileProcessor::getFileContent(const std::string& filename)
+    PostProcessedFile FileProcessor::getFileContent(const std::string& filename)
     {
+        PostProcessedFile out;
+
         std::string content1 = ReadFile(filename);
 
         std::string content2;
@@ -182,6 +184,8 @@ namespace JRM
 
         // Removing all strings: "hello world"
         bool nowDoubleQuote = false;
+        std::pair<std::size_t, std::string> stringToken;
+
         for (std::size_t i = 0; i < content1.size() && content1[i]; ++i)
         {
             if (nowDoubleQuote && content1[i] == '\n')
@@ -192,38 +196,88 @@ namespace JRM
             if (content1[i] == '"')
             {
                 nowDoubleQuote = !nowDoubleQuote;
+                if (nowDoubleQuote && (i > 0 && content1[i - 1] != '\\'))
+                {
+                    if (stringToken.first != 0)
+                    {
+                        content2.push_back(PostProcessedFile::stringPlaceholder);
+                        out.stringTokens.insert(std::move(stringToken));
+                    }
+
+                    stringToken = { i, "" };
+                }
+
                 if (!nowDoubleQuote)
                 {
                     continue;
                 }
             }
 
-            if (!nowDoubleQuote)
+            if (nowDoubleQuote)
+            {
+                content2.push_back(PostProcessedFile::stringPlaceholder);
+
+                if (i != stringToken.first)
+                {
+                    stringToken.second.push_back(content1[i]);
+                }
+            }
+            else
             {
                 content2.push_back(content1[i]);
             }
         }
         content1.resize(0);
+        if (stringToken.first != 0)
+        {
+            out.stringTokens.insert(std::move(stringToken));
+        }
 
         // Removing all chars: 'c'
         bool nowSingleQuote = false;
+        std::pair<std::size_t, std::string> charToken;
+
         for (std::size_t i = 0; i < content2.size() && content2[i]; ++i)
         {
             if (content2[i] == '\'')
             {
                 nowSingleQuote = !nowSingleQuote;
+                if (nowSingleQuote && (i > 0 && content2[i - 1] != '\\'))
+                {
+                    if (charToken.first != 0)
+                    {
+                        content1.push_back(PostProcessedFile::charPlaceholder);
+                        out.charTokens.insert(std::move(charToken));
+                    }
+
+                    charToken = { i, "" };
+                }
+
                 if (!nowSingleQuote)
                 {
                     continue;
                 }
             }
 
-            if (!nowSingleQuote)
+            if (nowSingleQuote)
+            {
+                content1.push_back(PostProcessedFile::charPlaceholder);
+
+                if (i != charToken.first)
+                {
+                    charToken.second.push_back(content2[i]);
+                }
+            }
+            else
             {
                 content1.push_back(content2[i]);
             }
         }
         content2.resize(0);
+        if (charToken.first != 0)
+        {
+            out.charTokens.insert(std::move(charToken));
+        }
 
         // normalizing enum<x spaces>class -> enum<one space>class
         if (const auto pos = content1.find("enum  "); pos != std::string::npos)
@@ -249,7 +303,9 @@ namespace JRM
             }
         }
 
-        return content1.empty() ? content2 : content1;
+        out.content = std::move(content1.empty() ? content2 : content1);
+
+        return out;
     }
 
     std::pair<std::string, std::string> FileProcessor::generateFilenames(

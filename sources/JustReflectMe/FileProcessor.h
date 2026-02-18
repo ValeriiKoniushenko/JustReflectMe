@@ -46,6 +46,16 @@ namespace JRM
     class FileData;
     struct Config;
 
+    struct PostProcessedFile
+    {
+        constexpr static char stringPlaceholder = 31;
+        constexpr static char charPlaceholder = 30;
+
+        std::string content;
+        std::unordered_map<std::size_t, std::string> stringTokens;
+        std::unordered_map<std::size_t, std::string> charTokens;
+    };
+
     class FileProcessor
     {
     public:
@@ -86,7 +96,7 @@ namespace JRM
 
     private:
         void scanContent(FileData& data) const;
-        [[nodiscard]] static std::string getFileContent(const std::string& filename);
+        [[nodiscard]] static PostProcessedFile getFileContent(const std::string& filename);
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
                                                                             = false) const;
         void tryToGenerateHeaderContent(FileData& data);
@@ -101,6 +111,7 @@ namespace JRM
     protected:
         std::vector<std::unique_ptr<BaseReflector>> _reflectors;
         std::unordered_set<std::type_index> _reflectorsMeta;
+
         std::string _path;     // to .h   - must be filled
         std::string _pathImpl; // to .cpp - can be empty
         const Config* _config = nullptr;

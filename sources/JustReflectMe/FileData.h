@@ -25,6 +25,7 @@
  */
 
 #pragma once
+#include "FileProcessor.h"
 #include "Scopes.h"
 
 #include <string>
@@ -42,7 +43,7 @@ namespace JRM
         FileData& operator=(FileData&&) noexcept = default;
         virtual ~FileData() = default;
 
-        void setContent(std::string&& content);
+        void setContent(PostProcessedFile&& content);
         [[nodiscard]] const std::string& getContent() const noexcept;
 
         [[nodiscard]] const Scopes& getScopes() const noexcept;
@@ -54,7 +55,7 @@ namespace JRM
         void scanScopes();
 
     protected:
-        std::string _content;
+        PostProcessedFile _content;
         Scopes _scopes;
         std::string _path;
     };

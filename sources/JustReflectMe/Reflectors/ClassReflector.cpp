@@ -193,6 +193,12 @@ namespace JRM
 
             processFields(classScope, fileData, data);
 
+            for (auto f : data.fields)
+            {
+                std::cout << f.type << " " << f.name << (f.defaultValue.empty() ? "" : " = ")
+                          << f.defaultValue << std::endl;
+            }
+
             _data.emplace(token, std::move(data));
         }
     }
@@ -246,13 +252,6 @@ namespace JRM
             }
 
             p = SkipAllBlanks(p);
-            if (!p)
-            {
-                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
-                            "Can't parse field of the class: '" + data.name
-                                + "'. Can't detect identifier(2).");
-                continue;
-            }
 
             field.name = ReadAsIdentifier(p);
             if (field.name.empty())
@@ -282,8 +281,7 @@ namespace JRM
                         continue;
                     }
 
-                    p = SkipAllBlanks(s->start);
-                    field.defaultValue = std::string(p, s->end - p);
+                    field.defaultValue = std::string(p, s->end - p + 1);
                 }
                 else
                 {
