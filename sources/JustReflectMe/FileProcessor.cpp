@@ -250,6 +250,7 @@ namespace JRM
                         out.charTokens.insert(std::move(charToken));
                     }
 
+                    content1.push_back(PostProcessedFile::charPlaceholder);
                     charToken = { i, "" };
                 }
 

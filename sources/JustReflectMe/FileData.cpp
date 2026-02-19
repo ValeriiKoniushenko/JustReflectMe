@@ -64,4 +64,16 @@ namespace JRM
         _scopes.scan(_content.content);
     }
 
+    std::string FileData::getRealStringFromPlaceholderPos(std::size_t pos) const
+    {
+        const auto it = _content.stringTokens.find(pos);
+        return it != _content.stringTokens.end() ? it->second : "";
+    }
+
+    std::string FileData::getRealCharFromPlaceholderPos(std::size_t pos) const
+    {
+        const auto it = _content.charTokens.find(pos);
+        return it != _content.charTokens.end() ? it->second : "";
+    }
+
 } // namespace JRM

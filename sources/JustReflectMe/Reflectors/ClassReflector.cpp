@@ -263,6 +263,7 @@ namespace JRM
             p += field.name.size();
 
             p = SkipAllBlanks(p);
+            const char* const nameEnd = p;
             if (*p != ';')
             {
                 if (*p == '=')
@@ -300,6 +301,31 @@ namespace JRM
                 while (!field.defaultValue.empty() && std::isspace(field.defaultValue.back()))
                 {
                     field.defaultValue.pop_back();
+                }
+
+                if (field.defaultValue.contains(PostProcessedFile::stringPlaceholder))
+                {
+                    const char* iter = nameEnd;
+                    while (iter && *iter && *iter != PostProcessedFile::stringPlaceholder)
+                    {
+                        ++iter;
+                    }
+                    if (iter && *iter == PostProcessedFile::stringPlaceholder)
+                    {
+                        auto str = "\""
+                                   + fileData.getRealStringFromPlaceholderPos(
+                                       iter - fileData.getContent().data() + 1)
+                                   + "\"";
+
+                        int len = 0;
+                        while (*(iter + len) == PostProcessedFile::stringPlaceholder)
+                        {
+                            ++len;
+                        }
+
+                        auto start = field.defaultValue.find(PostProcessedFile::stringPlaceholder);
+                        field.defaultValue.replace(start, len, str);
+                    }
                 }
             }
 
