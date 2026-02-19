@@ -193,12 +193,6 @@ namespace JRM
 
             processFields(classScope, fileData, data);
 
-            for (auto f : data.fields)
-            {
-                std::cout << f.type << " " << f.name << (f.defaultValue.empty() ? "" : " = ")
-                          << f.defaultValue << std::endl;
-            }
-
             _data.emplace(token, std::move(data));
         }
     }
