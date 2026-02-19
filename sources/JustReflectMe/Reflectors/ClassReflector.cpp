@@ -327,6 +327,29 @@ namespace JRM
                         field.defaultValue.replace(start, len, str);
                     }
                 }
+
+                if (field.defaultValue.contains(PostProcessedFile::charPlaceholder))
+                {
+                    const char* iter = nameEnd;
+                    while (iter && *iter && *iter != PostProcessedFile::charPlaceholder)
+                    {
+                        ++iter;
+                    }
+                    if (iter && *iter == PostProcessedFile::charPlaceholder)
+                    {
+                        auto diff = iter - fileData.getContent().data();
+                        auto str = "'" + fileData.getRealCharFromPlaceholderPos(diff) + "'";
+
+                        int len = 0;
+                        while (*(iter + len) == PostProcessedFile::charPlaceholder)
+                        {
+                            ++len;
+                        }
+
+                        auto start = field.defaultValue.find(PostProcessedFile::charPlaceholder);
+                        field.defaultValue.replace(start, len, str);
+                    }
+                }
             }
 
             data.fields.emplace_back(std::move(field));
