@@ -92,6 +92,11 @@ namespace JRM
         result.reserve(1024);
 
         result += onGenerateHeaderFile(data, config);
+        
+        if (!result.empty() && result.back() != '\n')
+        {
+            result += '\n';
+        }
 
         return result;
     }

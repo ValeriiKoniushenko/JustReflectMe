@@ -221,9 +221,9 @@ namespace JRM
                                                     const Config& config) const
     {
         std::string finalString = R"(
-    @@FUNC_PREF_std::string_view Name() { return "@@ONLY_NAME_"; }
-    @@FUNC_PREF_std::size_t Size() { return @@COUNT_; }
-    @@FUNC_PREF_std::string_view ParentScope() { return "@@PARENTS_"; }
+    @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_constexpr std::size_t Size() { return @@COUNT_; }
+    @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
 
     @@FUNC_PREF_std::string_view ToString(::@@NAME_ value)
     {
