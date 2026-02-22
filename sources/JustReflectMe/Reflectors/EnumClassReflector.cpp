@@ -77,7 +77,7 @@ namespace JRM
             result += structName;
             result += "\n{";
             result += generateSources(data, config);
-            result += "\n}; // " + structName;
+            result += "\n}; // " + structName + "\n\n";
         }
 
         return result;
