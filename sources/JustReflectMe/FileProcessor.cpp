@@ -30,6 +30,7 @@
 #include "FileData.h"
 #include "Reflectors/BaseReflector.h"
 
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <filesystem>
@@ -425,13 +426,6 @@ namespace JRM
         const auto [generatedHpp, generatedCpp] = generateFilenames(true);
 
         integrateHeaderIncludes(data, generatedHpp);
-
-        // ============ SOURCE =================
-        if (_pathImpl.empty())
-        {
-            return;
-        }
-
         integrateSourceIncludes(data, generatedCpp);
     }
 
@@ -474,6 +468,12 @@ namespace JRM
                                                 const std::string& generatedCpp)
     {
         if (generatedCpp.empty() || _pathImpl.empty())
+        {
+            return;
+        }
+
+        if (!std::ranges::any_of(_reflectors, [](const auto& reflector)
+                                 { return reflector->hasImplTranslationUnit(); }))
         {
             return;
         }
