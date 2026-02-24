@@ -353,8 +353,8 @@ namespace JRM
     std::string ClassReflector::generateSources(const TokenData& data, const Config& config) const
     {
         std::string finalString = R"(
-    @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
-    @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
+    @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
         )";
 
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
