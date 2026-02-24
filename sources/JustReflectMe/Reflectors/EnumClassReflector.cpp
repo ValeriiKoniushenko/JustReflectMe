@@ -31,6 +31,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 
 using namespace FileNavigator;
@@ -55,7 +56,7 @@ namespace JRM
         std::string result;
         result.reserve(1024 * 4);
 
-        for (const auto& [_, data] : _data)
+        for (const auto& data : _data | std::views::values)
         {
             if (data.name.empty()) [[unlikely]]
             {

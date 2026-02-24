@@ -99,7 +99,8 @@ namespace JRM
         [[nodiscard]] static PostProcessedFile getFileContent(const std::string& filename);
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
                                                                             = false) const;
-        void tryToGenerateHeaderContent(FileData& data);
+        [[nodiscard]] bool hasAtLeastOneToken() const;
+ void tryToGenerateHeaderContent(FileData& data);
         void tryToGenerateSourceContent(FileData& data);
         void tryToIntegrateIncludes(const FileData& data);
 

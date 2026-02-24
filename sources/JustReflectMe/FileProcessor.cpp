@@ -346,6 +346,18 @@ namespace JRM
         return { headerPath, sourcePath };
     }
 
+    bool FileProcessor::hasAtLeastOneToken() const
+    {
+        for (const auto& reflector : _reflectors)
+        {
+            if (reflector->hasTokens())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void FileProcessor::tryToGenerateHeaderContent(FileData& data)
     {
         std::string result;
@@ -539,9 +551,12 @@ namespace JRM
 
     void FileProcessor::generateNewContent(FileData& data)
     {
-        tryToGenerateHeaderContent(data);
-        tryToGenerateSourceContent(data);
-        tryToIntegrateIncludes(data);
+        if (hasAtLeastOneToken())
+        {
+            tryToGenerateHeaderContent(data);
+            tryToGenerateSourceContent(data);
+            tryToIntegrateIncludes(data);
+        }
     }
 
     void FileProcessor::run(const std::filesystem::path& path, const Config& config)
