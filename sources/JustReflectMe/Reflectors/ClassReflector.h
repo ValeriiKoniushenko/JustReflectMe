@@ -60,6 +60,8 @@ namespace JRM
             std::vector<FieldData> fields;
         };
 
+        static constexpr std::string_view fieldNumbers = "@@FIELD_NUMBERS_";
+
         [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
                                                        const Config& config) const override;
         void onScan(const FileData& fileData) override;

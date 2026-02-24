@@ -355,13 +355,18 @@ namespace JRM
         std::string finalString = R"(
     @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
     @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
+    @@FUNC_PREF_consteval std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
         )";
 
+        // Default find & replace
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
         FindAndReplaceAll(finalString, onlyNameMark, data.name);
         FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
         FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
         FindAndReplaceAll(finalString, funcPrefMark, "static ");
+
+        // Class-specific find & replace
+        FindAndReplaceAll(finalString, fieldNumbers, std::to_string(data.fields.size()));
 
         return finalString;
     }

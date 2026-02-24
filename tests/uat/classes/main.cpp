@@ -39,6 +39,7 @@ int main()
 {
     ASSERT_EQ(R<Car>::Name(), "Car");
     ASSERT_EQ(R<Car>::ParentScope(), "");
+    ASSERT_EQ(R<Car>::GetFieldNumbers(), 12);
 
     return 0;
 }
