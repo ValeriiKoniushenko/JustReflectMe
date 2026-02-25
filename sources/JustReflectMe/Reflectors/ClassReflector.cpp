@@ -174,7 +174,7 @@ namespace JRM
 
             if (!p || *p != '{') [[unlikely]]
             {
-                WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                WarnMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
                             "Can't parse the class: '"s + data.name
                                 + "' due to overloaded syntax or syntax errors.");
                 continue;
@@ -190,14 +190,16 @@ namespace JRM
                 continue;
             }
 
-            // Validation for R_FRIEND();
-            std::string_view src(classScope->start, classScope->end - classScope->start + 1);
-            if (src.find("R_FRIEND") == std::string_view::npos)
             {
-                WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                // Validation for R_FRIEND();
+                std::string_view src(classScope->start, classScope->end - classScope->start + 1);
+                if (src.find("R_FRIEND") == std::string_view::npos)
+                {
+                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                             "Can't parse the class: '"s + data.name
                                 + "' - was skipped `R_FRIEND(" + data.name +");` in the class's scope. The absence of R_FRIEND won't able to generate reflective code in the correct way.");
-                continue;
+                    continue;
+                }
             }
 
             processFields(classScope, fileData, data);
