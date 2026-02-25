@@ -355,7 +355,9 @@ namespace JRM
     @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
     @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
     @@FUNC_PREF_consteval std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
-    @@FUNC_PREF_consteval std::vector<RClassField> GetFields() { @@F_GET_FIELDS_; }
+    @@FUNC_PREF_consteval std::vector<RClassField> GetFields() {
+        @@F_GET_FIELDS_
+    }
 
         )";
 
@@ -372,13 +374,13 @@ namespace JRM
         // =================== F_GET_FIELDS_ =========================
         {
             std::string out;
-            out += "\n\t\treturn {\n";
+            out += "return {\n";
             for (const auto& field : data.fields)
             {
                 out += "\t\t\t{ \"" + field.type.getNameWithCV() + "\", \"" + field.name
                        + "\" },\n";
             }
-            out += "\t\t};\n";
+            out += "\t\t};";
             FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);
         }
 
