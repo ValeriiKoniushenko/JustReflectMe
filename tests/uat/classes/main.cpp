@@ -36,22 +36,13 @@ using namespace std;
         return 1;                                                                                  \
     }
 
-std::vector<RClassField> GetFields()
-{
-    return {
-        { typeid(int), "int", "hello", 5 },
-        { typeid(std::vector<int>), "std::vector<int>", "arr", std::vector<int>{ 1, 2, 3, 4, 5 } },
-        { typeid(std::string), "std::string", "world" },
-    };
-}
-
 int main()
 {
     ASSERT_EQ(R<Car>::Name(), "Car");
     ASSERT_EQ(R<Car>::ParentScope(), "");
     ASSERT_EQ(R<Car>::GetFieldNumbers(), 12);
 
-    for (const auto& field : GetFields())
+    for (auto field : R<Car>::GetFields())
     {
         std::cout << field.type << " " << field.name << std::endl;
     }

@@ -222,9 +222,9 @@ namespace JRM
                                                     const Config& config) const
     {
         std::string finalString = R"(
-    @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
-    @@FUNC_PREF_consteval std::size_t Size() { return @@COUNT_; }
-    @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
+    @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_constexpr std::size_t Size() { return @@COUNT_; }
+    @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
 
     @@FUNC_PREF_std::string_view ToString(::@@NAME_ value)
     {
@@ -249,7 +249,7 @@ namespace JRM
         return std::nullopt;
     }
 
-    @@FUNC_PREF_consteval const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
+    @@FUNC_PREF_constexpr const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
     {
         static constexpr std::array<::@@NAME_, @@COUNT_> constants = {
 @@TO_ARRAY_C_
@@ -258,7 +258,7 @@ namespace JRM
         return constants;
     }
 
-    @@FUNC_PREF_consteval const std::array<std::string_view, @@COUNT_>& ToArrayN()
+    @@FUNC_PREF_constexpr const std::array<std::string_view, @@COUNT_>& ToArrayN()
     {
         static constexpr std::array<std::string_view, @@COUNT_> names = {
 @@TO_ARRAY_N_

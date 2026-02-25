@@ -35,6 +35,8 @@
 CLASS();
 class Car final
 {
+    R_FRIEND(Car);
+
 private:
     enum class EngineType : unsigned char
     {

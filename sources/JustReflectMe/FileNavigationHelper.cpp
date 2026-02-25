@@ -166,13 +166,15 @@ namespace FileNavigator
         return {};
     }
 
-    Typename ReadAsTypename(const char* source)
+    Typename ReadAsTypename(const char* source, int& offset)
     {
         if (!source || (!isalpha(*source) && *source != '_'))
         {
             return {};
         }
         Typename result;
+
+        const char* const originalSource = source;
 
         constexpr std::string_view kConstexpr = "constexpr";
         constexpr std::string_view kConst = "const";
@@ -182,14 +184,14 @@ namespace FileNavigator
 
         if (const int i = StartWith(source, { kConstexpr, kStatic, kInline }); i != -1)
         {
-            source = GoToSpace(source);
+            source = GoToNotSpace(GoToSpace(source));
             result.setAttributeFromStr(kKeywords[i]);
         }
 
         if (StartWith(source, kConst))
         {
             result.isConst = true;
-            source = GoToSpace(source);
+            source = GoToNotSpace(GoToSpace(source));
         }
 
         int triangScopes = 0;
@@ -220,6 +222,7 @@ namespace FileNavigator
             result.isConst = true;
         }
 
+        offset = static_cast<int>(source - originalSource);
         return result;
     }
 

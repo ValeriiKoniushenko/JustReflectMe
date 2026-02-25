@@ -69,6 +69,6 @@ namespace FileNavigator
         Attribute attribute = Attribute::None;
         bool isConst = false;
     };
-    [[nodiscard]] Typename ReadAsTypename(const char* source);
+    [[nodiscard]] Typename ReadAsTypename(const char* source, int& offset);
 
 } // namespace FileNavigator

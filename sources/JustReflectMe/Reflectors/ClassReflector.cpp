@@ -226,7 +226,8 @@ namespace JRM
         for (const char* p : fields)
         {
             FieldData field;
-            field.type = ReadAsTypename(p);
+            int typenameReadOffset = 0;
+            field.type = ReadAsTypename(p, typenameReadOffset);
             if (field.type.name.empty())
             {
                 WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
@@ -235,7 +236,7 @@ namespace JRM
                 continue;
             }
 
-            p += field.type.name.size();
+            p += typenameReadOffset;
             if (!std::isspace(*p))
             {
                 WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
@@ -352,14 +353,12 @@ namespace JRM
     std::string ClassReflector::generateSources(const TokenData& data, const Config& config) const
     {
         std::string finalString = R"(
-    @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
-    @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
-    @@FUNC_PREF_consteval std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
-    @@FUNC_PREF_consteval std::vector<RClassField> GetFields() {
+    @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
+    @@FUNC_PREF_constexpr std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
+    @@FUNC_PREF_constexpr std::vector<RClassField> GetFields() {
         @@F_GET_FIELDS_
-    }
-
-        )";
+    })";
 
         // Default find & replace
         FindAndReplaceAll(finalString, nameMark, data.fullNamePath());

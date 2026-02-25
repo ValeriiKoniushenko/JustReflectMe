@@ -29,6 +29,12 @@
 
 struct RClassField
 {
+    constexpr RClassField(std::string_view type, std::string_view name) noexcept
+        : type(type),
+          name(name)
+    {
+    }
+
     std::string_view type;
     std::string_view name;
 };
@@ -37,6 +43,8 @@ template<class T>
 struct R
 {
 };
+
+#define R_FRIEND(Class) friend struct R<Class>
 
 #define ENUM_CLASS(...) static_assert(true, "")
 
