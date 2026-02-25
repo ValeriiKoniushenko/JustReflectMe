@@ -43,9 +43,8 @@ namespace JRM
     std::set<std::string> ClassReflector::getIncludes() const
     {
         auto out = BaseReflector::getIncludes();
-        out.emplace("optional");
-        out.emplace("unordered_map");
-        out.emplace("array");
+        out.emplace("vector");
+        out.emplace("string_view");
         return out;
     }
 
@@ -228,7 +227,7 @@ namespace JRM
         {
             FieldData field;
             field.type = ReadAsTypename(p);
-            if (field.type.empty())
+            if (field.type.name.empty())
             {
                 WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
@@ -236,7 +235,7 @@ namespace JRM
                 continue;
             }
 
-            p += field.type.size();
+            p += field.type.name.size();
             if (!std::isspace(*p))
             {
                 WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
@@ -356,6 +355,8 @@ namespace JRM
     @@FUNC_PREF_consteval std::string_view Name() { return "@@ONLY_NAME_"; }
     @@FUNC_PREF_consteval std::string_view ParentScope() { return "@@PARENTS_"; }
     @@FUNC_PREF_consteval std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
+    @@FUNC_PREF_consteval std::vector<RClassField> GetFields() { @@F_GET_FIELDS_; }
+
         )";
 
         // Default find & replace
@@ -367,6 +368,19 @@ namespace JRM
 
         // Class-specific find & replace
         FindAndReplaceAll(finalString, fieldNumbers, std::to_string(data.fields.size()));
+
+        // =================== F_GET_FIELDS_ =========================
+        {
+            std::string out;
+            out += "\n\t\treturn {\n";
+            for (const auto& field : data.fields)
+            {
+                out += "\t\t\t{ \"" + field.type.getNameWithCV() + "\", \"" + field.name
+                       + "\" },\n";
+            }
+            out += "\t\t};\n";
+            FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);
+        }
 
         return finalString;
     }

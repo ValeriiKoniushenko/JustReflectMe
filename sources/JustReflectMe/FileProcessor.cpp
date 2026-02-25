@@ -101,8 +101,11 @@ namespace JRM
         std::set<std::string> out;
         for (const auto& reflector : _reflectors)
         {
-            auto tmp = reflector->getIncludes();
-            out.insert(tmp.begin(), tmp.end());
+            if (reflector->hasTokens())
+            {
+                auto tmp = reflector->getIncludes();
+                out.insert(tmp.begin(), tmp.end());
+            }
         }
         return out;
     }

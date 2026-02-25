@@ -35,7 +35,7 @@
 CLASS();
 class Car final
 {
-public:
+private:
     enum class EngineType : unsigned char
     {
         Petrol,
@@ -192,4 +192,3 @@ public:
 };
 
 #include "header.generated.inl" // added by the code generator. Better don't move it.
-

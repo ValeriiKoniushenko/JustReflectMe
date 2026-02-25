@@ -25,6 +25,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace FileNavigator
 {
@@ -43,11 +44,31 @@ namespace FileNavigator
     [[nodiscard]] const char* GoToNotSpace(const char* source);
     [[nodiscard]] const char* SkipAllBlanks(const char* source);
     [[nodiscard]] std::string ReadAsIdentifier(const char* source);
-    [[nodiscard]] std::string ReadAsTypename(const char* source);
     [[nodiscard]] std::size_t GetLineNumber(const char* source, std::size_t i);
     [[nodiscard]] std::pair<std::size_t, std::size_t> GetLineNumberAndColumn(const char* source,
                                                                              std::size_t i);
     [[nodiscard]] const char* FindScopeEnd(const char* source);
     [[nodiscard]] bool IsWord(std::string_view content, std::string_view word, std::size_t wordPos);
+    [[nodiscard]] int StartWith(const char* content, const std::vector<std::string_view>& prefixes);
+    [[nodiscard]] bool StartWith(const char* content, std::string_view prefix);
+
+    struct Typename
+    {
+        enum class Attribute
+        {
+            None,
+            Constexpr,
+            Static,
+            Inline
+        };
+
+        void setAttributeFromStr(std::string_view str);
+        [[nodiscard]] std::string getNameWithCV() const;
+
+        std::string name;
+        Attribute attribute = Attribute::None;
+        bool isConst = false;
+    };
+    [[nodiscard]] Typename ReadAsTypename(const char* source);
 
 } // namespace FileNavigator

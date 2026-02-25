@@ -25,6 +25,7 @@
 #pragma once
 
 #include "BaseReflector.h"
+#include "JustReflectMe/FileNavigationHelper.h"
 
 #include <unordered_map>
 
@@ -50,7 +51,7 @@ namespace JRM
     protected:
         struct FieldData
         {
-            std::string type;
+            FileNavigator::Typename type;
             std::string name;
             std::string defaultValue;
         };

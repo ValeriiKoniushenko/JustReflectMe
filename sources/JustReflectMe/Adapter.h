@@ -26,14 +26,11 @@
 
 #include <any>
 #include <string_view>
-#include <typeinfo>
 
 struct RClassField
 {
-    const std::type_info& typeInfo;
     std::string_view type;
     std::string_view name;
-    std::any defaultValue;
 };
 
 template<class T>

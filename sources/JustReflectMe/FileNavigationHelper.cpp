@@ -166,18 +166,36 @@ namespace FileNavigator
         return {};
     }
 
-    std::string ReadAsTypename(const char* source)
+    Typename ReadAsTypename(const char* source)
     {
         if (!source || (!isalpha(*source) && *source != '_'))
         {
             return {};
         }
-        std::string result;
+        Typename result;
+
+        constexpr std::string_view kConstexpr = "constexpr";
+        constexpr std::string_view kConst = "const";
+        constexpr std::string_view kStatic = "static";
+        constexpr std::string_view kInline = "inline";
+        static const std::vector<std::string_view> kKeywords = { kConstexpr, kStatic, kInline };
+
+        if (const int i = StartWith(source, { kConstexpr, kStatic, kInline }); i != -1)
+        {
+            source = GoToSpace(source);
+            result.setAttributeFromStr(kKeywords[i]);
+        }
+
+        if (StartWith(source, kConst))
+        {
+            result.isConst = true;
+            source = GoToSpace(source);
+        }
 
         int triangScopes = 0;
         while (*source)
         {
-            result.push_back(*source);
+            result.name.push_back(*source);
 
             if (*source == '<')
             {
@@ -190,11 +208,16 @@ namespace FileNavigator
 
             if (std::isspace(*source) && triangScopes == 0)
             {
-                result.pop_back();
+                result.name.pop_back();
                 break;
             }
 
             ++source;
+        }
+
+        if (*source && StartWith(source, { kConst }))
+        {
+            result.isConst = true;
         }
 
         return result;
@@ -312,6 +335,48 @@ namespace FileNavigator
         }
 
         return true;
+    }
+
+    int StartWith(const char* content, const std::vector<std::string_view>& prefixes)
+    {
+        for (std::size_t i = 0; i < prefixes.size(); ++i)
+        {
+            if (strncmp(content, prefixes[i].data(), prefixes[i].size()) == 0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    bool StartWith(const char* content, std::string_view prefix)
+    {
+        return strncmp(content, prefix.data(), prefix.size()) == 0;
+    }
+
+    void Typename::setAttributeFromStr(std::string_view str)
+    {
+        if (str == "constexpr")
+        {
+            attribute = Attribute::Constexpr;
+        }
+        else if (str == "static")
+        {
+            attribute = Attribute::Static;
+        }
+        else if (str == "inline")
+        {
+            attribute = Attribute::Inline;
+        }
+    }
+
+    std::string Typename::getNameWithCV() const
+    {
+        if (isConst)
+        {
+            return "const " + name;
+        }
+        return name;
     }
 
 } // namespace FileNavigator
