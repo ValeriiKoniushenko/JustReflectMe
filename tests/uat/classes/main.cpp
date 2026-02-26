@@ -38,11 +38,11 @@ using namespace std;
 
 int main()
 {
-    ASSERT_EQ(R<Car>::Name(), "Car");
-    ASSERT_EQ(R<Car>::ParentScope(), "");
-    ASSERT_EQ(R<Car>::GetFieldNumbers(), 12);
+    ASSERT_EQ(R<NS::Car>::Name(), "Car");
+    ASSERT_EQ(R<NS::Car>::ParentScope(), "");
+    ASSERT_EQ(R<NS::Car>::GetFieldNumbers(), 12);
 
-    for (auto field : R<Car>::GetFields())
+    for (auto field : R<NS::Car>::GetFields())
     {
         std::cout << field.type << " " << field.name << std::endl;
     }
