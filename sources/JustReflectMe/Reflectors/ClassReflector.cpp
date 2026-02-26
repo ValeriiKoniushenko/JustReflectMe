@@ -370,6 +370,18 @@ namespace JRM
     @@FUNC_PREF_constexpr std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
     @@FUNC_PREF_constexpr std::vector<RClassField> GetFields() {
         @@F_GET_FIELDS_
+    }
+
+    template<IsResourceStreamImpl RImpl>
+    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj)
+    {
+        RResourceStream<RImpl> s;@@F_SERIALIZE_
+        return s;
+    }
+
+    template<IsResourceStreamImpl RImpl>
+    static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj)
+    {@@F_DESERIALIZE_
     })";
 
         // Default find & replace
@@ -393,6 +405,26 @@ namespace JRM
             }
             out += "\t\t};";
             FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);
+        }
+
+        // =================== F_SERIALIZE_ =========================
+        {
+            std::string out;
+            for (const auto& field : data.fields)
+            {
+                out += "\n\t\ts.write(\"" + field.name + "\", obj." + field.name + ");";
+            }
+            FindAndReplaceAll(finalString, "@@F_SERIALIZE_", out);
+        }
+
+        // =================== F_DESERIALIZE_ =========================
+        {
+            std::string out;
+            for (const auto& field : data.fields)
+            {
+                out += "\n\t\ts.read(\"" + field.name + "\", obj." + field.name + ");";
+            }
+            FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
         }
 
         return finalString;

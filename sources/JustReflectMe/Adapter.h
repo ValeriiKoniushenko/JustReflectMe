@@ -24,8 +24,44 @@
 
 #pragma once
 
-#include <any>
 #include <string_view>
+
+class RBaseResourceStreamImpl
+{
+public:
+    RBaseResourceStreamImpl() = default;
+    virtual ~RBaseResourceStreamImpl() = default;
+};
+
+template<class T>
+concept IsResourceStreamImpl = requires(T t, int some_variable) {
+    { std::derived_from<T, RBaseResourceStreamImpl> };
+    { t.template read<int>("some_field_name", some_variable) } -> std::same_as<void>;
+    { t.template write<int>("some_field_name", 12345) } -> std::same_as<void>;
+};
+
+template<IsResourceStreamImpl RImpl>
+struct RResourceStream
+{
+public:
+    RResourceStream() = default;
+    virtual ~RResourceStream() = default;
+
+    template<class T>
+    void write(std::string_view fieldName, T& value)
+    {
+        impl.template write<T>(fieldName, value);
+    }
+
+    template<class T>
+    [[nodiscard]] T read(std::string_view fieldName)
+    {
+        return impl.template read<T>(fieldName);
+    }
+
+protected:
+    RImpl impl;
+};
 
 struct RClassField
 {
