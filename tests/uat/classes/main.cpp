@@ -47,5 +47,7 @@ int main()
         std::cout << field.type << " " << field.name << std::endl;
     }
 
+    // R<NS::Car>::Serialize<>();
+
     return 0;
 }
