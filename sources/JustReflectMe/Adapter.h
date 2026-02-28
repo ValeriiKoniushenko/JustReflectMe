@@ -28,14 +28,32 @@
 
 #include <string_view>
 
+template<class DataT>
 class RBaseResourceStreamImpl
 {
 public:
     RBaseResourceStreamImpl() = default;
     virtual ~RBaseResourceStreamImpl() = default;
+
+    [[nodiscard]] DataT& data() noexcept { return _data; }
+    [[nodiscard]] const DataT& data() const noexcept { return _data; }
+
+protected:
+    DataT _data;
 };
 
-class RJsonResourceStream : public RBaseResourceStreamImpl
+template<class T>
+concept DerivedFromAnyRBaseResourceStreamImpl
+    = requires(std::remove_cvref_t<T>* p) { []<class U>(RBaseResourceStreamImpl<U>*) {}(p); };
+
+template<class T>
+concept IsResourceStreamImpl = requires(T t, int some_variable) {
+    requires DerivedFromAnyRBaseResourceStreamImpl<T>;
+    { t.template read<int>("some_field_name", some_variable) } -> std::same_as<void>;
+    { t.template write<int>("some_field_name", 12345) } -> std::same_as<void>;
+};
+
+class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
 {
 public:
     RJsonResourceStream() = default;
@@ -44,23 +62,13 @@ public:
     template<class T>
     void read(std::string_view field, T& out)
     {
-        out = _json.at(field).get<T>();
+        out = _data.at(field).get<T>();
     }
     template<class T>
     void write(std::string_view field, const T& value)
     {
-        _json[field] = value;
+        _data[field] = value;
     }
-
-protected:
-    nlohmann::json _json;
-};
-
-template<class T>
-concept IsResourceStreamImpl = requires(T t, int some_variable) {
-    { std::derived_from<T, RBaseResourceStreamImpl> };
-    { t.template read<int>("some_field_name", some_variable) } -> std::same_as<void>;
-    { t.template write<int>("some_field_name", 12345) } -> std::same_as<void>;
 };
 
 template<IsResourceStreamImpl RImpl>
@@ -81,6 +89,9 @@ public:
     {
         return impl.template read<T>(fieldName);
     }
+
+    [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
+    [[nodiscard]] auto& getData() noexcept { return impl.data(); }
 
 protected:
     RImpl impl;

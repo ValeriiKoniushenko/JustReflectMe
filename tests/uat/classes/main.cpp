@@ -44,7 +44,8 @@ int main()
     NS::Car car;
     car.i = 123;
 
-    auto a = R<NS::Car>::Serialize<RJsonResourceStream>(car);
-
+    auto data = R<NS::Car>::Serialize<RJsonResourceStream>(car);
+    auto raw = data.getData().dump(4);
+    cout << raw << endl;
     return 0;
 }
