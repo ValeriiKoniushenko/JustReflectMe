@@ -24,15 +24,36 @@
 
 #pragma once
 
-#include <string_view>
-
 #include "NlohmannJson.h"
+
+#include <string_view>
 
 class RBaseResourceStreamImpl
 {
 public:
     RBaseResourceStreamImpl() = default;
     virtual ~RBaseResourceStreamImpl() = default;
+};
+
+class RJsonResourceStream : public RBaseResourceStreamImpl
+{
+public:
+    RJsonResourceStream() = default;
+    ~RJsonResourceStream() override = default;
+
+    template<class T>
+    void read(std::string_view field, T& out)
+    {
+        out = _json.at(field).get<T>();
+    }
+    template<class T>
+    void write(std::string_view field, const T& value)
+    {
+        _json[field] = value;
+    }
+
+protected:
+    nlohmann::json _json;
 };
 
 template<class T>
