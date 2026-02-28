@@ -26,6 +26,8 @@
 
 #include <string_view>
 
+#include "NlohmannJson.h"
+
 class RBaseResourceStreamImpl
 {
 public:
