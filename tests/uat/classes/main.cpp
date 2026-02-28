@@ -39,15 +39,12 @@ using namespace std;
 int main()
 {
     ASSERT_EQ(R<NS::Car>::Name(), "Car");
-    ASSERT_EQ(R<NS::Car>::ParentScope(), "");
-    ASSERT_EQ(R<NS::Car>::GetFieldNumbers(), 12);
+    ASSERT_EQ(R<NS::Car>::ParentScope(), "NS");
 
-    for (auto field : R<NS::Car>::GetFields())
-    {
-        std::cout << field.type << " " << field.name << std::endl;
-    }
+    NS::Car car;
+    car.i = 123;
 
-    R<NS::Car>::Serialize<>();
+    auto a = R<NS::Car>::Serialize<RJsonResourceStream>(car);
 
     return 0;
 }
