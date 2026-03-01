@@ -55,16 +55,27 @@ concept IsResourceStreamImpl = requires(T t, int some_variable) {
 
 class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
 {
+private:
+    template<class T>
+    static constexpr bool JsonReadable
+        = requires(const nlohmann::json& j) { j.template get<std::remove_cvref_t<T>>(); };
+
+    template<class T>
+    static constexpr bool JsonWritable
+        = requires(nlohmann::json& j, const std::remove_cvref_t<T>& v) { j = v; };
+
 public:
     RJsonResourceStream() = default;
     ~RJsonResourceStream() override = default;
 
     template<class T>
+        requires(JsonReadable<T>)
     void read(std::string_view field, T& out)
     {
         out = _data.at(field).get<T>();
     }
     template<class T>
+        requires(JsonWritable<T>)
     void write(std::string_view field, const T& value)
     {
         _data[field] = value;
