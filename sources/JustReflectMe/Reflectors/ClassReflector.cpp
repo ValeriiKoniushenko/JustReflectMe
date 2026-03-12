@@ -62,7 +62,9 @@ namespace JRM
                     "class's name.");
             }
 
-            auto endLines = std::count(result.rbegin(), result.rend(), '\n');
+            auto endLines = std::count_if(result.rbegin(), result.rend(),
+                                          [](auto ch) { return IsNewLine(ch); });
+
             while (!result.empty() && endLines < 2)
             {
                 ++endLines;
@@ -249,7 +251,7 @@ namespace JRM
             }
 
             p += typenameReadOffset;
-            if (!std::isspace(*p))
+            if (!IsSpace(*p))
             {
                 WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
@@ -304,7 +306,7 @@ namespace JRM
                     field.defaultValue = std::string(p, end - p);
                 }
 
-                while (!field.defaultValue.empty() && std::isspace(field.defaultValue.back()))
+                while (!field.defaultValue.empty() && IsSpace(field.defaultValue.back()))
                 {
                     field.defaultValue.pop_back();
                 }

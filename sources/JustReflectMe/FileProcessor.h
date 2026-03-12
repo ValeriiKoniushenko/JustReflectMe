@@ -50,6 +50,7 @@ namespace JRM
     {
         constexpr static char stringPlaceholder = 31;
         constexpr static char charPlaceholder = 30;
+        constexpr static char newLinePlaceholder = 29;
 
         std::string content;
         std::unordered_map<std::size_t, std::string> stringTokens;
@@ -100,7 +101,7 @@ namespace JRM
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
                                                                             = false) const;
         [[nodiscard]] bool hasAtLeastOneToken() const;
- void tryToGenerateHeaderContent(FileData& data);
+        void tryToGenerateHeaderContent(FileData& data);
         void tryToGenerateSourceContent(FileData& data);
         void tryToIntegrateIncludes(const FileData& data);
 

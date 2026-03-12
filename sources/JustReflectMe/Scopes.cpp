@@ -176,16 +176,17 @@ namespace JRM
 
         --p;
 
-        while (p > start && isspace(*p))
+        while (p > start && FileNavigator::IsSpace(*p))
         {
             --p;
         }
 
+        // We need exact '\n' check, not IsNewLine
         while (p > start && *p != '\n')
         {
             --p;
         }
-        while (*p && isspace(*p))
+        while (*p && FileNavigator::IsSpace(*p))
         {
             ++p;
         }

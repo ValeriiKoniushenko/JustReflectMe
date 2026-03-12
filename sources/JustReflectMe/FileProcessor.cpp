@@ -28,6 +28,7 @@
 
 #include "Config.h"
 #include "FileData.h"
+#include "FileNavigationHelper.h"
 #include "Reflectors/BaseReflector.h"
 
 #include <algorithm>
@@ -152,7 +153,7 @@ namespace JRM
                 continue;
             }
 
-            if (!nowInsideBlockComment || content1[i] == '\n')
+            if (!nowInsideBlockComment || FileNavigator::IsNewLine(content1[i]))
             {
                 content2.push_back(content1[i]);
             }
@@ -165,7 +166,7 @@ namespace JRM
         {
             if (nowComment)
             {
-                if (content2[i] == '\n')
+                if (FileNavigator::IsNewLine(content2[i]))
                 {
                     nowComment = false;
                 }
@@ -192,7 +193,7 @@ namespace JRM
 
         for (std::size_t i = 0; i < content1.size() && content1[i]; ++i)
         {
-            if (nowDoubleQuote && content1[i] == '\n')
+            if (nowDoubleQuote && FileNavigator::IsNewLine(content1[i]))
             {
                 nowDoubleQuote = false;
             }
@@ -287,13 +288,13 @@ namespace JRM
         // normalizing enum<x spaces>class -> enum<one space>class
         if (const auto pos = content1.find("enum  "); pos != std::string::npos)
         {
-            constexpr std::size_t enumStrSize = 4;
-            for (std::size_t i = 0; i < content1.size() - enumStrSize && content1[i]; ++i)
+            constexpr std::string_view enumStr = "enum";
+            for (std::size_t i = 0; i < content1.size() - enumStr.size() && content1[i]; ++i)
             {
-                if (strncmp(content1.data() + i, "enum", enumStrSize) == 0)
+                if (strncmp(content1.data() + i, enumStr.data(), enumStr.size()) == 0)
                 {
                     content2.append("enum ");
-                    i += enumStrSize + 1;
+                    i += enumStr.size() + 1;
 
                     while (i < content1.size() && content1[i] == ' ')
                     {
@@ -306,10 +307,82 @@ namespace JRM
                     content2.push_back(content1[i]);
                 }
             }
+            content1.resize(0);
+        }
+
+        // normalizing "class Foo : public Bar1,\npublic Bar2,\npublic Bar3" to one line
+        {
+            auto& content = content1.empty() ? content2 : content1;
+
+            constexpr std::string_view classStr = "class";
+            std::size_t offset = 0;
+            std::size_t i = 0;
+            while ((i = content.find(classStr.data(), offset)) != std::string::npos)
+            {
+                // Verifying that we found the exact a class
+                const char* classStart = content.data() + i;
+                const char* tmp = classStart;
+                if ((classStart = FileNavigator::GoToSpace(classStart)) == tmp)
+                {
+                    offset = i + 1;
+                    continue;
+                }
+                tmp = classStart;
+
+                if ((classStart = FileNavigator::GoToNotSpace(classStart)) == tmp
+                    || (!std::isalpha(*classStart) && *classStart != '_'))
+                {
+                    offset = i + 1;
+                    continue;
+                }
+                tmp = classStart;
+
+                while (*classStart
+                       && (std::isalpha(*classStart) || *classStart == '_' || *classStart == ' '))
+                {
+                    ++classStart;
+                }
+
+                if (*classStart == '<')
+                {
+                    classStart = FileNavigator::FindScopeEnd(classStart);
+                    if (!classStart)
+                    {
+                        offset = i + 1;
+                        continue;
+                    }
+                }
+                classStart = FileNavigator::GoToNotSpace(classStart);
+
+                if (FileNavigator::StartWith(classStart, "final"))
+                {
+                    classStart = FileNavigator::GoToNotSpace(classStart + 5);
+                }
+
+                if (*classStart != ':' && *classStart != ';' && *classStart != '{')
+                {
+                    offset = i + 1;
+                    continue;
+                }
+
+                auto end = content.find_first_of(";{", i);
+
+                const char* ttt = content.data() + i;
+                const char* ttt2 = content.data() + end;
+
+                for (auto j = i; j < end; ++j)
+                {
+                    if (FileNavigator::IsNewLine(content[j]))
+                    {
+                        content[j] = PostProcessedFile::newLinePlaceholder;
+                    }
+                }
+
+                offset = i + 1;
+            }
         }
 
         out.content = std::move(content1.empty() ? content2 : content1);
-
         return out;
     }
 
@@ -445,8 +518,9 @@ namespace JRM
         }
 
         std::string integrationString;
-        for (auto i = std::count(originalSources.rbegin(), originalSources.rend(), '\n'); i < 2;
-             ++i)
+        for (auto i = std::count_if(originalSources.rbegin(), originalSources.rend(),
+                                    [](auto ch) { return FileNavigator::IsNewLine(ch); });
+             i < 2; ++i)
         {
             integrationString += "\n";
         }
@@ -489,8 +563,9 @@ namespace JRM
         }
 
         std::string integrationString;
-        for (auto i = std::count(originalSources.rbegin(), originalSources.rend(), '\n'); i < 2;
-             ++i)
+        for (auto i = std::count_if(originalSources.rbegin(), originalSources.rend(),
+                                    [](auto ch) { return FileNavigator::IsNewLine(ch); });
+             i < 2; ++i)
         {
             integrationString += "\n";
         }
@@ -507,7 +582,8 @@ namespace JRM
         }
         else
         {
-            auto found = originalSources.find('\n', index);
+            auto found
+                = originalSources.find_first_of("\n\x1D", index); // \x1D is newLinePlaceholder
             if (found != std::string::npos)
             {
                 index = found + 1;

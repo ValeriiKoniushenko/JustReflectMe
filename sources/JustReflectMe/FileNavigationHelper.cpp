@@ -36,7 +36,7 @@ namespace FileNavigator
             return nullptr;
         }
 
-        while (p > begin && *p != '\n')
+        while (p > begin && !IsNewLine(*p))
         {
             --p;
         }
@@ -60,7 +60,7 @@ namespace FileNavigator
 
     const char* GoToNextLine(const char* p)
     {
-        if (auto* out = strchr(p, '\n'))
+        if (auto* out = strpbrk(p, "\n\x1D")) // \x1D is newLinePlaceholder
         {
             return *out == '\r' ? out + 2 : out + 1;
         }
@@ -83,7 +83,7 @@ namespace FileNavigator
         std::size_t count = 0;
         while (*source && *result && source < result)
         {
-            if (*source == '\n')
+            if (IsNewLine(*source))
             {
                 if (++count > limit)
                 {
@@ -99,7 +99,7 @@ namespace FileNavigator
 
     const char* FindOnThisLine(const char* source, const char* keyword)
     {
-        const auto* endLine = strchr(source, '\n');
+        const auto* endLine = strpbrk(source, "\n\x1D"); // \x1D is newLinePlaceholder
         if (!endLine)
         {
             return nullptr;
@@ -137,7 +137,7 @@ namespace FileNavigator
 
     const char* SkipAllBlanks(const char* source)
     {
-        while (isspace(source[0]))
+        while (IsSpace(source[0]))
         {
             ++source;
         }
@@ -208,7 +208,7 @@ namespace FileNavigator
                 --triangScopes;
             }
 
-            if (std::isspace(*source) && triangScopes == 0)
+            if (IsSpace(*source) && triangScopes == 0)
             {
                 result.name.pop_back();
                 break;
@@ -238,7 +238,7 @@ namespace FileNavigator
         std::size_t iter = 0;
         while (iter < i && source[iter] != '\0')
         {
-            if (source[iter] == '\n')
+            if (IsNewLine(source[iter]))
             {
                 ++count;
             }
@@ -261,7 +261,7 @@ namespace FileNavigator
         std::size_t iter = 0;
         while (iter < i && source[iter] != '\0')
         {
-            if (source[iter] == '\n')
+            if (IsNewLine(source[iter]))
             {
                 ++count;
             }

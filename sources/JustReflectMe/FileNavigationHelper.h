@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "FileProcessor.h"
+
 #include <string>
 #include <vector>
 
@@ -51,6 +53,16 @@ namespace FileNavigator
     [[nodiscard]] bool IsWord(std::string_view content, std::string_view word, std::size_t wordPos);
     [[nodiscard]] int StartWith(const char* content, const std::vector<std::string_view>& prefixes);
     [[nodiscard]] bool StartWith(const char* content, std::string_view prefix);
+
+    [[nodiscard]] inline bool IsNewLine(int ch) noexcept
+    {
+        return ch == '\n' || ch == JRM::PostProcessedFile::newLinePlaceholder;
+    }
+
+    [[nodiscard]] inline bool IsSpace(int ch) noexcept
+    {
+        return std::isspace(ch) || IsNewLine(ch);
+    }
 
     struct Typename
     {

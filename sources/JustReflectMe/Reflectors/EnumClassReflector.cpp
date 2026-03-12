@@ -191,7 +191,7 @@ namespace JRM
                     nameAndValue.second.assign(p, strchr(p, '\n') - p);
 
                     while (!nameAndValue.second.empty()
-                           && (isspace(nameAndValue.second.back())
+                           && (IsSpace(nameAndValue.second.back())
                                || nameAndValue.second.back() == ','))
                     {
                         nameAndValue.second.pop_back();
@@ -300,7 +300,7 @@ namespace JRM
 
             if (!str.empty())
             {
-                if (str.back() == '\n') [[likely]]
+                if (IsNewLine(str.back())) [[likely]]
                 {
                     str.pop_back();
                 }
@@ -326,7 +326,7 @@ namespace JRM
 
             if (!str.empty())
             {
-                if (str.back() == '\n') [[likely]]
+                if (IsNewLine(str.back())) [[likely]]
                 {
                     str.pop_back();
                 }
@@ -356,7 +356,7 @@ namespace JRM
 
             if (!str.empty())
             {
-                if (str.back() == '\n') [[likely]]
+                if (IsNewLine(str.back())) [[likely]]
                 {
                     str.pop_back();
                 }
@@ -386,7 +386,7 @@ namespace JRM
 
             if (!str.empty())
             {
-                if (str.back() == '\n') [[likely]]
+                if (IsNewLine(str.back())) [[likely]]
                 {
                     str.pop_back();
                 }

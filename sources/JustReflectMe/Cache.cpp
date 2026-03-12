@@ -27,6 +27,7 @@
 #include "Cache.h"
 
 #include "Config.h"
+#include "FileNavigationHelper.h"
 
 #include <array>
 #include <chrono>
@@ -157,7 +158,7 @@ namespace JRM
         cacheFile.read(buffer.data(), buffer.size());
         cacheFile.close();
 
-        while (!buffer.empty() && buffer.back() == '\n')
+        while (!buffer.empty() && FileNavigator::IsNewLine(buffer.back()))
         {
             buffer.pop_back();
         }
