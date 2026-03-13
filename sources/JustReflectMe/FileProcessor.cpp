@@ -489,6 +489,11 @@ namespace JRM
             src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
         }
 
+        if (src.empty())
+        {
+            return;
+        }
+
         std::ofstream out(cppPath);
         if (!out.is_open())
         {
