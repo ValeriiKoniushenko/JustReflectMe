@@ -70,7 +70,7 @@ public:
 
     template<class T>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out)
+    void read(std::string_view field, T& out) const
     {
         out = _data.at(field).get<T>();
     }
@@ -96,9 +96,9 @@ public:
     }
 
     template<class T>
-    [[nodiscard]] T read(std::string_view fieldName) const
+    void read(std::string_view fieldName, T& value) const
     {
-        return impl.template read<T>(fieldName);
+        impl.template read<T>(fieldName, value);
     }
 
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
