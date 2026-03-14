@@ -77,8 +77,8 @@ namespace JRM
         FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
-        void generateNewContent(FileData& data);
-        void run(const std::filesystem::path& path, const Config& config);
+        [[nodiscard]] bool generateNewContent(FileData& data);
+        [[nodiscard]] bool run(const std::filesystem::path& path, const Config& config);
 
         template<IsBaseReflector T>
         void registerReflector();
@@ -101,9 +101,9 @@ namespace JRM
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
                                                                             = false) const;
         [[nodiscard]] bool hasAtLeastOneToken() const;
-        void tryToGenerateHeaderContent(FileData& data);
-        void tryToGenerateSourceContent(FileData& data);
-        void tryToIntegrateIncludes(const FileData& data);
+        [[nodiscard]] bool tryToGenerateHeaderContent(FileData& data);
+        [[nodiscard]] bool tryToGenerateSourceContent(FileData& data);
+        [[nodiscard]] bool tryToIntegrateIncludes(const FileData& data);
 
         void integrateHeaderIncludes(const FileData& data, const std::string& generatedHpp);
         void integrateSourceIncludes(const FileData& data, const std::string& generatedCpp);

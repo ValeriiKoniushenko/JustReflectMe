@@ -92,7 +92,7 @@ namespace JRM
         result.reserve(1024);
 
         result += onGenerateHeaderFile(data, config);
-        
+
         if (!result.empty() && result.back() != '\n')
         {
             result += '\n';
@@ -178,6 +178,8 @@ namespace JRM
         result += errorMessage;
 
         std::cout << result << "\n";
+
+        _hasWarnings = true;
     }
 
     std::string BaseReflector::PrettyPrintScope(const Scope* scope)

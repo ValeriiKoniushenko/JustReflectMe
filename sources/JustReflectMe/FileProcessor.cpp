@@ -367,9 +367,6 @@ namespace JRM
 
                 auto end = content.find_first_of(";{", i);
 
-                const char* ttt = content.data() + i;
-                const char* ttt2 = content.data() + end;
-
                 for (auto j = i; j < end; ++j)
                 {
                     if (FileNavigator::IsNewLine(content[j]))
@@ -435,8 +432,10 @@ namespace JRM
         return false;
     }
 
-    void FileProcessor::tryToGenerateHeaderContent(FileData& data)
+    bool FileProcessor::tryToGenerateHeaderContent(FileData& data)
     {
+        bool errors = false;
+
         std::string result;
         result.reserve(1024);
 
@@ -458,6 +457,7 @@ namespace JRM
                 continue;
             }
             result += reflector->generateHeaderFile(data, *_config);
+            errors |= reflector->hasWarnings();
         }
 
         const auto hppPath = generateFilenames().first;
@@ -467,14 +467,18 @@ namespace JRM
             throw std::runtime_error("Cannot open file for write: " + hppPath);
         }
         out.write(result.c_str(), result.size() * sizeof(char));
+
+        return !errors;
     }
 
-    void FileProcessor::tryToGenerateSourceContent(FileData& data)
+    bool FileProcessor::tryToGenerateSourceContent(FileData& data)
     {
+        bool errors = false;
+
         const auto cppPath = generateFilenames().second;
         if (cppPath.empty()) [[unlikely]]
         {
-            return;
+            return true;
         }
 
         std::string src;
@@ -487,11 +491,12 @@ namespace JRM
             }
 
             src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
+            errors |= reflector->hasWarnings();
         }
 
         if (src.empty())
         {
-            return;
+            return true;
         }
 
         std::ofstream out(cppPath);
@@ -500,14 +505,18 @@ namespace JRM
             throw std::runtime_error("Cannot open file for write: " + cppPath);
         }
         out.write(src.c_str(), src.size() * sizeof(char));
+
+        return !errors;
     }
 
-    void FileProcessor::tryToIntegrateIncludes(const FileData& data)
+    bool FileProcessor::tryToIntegrateIncludes(const FileData& data)
     {
         const auto [generatedHpp, generatedCpp] = generateFilenames(true);
 
         integrateHeaderIncludes(data, generatedHpp);
         integrateSourceIncludes(data, generatedCpp);
+
+        return true;
     }
 
     void FileProcessor::integrateHeaderIncludes(const FileData& data,
@@ -633,18 +642,24 @@ namespace JRM
         return strPath + *found;
     }
 
-    void FileProcessor::generateNewContent(FileData& data)
+    bool FileProcessor::generateNewContent(FileData& data)
     {
+        bool isOk = true;
+
         if (hasAtLeastOneToken())
         {
-            tryToGenerateHeaderContent(data);
-            tryToGenerateSourceContent(data);
-            tryToIntegrateIncludes(data);
+            isOk &= tryToGenerateHeaderContent(data);
+            isOk &= tryToGenerateSourceContent(data);
+            isOk &= tryToIntegrateIncludes(data);
         }
+
+        return isOk;
     }
 
-    void FileProcessor::run(const std::filesystem::path& path, const Config& config)
+    bool FileProcessor::run(const std::filesystem::path& path, const Config& config)
     {
+        bool isOk = false;
+
         _config = &config;
         _path = path.generic_string();
 
@@ -668,7 +683,7 @@ namespace JRM
             onPreGenerateContent(data.getContent());
 
             scanContent(data);
-            generateNewContent(data);
+            isOk = generateNewContent(data);
         }
         catch (const JRM::SyntaxException& e)
         {
@@ -684,6 +699,7 @@ namespace JRM
             std::cerr << "[JustReflectMe] Error while processing the file: '" << _path
                       << "' Details: " << e.what() << "\n";
         }
+        return isOk;
     }
 
 } // namespace JRM

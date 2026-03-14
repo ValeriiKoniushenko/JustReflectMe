@@ -279,9 +279,11 @@ namespace JRM
                     FileProcessor processor;
                     processor.registerReflector<EnumClassReflector>();
                     processor.registerReflector<ClassReflector>();
-                    processor.run(path, _config);
 
-                    cache.updateFile(path);
+                    if (processor.run(path, _config))
+                    {
+                        cache.updateFile(path);
+                    }
                 }
                 catch (const std::exception& er)
                 {

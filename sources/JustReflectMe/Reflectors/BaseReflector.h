@@ -88,6 +88,8 @@ namespace JRM
         [[nodiscard]] bool hasImplTranslationUnit() const noexcept;
         [[nodiscard]] bool isSupportImplTranslationUnit() const noexcept;
 
+        [[nodiscard]] bool hasWarnings() const noexcept { return _hasWarnings; }
+
     protected:
         /**
          * Name mark - full name with namespaces & all nesting.
@@ -160,8 +162,8 @@ namespace JRM
             [[nodiscard]] virtual std::string fullNamePath() const;
         };
 
-        static void WarnMessage(const char* source, std::size_t indexInFileWithError,
-                                const std::string& filepath, const std::string& errorMessage);
+        void WarnMessage(const char* source, std::size_t indexInFileWithError,
+                         const std::string& filepath, const std::string& errorMessage);
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
@@ -173,8 +175,7 @@ namespace JRM
             return {};
         }
         virtual void onScan(const FileData& content) = 0;
-
-    protected:
+ protected:
         [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
                                                             std::string_view keyword,
                                                             std::size_t offset);
@@ -183,6 +184,9 @@ namespace JRM
         std::vector<TokenEntry> _tokens;
         bool _isSupportImplTranslationUnit = false;
         bool _hasImplTranslationUnit = false;
+
+    private:
+        bool _hasWarnings = false;
     };
 
     template<class T>
