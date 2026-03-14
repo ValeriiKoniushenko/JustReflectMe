@@ -71,9 +71,14 @@ namespace JRM
                 result.push_back('\n');
             }
 
-            auto structName
-                = "template<>\nstruct "s + namespaceName.data() + "<" + data.fullNamePath() + ">";
+            auto structName = "struct "s + namespaceName.data() + "<" + data.fullNamePath() + ">";
 
+            if (!result.empty() && result.back() != '\n')
+            {
+                result += "\n\n";
+            }
+
+            result += "template<>\n";
             result += structName;
             result += "\n{";
             result += generateSources(data, config);
