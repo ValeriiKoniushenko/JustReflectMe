@@ -8,3 +8,4 @@ endfunction()
 
 add_subdirectory(classes)
 add_subdirectory(enums)
+add_subdirectory(mlt_classes)
