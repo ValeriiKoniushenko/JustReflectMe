@@ -125,6 +125,16 @@ namespace FileNavigator
         return source;
     }
 
+    const char* GoToBlank(const char* source)
+    {
+        while (source && *source != '\0' && !IsSpace(*source))
+        {
+            ++source;
+        }
+
+        return source;
+    }
+
     const char* GoToNotSpace(const char* source)
     {
         while (source && *source != '\0' && (*source == ' ' || *source == '\t'))
@@ -215,6 +225,12 @@ namespace FileNavigator
             }
 
             ++source;
+        }
+
+        if (!result.name.empty() && result.name.back() == ',')
+        {
+            result.name.pop_back();
+            --source;
         }
 
         if (*source && StartWith(source, { kConst }))

@@ -59,6 +59,7 @@ namespace JRM
         struct TokenData : public BaseTokenData
         {
             std::vector<FieldData> fields;
+            std::vector<std::string> parents;
         };
 
         static constexpr std::string_view fieldNumbers = "@@FIELD_NUMBERS_";

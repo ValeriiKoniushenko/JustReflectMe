@@ -158,6 +158,31 @@ namespace JRM
                 data.parentSpace = PrettyPrintScope(scope);
             }
 
+            // Scanning parents
+            p = GoToNotSpace(p);
+            p += data.name.size();
+            p = GoToNotSpace(p);
+            if (p[0] == ':' && p[1] != ':')
+            {
+                // Scanning parents
+
+                do
+                {
+                    p = GoToNotSpace(p + 1);
+                    if (StartWith(p, "public") || StartWith(p, "protected")
+                        || StartWith(p, "private"))
+                    {
+                        p = GoToBlank(p);
+                        p = GoToNotSpace(p);
+                    }
+
+                    int offset = 0;
+                    data.parents.push_back(ReadAsTypename(p, offset).getNameWithCV());
+                    p += offset;
+                    p = SkipAllBlanks(p);
+                } while (*p && *p == ',');
+            }
+
             // Finding '{', but should check for ';'
             prevP = p;
             while (p && *p)

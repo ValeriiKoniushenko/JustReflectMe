@@ -65,7 +65,7 @@ struct IRadio
 };
 
 CLASS();
-class RadioCar : public IRadio, public Vehicle
+class RadioCar : public IRadio, std::vector<std::unique_ptr<char>>, public Vehicle
 {
     R_FRIEND(RadioCar);
 

@@ -43,6 +43,7 @@ namespace FileNavigator
     [[nodiscard]] const char* FindWordOnThisLine(std::string_view content, std::string_view word);
 
     [[nodiscard]] const char* GoToSpace(const char* source);
+    [[nodiscard]] const char* GoToBlank(const char* source);
     [[nodiscard]] const char* GoToNotSpace(const char* source);
     [[nodiscard]] const char* SkipAllBlanks(const char* source);
     [[nodiscard]] std::string ReadAsIdentifier(const char* source);

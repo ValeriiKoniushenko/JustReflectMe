@@ -175,7 +175,8 @@ namespace JRM
             return {};
         }
         virtual void onScan(const FileData& content) = 0;
- protected:
+
+    protected:
         [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
                                                             std::string_view keyword,
                                                             std::size_t offset);
