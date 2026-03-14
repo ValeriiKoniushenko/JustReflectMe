@@ -96,7 +96,7 @@ public:
     }
 
     template<class T>
-    [[nodiscard]] T read(std::string_view fieldName)
+    [[nodiscard]] T read(std::string_view fieldName) const
     {
         return impl.template read<T>(fieldName);
     }
