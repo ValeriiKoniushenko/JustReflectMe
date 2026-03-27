@@ -115,12 +115,15 @@ namespace JRM
             ConfigManager configManager;
             _config = configManager.initializeProjectAndLoadConfig(_sourcePath);
 
-            std::cout << "[JustReflectMe] Processing files with extensions: ";
-            for (auto&& ext : _config.parsableFileExtensions->value)
+            if (_config.showEveryIteratedFilePath->value)
             {
-                std::cout << ext << " ";
+                std::cout << "[JustReflectMe] Processing files with extensions: ";
+                for (auto&& ext : _config.parsableFileExtensions->value)
+                {
+                    std::cout << ext << " ";
+                }
+                std::cout << "\n";
             }
-            std::cout << "\n";
 
             goThroughFiles();
         }
