@@ -62,7 +62,10 @@ public:
 
         [[nodiscard]] const std::string& getFilename() const { return filename; }
         [[nodiscard]] operator const std::string&() const { return filename; }
-        [[nodiscard]] operator std::filesystem::path() const { return std::filesystem::path(filename); }
+        [[nodiscard]] operator std::filesystem::path() const
+        {
+            return std::filesystem::path(filename);
+        }
 
     private:
         std::string filename;
@@ -123,7 +126,7 @@ std::string sss = "////////"; // 19
 
     JRM::Config dummy;
 
-    processor.run(file, dummy);
+    (void)processor.run(file, dummy);
 }
 
 TEST_F(FileProcessorTests, FindEnumClassAtNamespace)
@@ -161,12 +164,12 @@ namespace NS
 )");
 
     EXPECT_CALL(processor, onPreGenerateContent(testing::_))
-    .WillOnce(testing::Invoke(
-        [&](const std::string& content)
-        {
-            ASSERT_FALSE(content.contains("#include \"test_1.generated.inl\""));
-            //
-        }));
+        .WillOnce(testing::Invoke(
+            [&](const std::string& content)
+            {
+                ASSERT_FALSE(content.contains("#include \"test_1.generated.inl\""));
+                //
+            }));
 
     EXPECT_CALL(processor, onPostGenerateHeaderContent(testing::_))
         .WillOnce(testing::Invoke(
@@ -176,10 +179,9 @@ namespace NS
                 //
             }));
 
-
     processor.registerReflector<JRM::EnumClassReflector>();
 
     JRM::Config dummy;
 
-    processor.run(header, dummy);
+    (void)processor.run(header, dummy);
 }

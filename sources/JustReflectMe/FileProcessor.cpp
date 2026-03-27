@@ -442,6 +442,7 @@ namespace JRM
         // HEADER
         result += warningCommentAtFileTop;
         result += "\n\n";
+        result += _config->insertCodeAtTheTop->value;
 
         // INCLUDES
         for (auto&& include : getAllRequiredIncludes())
@@ -459,6 +460,8 @@ namespace JRM
             result += reflector->generateHeaderFile(data, *_config);
             errors |= reflector->hasWarnings();
         }
+
+        result += _config->insertCodeAtTheBottom->value;
 
         const auto hppPath = generateFilenames().first;
         std::ofstream out(hppPath);
@@ -482,6 +485,9 @@ namespace JRM
         }
 
         std::string src;
+        src += warningCommentAtFileTop;
+        src += "\n\n";
+        src += _config->insertCodeAtTheTop->value;
 
         for (const auto& reflector : _reflectors)
         {
@@ -498,6 +504,8 @@ namespace JRM
         {
             return true;
         }
+
+        src += _config->insertCodeAtTheBottom->value;
 
         std::ofstream out(cppPath);
         if (!out.is_open())

@@ -53,7 +53,7 @@ namespace JRM
         void setPath(const std::string& path);
 
         void scanScopes();
- [[nodiscard]] std::string getRealStringFromPlaceholderPos(std::size_t pos) const;
+        [[nodiscard]] std::string getRealStringFromPlaceholderPos(std::size_t pos) const;
         [[nodiscard]] std::string getRealCharFromPlaceholderPos(std::size_t pos) const;
 
     protected:

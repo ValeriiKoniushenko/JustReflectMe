@@ -52,6 +52,8 @@ namespace JRM
         _params.emplace_back(showEveryIteratedFilePath);
         _params.emplace_back(showSkippedFiles);
         _params.emplace_back(alwaysDirtyCache);
+        _params.emplace_back(insertCodeAtTheTop);
+        _params.emplace_back(insertCodeAtTheBottom);
     }
 
     Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir)
@@ -111,6 +113,16 @@ namespace JRM
             if (auto&& item = yaml[config.alwaysDirtyCache->paramName.data()]; !item.IsNone())
             {
                 config.alwaysDirtyCache->value = item.As<bool>();
+            }
+
+            if (auto&& item = yaml[config.insertCodeAtTheTop->paramName.data()]; !item.IsNone())
+            {
+                config.insertCodeAtTheTop->value = item.As<std::string>();
+            }
+
+            if (auto&& item = yaml[config.insertCodeAtTheBottom->paramName.data()]; !item.IsNone())
+            {
+                config.insertCodeAtTheBottom->value = item.As<std::string>();
             }
         }
         catch (Yaml::Exception& ex)
@@ -187,6 +199,11 @@ namespace JRM
 
         out += genKey(*config.alwaysDirtyCache)
                + (config.alwaysDirtyCache->value ? "true" : "false") + "\n\n"s;
+
+        out += genKey(*config.insertCodeAtTheTop) + config.insertCodeAtTheTop->value + "\n\n"s;
+
+        out += genKey(*config.insertCodeAtTheBottom) + config.insertCodeAtTheBottom->value
+               + "\n\n"s;
 
         return out;
     }

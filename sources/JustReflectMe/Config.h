@@ -106,6 +106,10 @@ namespace JRM
               "If true, it will always regenerate the files, regardless of whether they were "
               "modified.",
               false);
+        PARAM(std::string, insertCodeAtTheTop,
+              "A string will be added to the top of the generated file", "");
+        PARAM(std::string, insertCodeAtTheBottom,
+              "A string will be added to the bottom of the generated file", "");
     };
 #undef PARAM
 
