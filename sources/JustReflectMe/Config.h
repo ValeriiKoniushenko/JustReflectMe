@@ -119,9 +119,10 @@ namespace JRM
         [[nodiscard]] Config initializeProjectAndLoadConfig(
             const std::filesystem::path& projectDir);
 
+        [[nodiscard]] static std::string spawnFallbackConfigAsString();
+
     private:
         void spawnFallbackFileConfig();
-        [[nodiscard]] static std::string spawnFallbackConfigAsString();
 
         static void validateTopLevelFields(const Yaml::Node& config);
 

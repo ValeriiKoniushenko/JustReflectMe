@@ -61,6 +61,12 @@ namespace JRM
             return false;
         }
 
+        if (first == "--fallback-config" || first == "-f")
+        {
+            std::cout << ConfigManager::spawnFallbackConfigAsString();
+            return false;
+        }
+
         try
         {
             const auto args = JustReflectMe::parseInputArgs(argc, argv);
@@ -307,7 +313,13 @@ namespace JRM
 
     void JustReflectMe::printHelp()
     {
-        std::cout << "usage: jrm <path to project>\n";
+        std::cout << "Usage: jrm <path to project>\n";
+        std::cout << "\n"
+                  << "Options:\n"
+                  << "  --help            -h\t Print this help message.\n"
+                  << "  --version         -v\t Print the version of JustReflectMe.\n"
+                  << "  --fallback-config -f\t Print the fallback (default) config.\n"
+                  << std::endl;
     }
 
     void JustReflectMe::printVersion()
