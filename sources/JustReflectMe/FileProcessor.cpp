@@ -443,6 +443,10 @@ namespace JRM
         result += warningCommentAtFileTop;
         result += "\n\n";
         result += _config->insertCodeAtTheTop->value;
+        if (!result.empty() && result.back() != '\n')
+        {
+            result += '\n';
+        }
 
         // INCLUDES
         for (auto&& include : getAllRequiredIncludes())
@@ -451,17 +455,29 @@ namespace JRM
         }
         result += "\n";
 
+        bool atLeastOneInsert = false;
         for (const auto& reflector : _reflectors)
         {
             if (!reflector->hasTokens())
             {
                 continue;
             }
+
+            atLeastOneInsert = true;
             result += reflector->generateHeaderFile(data, *_config);
             errors |= reflector->hasWarnings();
         }
 
         result += _config->insertCodeAtTheBottom->value;
+        if (!result.empty() && result.back() != '\n')
+        {
+            result += '\n';
+        }
+
+        if (!atLeastOneInsert)
+        {
+            return false;
+        }
 
         const auto hppPath = generateFilenames().first;
         std::ofstream out(hppPath);
@@ -488,6 +504,12 @@ namespace JRM
         src += warningCommentAtFileTop;
         src += "\n\n";
         src += _config->insertCodeAtTheTop->value;
+        if (!src.empty() && src.back() != '\n')
+        {
+            src += '\n';
+        }
+
+        bool atLeastOneInsert = false;
 
         for (const auto& reflector : _reflectors)
         {
@@ -496,16 +518,21 @@ namespace JRM
                 continue;
             }
 
+            atLeastOneInsert = true;
             src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
             errors |= reflector->hasWarnings();
         }
 
-        if (src.empty())
+        if (!atLeastOneInsert)
         {
             return true;
         }
 
         src += _config->insertCodeAtTheBottom->value;
+        if (!src.empty() && src.back() != '\n')
+        {
+            src += '\n';
+        }
 
         std::ofstream out(cppPath);
         if (!out.is_open())
