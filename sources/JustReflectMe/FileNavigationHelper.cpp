@@ -218,9 +218,7 @@ namespace FileNavigator
                 --triangScopes;
             }
 
-            if ((IsSpace(*source) || *source == '(' || *source == '[' || *source == '{'
-                 || *source == ';')
-                && triangScopes == 0)
+            if (triangScopes == 0 && *source != ':' && !std::isalnum(*source) && *source != '_')
             {
                 result.name.pop_back();
                 break;

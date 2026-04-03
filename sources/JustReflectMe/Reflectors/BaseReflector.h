@@ -150,6 +150,14 @@ namespace JRM
             {
                 return begin == other.begin;
             }
+            [[nodiscard]] constexpr bool operator<(const TokenEntry& other) const noexcept
+            {
+                return begin < other.begin;
+            }
+            [[nodiscard]] constexpr bool operator>(const TokenEntry& other) const noexcept
+            {
+                return begin > other.begin;
+            }
         };
 
         struct BaseTokenData

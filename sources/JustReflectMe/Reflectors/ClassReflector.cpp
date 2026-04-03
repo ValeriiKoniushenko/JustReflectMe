@@ -31,6 +31,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 
 using namespace FileNavigator;
@@ -53,9 +54,15 @@ namespace JRM
         std::string result;
         result.reserve(1024 * 4);
 
+        std::map<TokenEntry, const TokenData*, std::less<TokenEntry>> reverseSortedData;
         for (const auto& [_, data] : _data)
         {
-            if (data.name.empty()) [[unlikely]]
+            reverseSortedData.emplace(_, &data);
+        }
+
+        for (const auto& [_, data] : reverseSortedData)
+        {
+            if (data->name.empty()) [[unlikely]]
             {
                 throw GenerationException(
                     "Can't process generation of the header file due to unexpected empty the "
@@ -71,7 +78,7 @@ namespace JRM
                 result.push_back('\n');
             }
 
-            auto structName = "struct "s + namespaceName.data() + "<" + data.fullNamePath() + ">";
+            auto structName = "struct "s + namespaceName.data() + "<" + data->fullNamePath() + ">";
 
             if (!result.empty() && result.back() != '\n')
             {
@@ -81,7 +88,7 @@ namespace JRM
             result += "template<>\n";
             result += structName;
             result += "\n{";
-            result += generateSources(data, config);
+            result += generateSources(*data, config);
             result += "\n}; // " + structName;
         }
 
@@ -493,6 +500,12 @@ namespace JRM
         // =================== F_SERIALIZE_ =========================
         {
             std::string out;
+            for (const auto& parent : data.serializableParents)
+            {
+                out += "\n\t\ts.write(\"" + parent + "\", " + namespaceName.data() + "<" + parent
+                       + ">::Serialize<RImpl>(obj).getData());";
+            }
+
             for (const auto& field : data.fields)
             {
                 out += "\n\t\ts.write(\"" + field.name + "\", obj." + field.name + ");";
@@ -503,6 +516,12 @@ namespace JRM
         // =================== F_DESERIALIZE_ =========================
         {
             std::string out;
+            for (const auto& parent : data.serializableParents)
+            {
+                out += "\n\t\ts.write(\"" + parent + "\", " + namespaceName.data() + "<" + parent
+                       + ">::Deserialize<RImpl>(obj));";
+            }
+
             for (const auto& field : data.fields)
             {
                 out += "\n\t\ts.read(\"" + field.name + "\", obj." + field.name + ");";
