@@ -218,7 +218,9 @@ namespace FileNavigator
                 --triangScopes;
             }
 
-            if (IsSpace(*source) && triangScopes == 0)
+            if ((IsSpace(*source) || *source == '(' || *source == '[' || *source == '{'
+                 || *source == ';')
+                && triangScopes == 0)
             {
                 result.name.pop_back();
                 break;

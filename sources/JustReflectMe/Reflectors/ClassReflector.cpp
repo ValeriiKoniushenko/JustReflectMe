@@ -224,13 +224,64 @@ namespace JRM
 
             {
                 // Validation for R_FRIEND();
+                static std::string_view rFriend = "R_FRIEND";
                 std::string_view src(classScope->start, classScope->end - classScope->start + 1);
-                if (src.find("R_FRIEND") == std::string_view::npos)
+                const auto pos = src.find(rFriend);
+                if (pos == std::string_view::npos)
                 {
                     WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                             "Can't parse the class: '"s + data.name
                                 + "' - was skipped `R_FRIEND(" + data.name +");` in the class's scope. The absence of R_FRIEND won't able to generate reflective code in the correct way.");
                     continue;
+                }
+
+                const char* bracketPos = classScope->start + pos + rFriend.size();
+                if (FileNavigator::IsSpace(*bracketPos))
+                {
+                    bracketPos = FileNavigator::SkipAllBlanks(bracketPos);
+                }
+
+                if (*bracketPos != '(')
+                {
+                    WarnMessage(
+                        content.c_str(), p - content.c_str(), fileData.getPath(),
+                        "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
+                            + ");` in the class's scope. Internal error or syntax is too complex.");
+                    continue;
+                }
+
+                const auto bracketEnd = FileNavigator::FindScopeEnd(bracketPos);
+                if (!bracketEnd) [[unlikely]]
+                {
+                    WarnMessage(
+                        content.c_str(), p - content.c_str(), fileData.getPath(),
+                        "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
+                            + ");` in the class's scope. Internal error(2) or syntax is too complex.");
+                    continue;
+                }
+
+                bracketPos = FileNavigator::SkipAllBlanks(++bracketPos);
+
+                bool isFirst = true;
+                while (bracketPos < bracketEnd)
+                {
+                    int offset = 0;
+                    const auto type = FileNavigator::ReadAsTypename(bracketPos, offset);
+                    bracketPos += std::max(offset, 1); // un-infinity guard
+
+                    bracketPos = SkipAllBlanks(bracketPos);
+                    if (*bracketPos == ',')
+                    {
+                        ++bracketPos;
+                    }
+                    bracketPos = SkipAllBlanks(bracketPos);
+
+                    if (!isFirst)
+                    {
+                        data.serializableParents.emplace_back(type.name);
+                    }
+
+                    isFirst = false;
                 }
             }
 

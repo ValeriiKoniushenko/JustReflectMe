@@ -49,7 +49,7 @@ protected:
 CLASS();
 class Car : public Vehicle
 {
-    R_FRIEND(Car);
+    R_FRIEND(Car, Vehicle);
 
 public:
     [[nodiscard]] std::string getName() const noexcept { return _name; }

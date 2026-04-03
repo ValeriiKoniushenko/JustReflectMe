@@ -125,7 +125,14 @@ struct R
 {
 };
 
-#define R_FRIEND(Class) friend struct R<Class>
+/**
+ * Use this macro for registration of your T.
+ * The first parameter is T name, other params are serializable dependencies(i.g. a class's
+ * parents). So, if you want to serialize the full parent-child chain of your classes, you MUST put
+ * the parent of the current class. After that your current class, its parent, (its parent too...)
+ * will be able to be serializable.
+ */
+#define R_FRIEND(Class, ...) friend struct R<Class>
 
 #define ENUM_CLASS(...) static_assert(true, "")
 
