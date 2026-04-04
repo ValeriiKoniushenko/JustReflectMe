@@ -74,11 +74,22 @@ public:
     {
         out = _data.at(field).get<T>();
     }
+
     template<class T>
         requires(JsonWritable<T>)
     void write(std::string_view field, const T& value)
     {
         _data[field] = value;
+    }
+
+    template<class T>
+        requires(JsonWritable<T>)
+    void write(const T& value)
+    {
+        for (auto&& [key, v] : value.items())
+        {
+            _data[key] = v;
+        }
     }
 };
 
@@ -93,6 +104,12 @@ public:
     void write(std::string_view fieldName, T& value)
     {
         impl.template write<T>(fieldName, value);
+    }
+
+    template<class T>
+    void write(T& value)
+    {
+        impl.template write<T>(value);
     }
 
     template<class T>

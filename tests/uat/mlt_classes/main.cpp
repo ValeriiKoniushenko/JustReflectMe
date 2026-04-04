@@ -42,8 +42,13 @@ int main()
     car.setName("BMW");
     car.setSpeed(160.f);
 
-    auto data = R<Car>::Serialize<RJsonResourceStream>(car);
+    auto data = R<Car>::Serialize(car);
+
     cout << data.getData().dump(4) << endl;
+    data.getData()["_name"] = "Audi";
+    data.getData()["_speed"] = 240.f;
+
+    R<Car>::Deserialize(data, car);
 
     return 0;
 }

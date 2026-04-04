@@ -462,14 +462,14 @@ namespace JRM
         @@F_GET_FIELDS_
     }
 
-    template<IsResourceStreamImpl RImpl>
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj)
     {
         RResourceStream<RImpl> s;@@F_SERIALIZE_
         return s;
     }
 
-    template<IsResourceStreamImpl RImpl>
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj)
     {@@F_DESERIALIZE_
     })";
@@ -502,7 +502,7 @@ namespace JRM
             std::string out;
             for (const auto& parent : data.serializableParents)
             {
-                out += "\n\t\ts.write(\"" + parent + "\", " + namespaceName.data() + "<" + parent
+                out += "\n\t\ts.write("s + namespaceName.data() + "<" + parent
                        + ">::Serialize<RImpl>(obj).getData());";
             }
 
@@ -518,8 +518,8 @@ namespace JRM
             std::string out;
             for (const auto& parent : data.serializableParents)
             {
-                out += "\n\t\ts.write(\"" + parent + "\", " + namespaceName.data() + "<" + parent
-                       + ">::Deserialize<RImpl>(obj));";
+                out += "\n\t\t"s + namespaceName.data() + "<" + parent
+                       + ">::Deserialize<RImpl>(s, obj);";
             }
 
             for (const auto& field : data.fields)

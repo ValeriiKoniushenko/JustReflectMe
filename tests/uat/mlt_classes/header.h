@@ -67,7 +67,7 @@ struct IRadio
 CLASS();
 class RadioCar : public IRadio, std::vector<std::unique_ptr<char>>, public Vehicle
 {
-    R_FRIEND(RadioCar);
+    R_FRIEND(RadioCar, Vehicle);
 
 public:
     [[nodiscard]] std::string getRadio() const noexcept { return _radio; }
