@@ -226,6 +226,7 @@ namespace JRM
         {
             Frame& currentFrame = frames.top();
 
+            bool ignoreFramePop = false;
             for (; currentFrame.it != fs::directory_iterator(); ++currentFrame.it)
             {
                 ++iteratedOverTotal;
@@ -234,6 +235,11 @@ namespace JRM
 
                 const auto path = entry.path();
                 const auto relPath = path.lexically_relative(_sourcePath);
+
+                if (path.generic_string() == "/home/valerii/workspace/Nexium/tests")
+                {
+                    int i = 1;
+                }
 
                 if (_config.showEveryIteratedFilePath->value)
                 {
@@ -256,6 +262,7 @@ namespace JRM
 
                     ++currentFrame.it;
                     frames.push(Frame{ fs::directory_iterator(path), path });
+                    ignoreFramePop = true;
                     break;
                 }
 
@@ -302,7 +309,7 @@ namespace JRM
                 }
             }
 
-            if (currentFrame.it == fs::directory_iterator())
+            if (!ignoreFramePop && currentFrame.it == fs::directory_iterator())
             {
                 frames.pop();
             }

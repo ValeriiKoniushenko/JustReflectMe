@@ -356,6 +356,7 @@ namespace JRM
                             "Can't parse field of the class: '" + data.name
                                 + "'. Can't detect field name.");
             }
+
             p += field.name.size();
 
             p = SkipAllBlanks(p);
