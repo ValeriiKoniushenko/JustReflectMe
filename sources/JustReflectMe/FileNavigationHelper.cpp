@@ -216,6 +216,8 @@ namespace FileNavigator
             else if (*source == '>')
             {
                 --triangScopes;
+                ++source;
+                continue;
             }
 
             if (triangScopes == 0 && *source != ':' && !std::isalnum(*source) && *source != '_')
