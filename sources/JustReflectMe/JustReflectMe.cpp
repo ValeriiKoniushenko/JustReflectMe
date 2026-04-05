@@ -236,11 +236,6 @@ namespace JRM
                 const auto path = entry.path();
                 const auto relPath = path.lexically_relative(_sourcePath);
 
-                if (path.generic_string() == "/home/valerii/workspace/Nexium/tests")
-                {
-                    int i = 1;
-                }
-
                 if (_config.showEveryIteratedFilePath->value)
                 {
                     std::cout << "[JustReflectMe] Looking at: " << path.generic_string() << "\n";

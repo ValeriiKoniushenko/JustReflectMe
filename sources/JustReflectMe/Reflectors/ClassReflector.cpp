@@ -250,6 +250,19 @@ namespace JRM
 
                 if (*bracketPos != '(')
                 {
+                    static std::string_view rFriendDecl = "_DECL";
+                    if (FileNavigator::StartWith(bracketPos, rFriendDecl))
+                    {
+                        bracketPos += rFriendDecl.size();
+                        if (FileNavigator::IsSpace(*bracketPos))
+                        {
+                            bracketPos = FileNavigator::SkipAllBlanks(bracketPos);
+                        }
+                    }
+                }
+
+                if (*bracketPos != '(')
+                {
                     WarnMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
