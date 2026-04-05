@@ -50,6 +50,9 @@ template<class T>
 concept IsResourceStreamImpl = requires(T t, int some_variable) {
     requires DerivedFromAnyRBaseResourceStreamImpl<T>;
     { t.template read<int>("some_field_name", some_variable) } -> std::same_as<void>;
+    {
+        t.template read<int>("some_field_name", some_variable, 100)
+    } -> std::same_as<void>; // default value
     { t.template write<int>("some_field_name", 12345) } -> std::same_as<void>;
 };
 
@@ -73,6 +76,20 @@ public:
     void read(std::string_view field, T& out) const
     {
         out = _data.at(field).get<T>();
+    }
+
+    template<class T, class T2>
+        requires(JsonReadable<T>)
+    void read(std::string_view field, T& out, T2&& defaultValue) const
+    {
+        if (!_data.contains(field))
+        {
+            out = defaultValue;
+        }
+        else
+        {
+            read(field, out);
+        }
     }
 
     template<class T>
@@ -116,6 +133,12 @@ public:
     void read(std::string_view fieldName, T& value) const
     {
         impl.template read<T>(fieldName, value);
+    }
+
+    template<class T, class T2>
+    void read(std::string_view fieldName, T& value, T2&& defaultValue) const
+    {
+        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
     }
 
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
