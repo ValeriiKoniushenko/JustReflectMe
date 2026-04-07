@@ -165,6 +165,12 @@ struct R
 {
 };
 
+enum class RField
+{
+    Default,        // Default behavior
+    NoDefaultValue, // Will ignore default value while all steps of work
+};
+
 /**
  * Use this macro for registration of your T.
  * The first parameter is T name, other params are serializable dependencies(i.g. a class's
@@ -174,7 +180,49 @@ struct R
  */
 #define R_FRIEND(Class, ...) friend struct R<Class>
 
+/**
+ * Put it before the enum-class definition to highlight it for JRM.
+ * @code
+ * ENUM_CLASS();
+ * enum class Color {
+ *     Red,
+ *     Green,
+ *     Blue
+ * }
+ * @endcode
+ */
 #define ENUM_CLASS(...) static_assert(true, "")
 
+/**
+ * Put it before the class definition to highlight it for JRM.
+ * @code
+ * CLASS();
+ * class Foo{
+ *     ...
+ * };
+ * @endcode
+ */
 #define CLASS(...) static_assert(true, "")
+
+/**
+ * Put it before the class's field definition to highlight it for JRM.
+ * Also, it can't work without identifying your clas in the JRM system with 'CLASS()' keyword.
+ * @code
+ * CLASS(); // <--- you MUST put it
+ * class Foo{
+ *     FIELD();
+ *     int a = 1;
+ * };
+ * @endcode
+ *
+ * The default behavior of 'FIELD' can be changed with enum class RField. Just put the necessary
+ * extra parameters using comma separator to change the current behavior.
+ * @code
+ * CLASS();
+ * class Foo{
+ *     FIELD(RField::NoDefaultValue, RField::xyz);
+ *     int a = 1;
+ * };
+ * @endcode
+ */
 #define FIELD(...) static_assert(true, "")

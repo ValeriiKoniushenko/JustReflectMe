@@ -24,6 +24,7 @@
 
 #include "ClassReflector.h"
 
+#include "../Adapter.h"
 #include "../Config.h"
 #include "JustReflectMe/FileData.h"
 #include "JustReflectMe/FileNavigationHelper.h"
@@ -315,7 +316,13 @@ namespace JRM
                                        TokenData& data)
     {
         static std::string_view fieldKeyword = "FIELD";
-        std::vector<const char*> fields;
+
+        struct FieldMeta
+        {
+            const char* p = nullptr;
+            int flags = 0;
+        };
+        std::vector<FieldMeta> fields;
 
         const char* it = classScope->start;
         it = std::search(it, classScope->end, fieldKeyword.data(),
@@ -325,11 +332,44 @@ namespace JRM
         {
             if (FileNavigator::IsWord(classScope->start, fieldKeyword, it - classScope->start))
             {
-                if ((it = FindOnThisLine(it, ";")))
+                FieldMeta meta;
+
+                it += fieldKeyword.size();
+                it = SkipAllBlanks(it);
+                if (*it != '(') [[unlikely]]
+                {
+                    WarnMessage(it, it - fileData.getContent().c_str(), fileData.getPath(),
+                                "Can't parse field of the class: '" + data.name
+                                    + "'. Can't validate the field's structure.");
+                    continue;
+                }
+
+                auto* fieldOpen = it;
+                auto* fieldClose = FileNavigator::FindScopeEnd(it);
+                ++it;
+                while (it < fieldClose)
+                {
+                    int offset = 0;
+                    const auto type = FileNavigator::ReadAsTypename(it, offset);
+                    it += std::max(offset, 1);
+
+                    if (type.name == "RField::NoDefaultValue")
+                    {
+                        meta.flags |= static_cast<int>(RField::NoDefaultValue);
+                    }
+                    else
+                    {
+                        WarnMessage(it, it - fileData.getContent().c_str(), fileData.getPath(),
+                                    "The FIELD's parameter is not recognized: '" + type.name + "'");
+                    }
+                }
+
+                if ((it = FindOnThisLine(fieldClose, ";")))
                 {
                     if ((it = SkipAllBlanks(++it)))
                     {
-                        fields.emplace_back(it);
+                        meta.p = it;
+                        fields.emplace_back(meta);
                     }
                 }
             }
@@ -338,8 +378,9 @@ namespace JRM
                              fieldKeyword.data() + fieldKeyword.size());
         }
 
-        for (const char* p : fields)
+        for (auto&& fieldMeta : fields)
         {
+            auto* p = fieldMeta.p;
             FieldData field;
             int typenameReadOffset = 0;
             field.type = ReadAsTypename(p, typenameReadOffset);
@@ -374,7 +415,7 @@ namespace JRM
 
             p = SkipAllBlanks(p);
             const char* const nameEnd = p;
-            if (*p != ';')
+            if (*p != ';' && (fieldMeta.flags & static_cast<int>(RField::NoDefaultValue)) == 0)
             {
                 if (*p == '=')
                 {

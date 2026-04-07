@@ -54,6 +54,7 @@ namespace JRM
             FileNavigator::Typename type;
             std::string name;
             std::string defaultValue;
+            int rFieldsFlags = 0;
         };
 
         struct TokenData : public BaseTokenData

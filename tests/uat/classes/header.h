@@ -74,7 +74,7 @@ namespace NS
         FIELD();
         int c{ 666 };
 
-        FIELD();
+        FIELD(RField::NoDefaultValue);
         const unsigned _id{ ++s_globalIdCounter };
 
         FIELD();
@@ -84,7 +84,7 @@ namespace NS
         std::string _model{ "Undefined" };
 
         FIELD();
-        EngineType _engine{ EngineType::Petrol };
+        EngineType _engine{ NS::Car::EngineType::Petrol };
 
         FIELD();
         char ch = 'b';
