@@ -213,9 +213,14 @@ namespace JRM
     std::size_t BaseReflector::findTriggerKeyword(const std::string& content,
                                                   std::string_view keyword, std::size_t offset)
     {
-        if (const auto pos = content.find(keyword, offset); pos != std::string::npos)
+        std::size_t pos = offset;
+        while ((pos = content.find(keyword, pos)) != std::string::npos)
         {
-            return IsWord(content, keyword, pos) ? pos : std::string::npos;
+            if (IsWord(content, keyword, pos))
+            {
+                return pos;
+            }
+            ++pos;
         }
 
         return std::string::npos;
