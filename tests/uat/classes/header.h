@@ -32,6 +32,26 @@
 #include <string>
 #include <utility>
 
+CLASS();
+class Human
+{
+    R_FRIEND(Human);
+
+public:
+    Human(int age, std::string_view name)
+        : _age(age),
+          _name(name)
+    {
+    }
+
+private:
+    FIELD();
+    int _age = 0;
+
+    FIELD();
+    std::string _name;
+};
+
 namespace NS
 {
     CLASS();

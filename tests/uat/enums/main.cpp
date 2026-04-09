@@ -56,5 +56,10 @@ int main()
 
     ASSERT_EQ(R<Color>::ParentScope(), "");
 
+    for (auto [name, value] : R<Color>::ToMapNC())
+    {
+        std::cout << name << " = " << (int)value << std::endl;
+    }
+
     return 0;
 }

@@ -47,5 +47,11 @@ int main()
     auto data = R<NS::Car>::Serialize<RJsonResourceStream>(car);
     auto raw = data.getData().dump(4);
     cout << raw << endl;
+
+    Human h(25, "Nikki");
+    auto rawData = R<Human>::Serialize(h); // json by default
+    auto json = rawData.getData();
+    cout << json.dump(4) << endl;
+
     return 0;
 }
