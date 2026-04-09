@@ -201,11 +201,17 @@ namespace JRM
         out += genKey(*config.alwaysDirtyCache)
                + (config.alwaysDirtyCache->value ? "true" : "false") + "\n\n"s;
 
-        out += genKey(*config.insertCodeAtTheTop) + "\"" + config.insertCodeAtTheTop->value
-               + "\"\n\n"s;
+        out += genKey(*config.insertCodeAtTheTop)
+               + (config.insertCodeAtTheTop->value.empty()
+                      ? ""
+                      : ("\"" + config.insertCodeAtTheTop->value + "\""))
+               + "\n\n"s;
 
-        out += genKey(*config.insertCodeAtTheBottom) + "\"" + config.insertCodeAtTheBottom->value
-               + "\"\n\n"s;
+        out += genKey(*config.insertCodeAtTheBottom)
+               + (config.insertCodeAtTheBottom->value.empty()
+                      ? ""
+                      : ("\"" + config.insertCodeAtTheBottom->value + "\""))
+               + "\n\n"s;
 
         return out;
     }
