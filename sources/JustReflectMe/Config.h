@@ -94,7 +94,7 @@ namespace JRM
 
         PARAM(std::set<std::filesystem::path>, excludedPaths,
               "Pass an array of the relative paths that should be ignored.",
-              { "build", ".vscode", ".cache", ".git", ".idea", jrmFolder });
+              { "JustReflectMe", "build", ".vscode", ".cache", ".git", ".idea", jrmFolder });
 
         PARAM(std::vector<std::string>, parsableFileExtensions,
               "Array of the file extensions that will be scanned through the filesystem.",
