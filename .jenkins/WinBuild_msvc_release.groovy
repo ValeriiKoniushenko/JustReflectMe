@@ -5,6 +5,9 @@ pipeline {
     environment {
         BUILD_TYPE = 'Release'
     }
+    tools {
+        git 'Default'
+    }
 
     stages {
         stage('Prepare') {

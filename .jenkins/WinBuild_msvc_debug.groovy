@@ -5,7 +5,9 @@ pipeline {
     environment {
         BUILD_TYPE = 'Debug'
     }
-
+    tools {
+        git 'Default'
+    }
     stages {
         stage('Prepare') {
             steps {
