@@ -1,16 +1,31 @@
 pipeline {
-    agent { label 'Windows' }
-
+    agent {
+        label 'Windows'
+    }
     environment {
         BUILD_TYPE = 'Release'
     }
-
+    tools {
+        git 'Default'
+    }
     stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'develop']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/ValeriiKoniushenko/JustReflectMe/',
+                        credentialsId: 'd9e58ef9-d250-43fe-b4b3-cad1ff67f820'
+                    ]]
+                ])
+            }
+        }
+
         stage('Prepare') {
             steps {
                 script {
                     isTriggeredByCron = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause')
-
                     if (isTriggeredByCron) {
                         echo "Clean build preparation due to Cron task."
                         bat """
@@ -20,17 +35,14 @@ pipeline {
                 }
             }
         }
-
         stage('Build') {
             steps {
                 script {
                     def attempt = 0
                     def maxAttempts = 2
                     def success = false
-
                     while (!success && attempt < maxAttempts) {
                         attempt++
-
                         if (attempt == 2) {
                             echo "Previous build was FAILED. Let's try clear rebuild"
                             bat """
@@ -44,7 +56,7 @@ pipeline {
                                 cmake --build build --config %BUILD_TYPE% -- /m:2
                             """
                             success = true
-                        } catch(err) {
+                        } catch (err) {
                             echo "Build failed on attempt #${attempt}"
                             if (attempt == maxAttempts) {
                                 error "Build failed after ${maxAttempts} attempts"
@@ -54,13 +66,11 @@ pipeline {
                 }
             }
         }
-
         stage('Package Artifacts') {
             steps {
                 script {
                     def BUILD_PATH = "build"
                     def ARCHIVE_NAME = "${BUILD_TYPE}-Win64.zip"
-
                     bat """
                         if exist ${ARCHIVE_NAME} del /Q ${ARCHIVE_NAME}
                         powershell Compress-Archive -Path ${BUILD_PATH}\\bin\\%BUILD_TYPE%\\jrm.exe -DestinationPath ${ARCHIVE_NAME}
