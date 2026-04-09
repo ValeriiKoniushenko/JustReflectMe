@@ -56,7 +56,7 @@ namespace JRM
         _params.emplace_back(insertCodeAtTheBottom);
     }
 
-    Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir)
+    Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir, bool& hasError)
     {
         _projectDir = projectDir;
 
@@ -130,6 +130,7 @@ namespace JRM
             std::cerr << "[JustReflectMe] Failed to parse .yaml config file. Details: " << ex.what()
                       << std::endl;
             std::cerr << "[JustReflectMe] The JRM is configured incompletely!\n";
+            hasError = true;
         }
 
         return config;

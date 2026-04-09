@@ -113,7 +113,7 @@ namespace JRM
         try
         {
             ConfigManager configManager;
-            _config = configManager.initializeProjectAndLoadConfig(_sourcePath);
+            _config = configManager.initializeProjectAndLoadConfig(_sourcePath, hasError);
 
             if (_config.showEveryIteratedFilePath->value)
             {

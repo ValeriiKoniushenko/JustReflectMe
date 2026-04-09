@@ -116,8 +116,8 @@ namespace JRM
     class ConfigManager final
     {
     public:
-        [[nodiscard]] Config initializeProjectAndLoadConfig(
-            const std::filesystem::path& projectDir);
+        [[nodiscard]] Config initializeProjectAndLoadConfig(const std::filesystem::path& projectDir,
+                                                            bool& hasError);
 
         [[nodiscard]] static std::string spawnFallbackConfigAsString();
 
