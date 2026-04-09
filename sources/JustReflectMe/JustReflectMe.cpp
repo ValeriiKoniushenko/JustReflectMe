@@ -141,7 +141,7 @@ namespace JRM
         std::cout << "[JustReflectMe] <<< Ended " << (hasError ? "with ERRORS" : "SUCCESSFULLY")
                   << " in " << duration << " sec >>>\n";
 
-        return 0;
+        return static_cast<int>(hasError);
     }
 
     std::unordered_map<JustReflectMe::InputArgs, std::string> JustReflectMe::parseInputArgs(
