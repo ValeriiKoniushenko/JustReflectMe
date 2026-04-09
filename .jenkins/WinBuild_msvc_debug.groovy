@@ -5,23 +5,8 @@ pipeline {
     environment {
         BUILD_TYPE = 'Debug'
     }
-    tools {
-        git 'Default'
-    }
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: 'develop']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/ValeriiKoniushenko/JustReflectMe/',
-                        credentialsId: 'd9e58ef9-d250-43fe-b4b3-cad1ff67f820'
-                    ]]
-                ])
-            }
-        }
 
+    stages {
         stage('Prepare') {
             steps {
                 script {
