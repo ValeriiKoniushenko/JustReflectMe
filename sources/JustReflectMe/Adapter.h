@@ -32,6 +32,8 @@ template<class DataT>
 class RBaseResourceStreamImpl
 {
 public:
+    using DataType = DataT;
+
     RBaseResourceStreamImpl() = default;
     virtual ~RBaseResourceStreamImpl() = default;
 
@@ -47,13 +49,11 @@ concept DerivedFromAnyRBaseResourceStreamImpl
     = requires(std::remove_cvref_t<T>* p) { []<class U>(RBaseResourceStreamImpl<U>*) {}(p); };
 
 template<class T>
-concept IsResourceStreamImpl = requires(T t, int some_variable) {
+concept IsResourceStreamImpl = requires(T t, int v) {
     requires DerivedFromAnyRBaseResourceStreamImpl<T>;
-    { t.template read<int>("some_field_name", some_variable) } -> std::same_as<void>;
-    {
-        t.template read<int>("some_field_name", some_variable, 100)
-    } -> std::same_as<void>; // default value
-    { t.template write<int>("some_field_name", 12345) } -> std::same_as<void>;
+    { t.template read<int>("foo", v) } -> std::same_as<void>;
+    { t.template read<int>("foo", v, 100) } -> std::same_as<void>;
+    { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
 
 class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
@@ -116,6 +116,8 @@ struct RResourceStream
 public:
     RResourceStream() = default;
     virtual ~RResourceStream() = default;
+
+    RResourceStream(const typename RImpl::DataType& out) { impl.data() = out; }
 
     template<class T>
     void write(std::string_view fieldName, T& value)

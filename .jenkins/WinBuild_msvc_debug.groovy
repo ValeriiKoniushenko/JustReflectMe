@@ -8,6 +8,7 @@ pipeline {
     tools {
         git 'Default'
     }
+
     stages {
         stage('Prepare') {
             steps {
