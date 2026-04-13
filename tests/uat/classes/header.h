@@ -94,7 +94,7 @@ namespace NS
         FIELD();
         int c{ 666 };
 
-        FIELD(RField::NoDefaultValue);
+        FIELD(RFieldGen::NoDefaultValue);
         const unsigned _id{ ++s_globalIdCounter };
 
         FIELD();

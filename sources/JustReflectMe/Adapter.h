@@ -28,6 +28,48 @@
 
 #include <string_view>
 
+//
+//  ┏┳┓╻┏━┓┏━╸
+//  ┃┃┃┃┗━┓┃
+//  ╹ ╹╹┗━┛┗━╸
+//
+
+struct RClassField
+{
+    constexpr RClassField(std::string_view type, std::string_view name) noexcept
+        : type(type),
+          name(name)
+    {
+    }
+
+    std::string_view type;
+    std::string_view name;
+};
+
+template<class T>
+struct R
+{
+};
+
+enum class RFieldGen
+{
+    Default,        // Default behavior
+    NoDefaultValue, // Will ignore default value while all steps of work
+};
+
+enum class RFieldFlag
+{
+    Required = 1 << 1,
+    NonRequired = 1 << 2,
+    Default = NonRequired, // Default behavior
+};
+
+//
+//  ┏━┓┏┓ ┏━┓┏━┓┏━╸┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓╻┏┳┓┏━┓╻
+//  ┣┳┛┣┻┓┣━┫┗━┓┣╸ ┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃┃┃┃┃┣━┛┃
+//  ╹┗╸┗━┛╹ ╹┗━┛┗━╸╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹╹╹ ╹╹  ┗━╸
+//
+
 template<class DataT>
 class RBaseResourceStreamImpl
 {
@@ -55,6 +97,66 @@ concept IsResourceStreamImpl = requires(T t, int v) {
     { t.template read<int>("foo", v, 100) } -> std::same_as<void>;
     { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
+
+//
+//  ┏━┓┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓
+//  ┣┳┛┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃
+//  ╹┗╸╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹
+//
+
+template<IsResourceStreamImpl RImpl>
+struct RResourceStream
+{
+public:
+    RResourceStream() = default;
+    virtual ~RResourceStream() = default;
+
+    RResourceStream(const typename RImpl::DataType& out) { impl.data() = out; }
+
+    template<class T>
+    void write(std::string_view fieldName, T& value)
+    {
+        impl.template write<T>(fieldName, value);
+    }
+
+    template<class T>
+    void write(T& value)
+    {
+        impl.template write<T>(value);
+    }
+
+    template<class T>
+    void read(std::string_view fieldName, T& value) const
+    {
+        impl.template read<T>(fieldName, value);
+    }
+
+    template<class T, class T2>
+    void read(std::string_view fieldName, T& value, T2&& defaultValue) const
+    {
+        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
+    }
+
+    [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
+    [[nodiscard]] auto& getData() noexcept { return impl.data(); }
+
+protected:
+    RImpl impl;
+};
+
+// ------------------------------------------------------------------- //
+//                                                                     //
+//  ╺┳┓┏━╸┏━╸┏━┓╻ ╻╻  ╺┳╸   ╻┏┳┓┏━┓╻  ┏━╸┏┳┓┏━╸┏┓╻╺┳╸┏━┓╺┳╸╻┏━┓┏┓╻┏━┓  //
+//   ┃┃┣╸ ┣╸ ┣━┫┃ ┃┃   ┃    ┃┃┃┃┣━┛┃  ┣╸ ┃┃┃┣╸ ┃┗┫ ┃ ┣━┫ ┃ ┃┃ ┃┃┗┫┗━┓  //
+//  ╺┻┛┗━╸╹  ╹ ╹┗━┛┗━╸ ╹    ╹╹ ╹╹  ┗━╸┗━╸╹ ╹┗━╸╹ ╹ ╹ ╹ ╹ ╹ ╹┗━┛╹ ╹┗━┛  //
+//                                                                     //
+// ------------------------------------------------------------------- //
+
+//
+//  ┏━┓ ┏┓┏━┓┏━┓┏┓╻┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓
+//  ┣┳┛  ┃┗━┓┃ ┃┃┗┫┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃
+//  ╹┗╸┗━┛┗━┛┗━┛╹ ╹╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹
+//
 
 class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
 {
@@ -110,68 +212,11 @@ public:
     }
 };
 
-template<IsResourceStreamImpl RImpl>
-struct RResourceStream
-{
-public:
-    RResourceStream() = default;
-    virtual ~RResourceStream() = default;
-
-    RResourceStream(const typename RImpl::DataType& out) { impl.data() = out; }
-
-    template<class T>
-    void write(std::string_view fieldName, T& value)
-    {
-        impl.template write<T>(fieldName, value);
-    }
-
-    template<class T>
-    void write(T& value)
-    {
-        impl.template write<T>(value);
-    }
-
-    template<class T>
-    void read(std::string_view fieldName, T& value) const
-    {
-        impl.template read<T>(fieldName, value);
-    }
-
-    template<class T, class T2>
-    void read(std::string_view fieldName, T& value, T2&& defaultValue) const
-    {
-        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
-    }
-
-    [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
-    [[nodiscard]] auto& getData() noexcept { return impl.data(); }
-
-protected:
-    RImpl impl;
-};
-
-struct RClassField
-{
-    constexpr RClassField(std::string_view type, std::string_view name) noexcept
-        : type(type),
-          name(name)
-    {
-    }
-
-    std::string_view type;
-    std::string_view name;
-};
-
-template<class T>
-struct R
-{
-};
-
-enum class RField
-{
-    Default,        // Default behavior
-    NoDefaultValue, // Will ignore default value while all steps of work
-};
+//
+//  ┏┳┓┏━┓┏━┓╻┏ ┏━┓
+//  ┃┃┃┣━┫┣┳┛┣┻┓┗━┓
+//  ╹ ╹╹ ╹╹┗╸╹ ╹┗━┛
+//
 
 /**
  * Use this macro for registration of your T.
@@ -217,12 +262,12 @@ enum class RField
  * };
  * @endcode
  *
- * The default behavior of 'FIELD' can be changed with enum class RField. Just put the necessary
+ * The default behavior of 'FIELD' can be changed with enum class RFieldGen. Just put the necessary
  * extra parameters using comma separator to change the current behavior.
  * @code
  * CLASS();
  * class Foo{
- *     FIELD(RField::NoDefaultValue, RField::xyz);
+ *     FIELD(RFieldGen::NoDefaultValue, RFieldGen::xyz);
  *     int a = 1;
  * };
  * @endcode

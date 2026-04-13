@@ -353,9 +353,9 @@ namespace JRM
                     const auto type = FileNavigator::ReadAsTypename(it, offset);
                     it += std::max(offset, 1);
 
-                    if (type.name == "RField::NoDefaultValue")
+                    if (type.name == "RFieldGen::NoDefaultValue")
                     {
-                        meta.flags |= static_cast<int>(RField::NoDefaultValue);
+                        meta.flags |= static_cast<int>(RFieldGen::NoDefaultValue);
                     }
                     else
                     {
@@ -415,7 +415,7 @@ namespace JRM
 
             p = SkipAllBlanks(p);
             const char* const nameEnd = p;
-            if (*p != ';' && (fieldMeta.flags & static_cast<int>(RField::NoDefaultValue)) == 0)
+            if (*p != ';' && (fieldMeta.flags & static_cast<int>(RFieldGen::NoDefaultValue)) == 0)
             {
                 if (*p == '=')
                 {
