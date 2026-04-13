@@ -320,7 +320,8 @@ namespace JRM
         struct FieldMeta
         {
             const char* p = nullptr;
-            int flags = 0;
+            int genFlags = 0;
+            int flags = RFlag_Default;
         };
         std::vector<FieldMeta> fields;
 
@@ -355,7 +356,19 @@ namespace JRM
 
                     if (type.name == "RFieldGen::NoDefaultValue")
                     {
-                        meta.flags |= static_cast<int>(RFieldGen::NoDefaultValue);
+                        meta.genFlags |= static_cast<int>(RFieldGen::NoDefaultValue);
+                    }
+                    else if (type.name == "RFlag_NonRequired")
+                    {
+                        meta.flags |= RFlag_NonRequired;
+                    }
+                    else if (type.name == "RFlag_Required")
+                    {
+                        meta.flags |= RFlag_Required;
+                    }
+                    else if (type.name == "RFlag_Default")
+                    {
+                        meta.flags |= RFlag_Default;
                     }
                     else
                     {
@@ -382,6 +395,8 @@ namespace JRM
         {
             auto* p = fieldMeta.p;
             FieldData field;
+            field.flags = fieldMeta.flags;
+
             int typenameReadOffset = 0;
             field.type = ReadAsTypename(p, typenameReadOffset);
             if (field.type.name.empty())
@@ -415,7 +430,8 @@ namespace JRM
 
             p = SkipAllBlanks(p);
             const char* const nameEnd = p;
-            if (*p != ';' && (fieldMeta.flags & static_cast<int>(RFieldGen::NoDefaultValue)) == 0)
+            if (*p != ';'
+                && (fieldMeta.genFlags & static_cast<int>(RFieldGen::NoDefaultValue)) == 0)
             {
                 if (*p == '=')
                 {
@@ -590,6 +606,10 @@ namespace JRM
                 if (!field.defaultValue.empty())
                 {
                     out += ", " + field.defaultValue;
+                }
+                else
+                {
+                    out += ", " + std::to_string(field.flags);
                 }
                 out += ");";
             }

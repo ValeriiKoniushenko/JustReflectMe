@@ -57,11 +57,11 @@ enum class RFieldGen
     NoDefaultValue, // Will ignore default value while all steps of work
 };
 
-enum class RFieldFlag
+enum RFlag
 {
-    Required = 1 << 1,
-    NonRequired = 1 << 2,
-    Default = NonRequired, // Default behavior
+    RFlag_Required = 1 << 1,
+    RFlag_NonRequired = 1 << 2,
+    RFlag_Default = RFlag_NonRequired, // Default behavior
 };
 
 //
@@ -93,7 +93,7 @@ concept DerivedFromAnyRBaseResourceStreamImpl
 template<class T>
 concept IsResourceStreamImpl = requires(T t, int v) {
     requires DerivedFromAnyRBaseResourceStreamImpl<T>;
-    { t.template read<int>("foo", v) } -> std::same_as<void>;
+    { t.template read<int>("foo", v, RFlag_Default) } -> std::same_as<void>;
     { t.template read<int>("foo", v, 100) } -> std::same_as<void>;
     { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
@@ -175,9 +175,13 @@ public:
 
     template<class T>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out) const
+    void read(std::string_view field, T& out, int flag = RFlag_Default) const
     {
-        out = _data.at(field).get<T>();
+        if (flag & RFlag_NonRequired && !_data.contains(field))
+        {
+            return;
+        }
+ out = _data.at(field).get<T>();
     }
 
     template<class T, class T2>
