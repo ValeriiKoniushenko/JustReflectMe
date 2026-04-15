@@ -26,7 +26,9 @@
 
 #include "NlohmannJson.h"
 
+#include <string>
 #include <string_view>
+#include <vector>
 
 //
 //  ┏┳┓╻┏━┓┏━╸
@@ -64,6 +66,14 @@ enum RFlag
     RFlag_Default = RFlag_NonRequired, // Default behavior
 };
 
+enum class RStatus
+{
+    Ok,
+    NotFound
+};
+
+using RLogsCollector = std::vector<std::pair<std::string, RStatus>>;
+
 //
 //  ┏━┓┏┓ ┏━┓┏━┓┏━╸┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓╻┏┳┓┏━┓╻
 //  ┣┳┛┣┻┓┣━┫┗━┓┣╸ ┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃┃┃┃┃┣━┛┃
@@ -93,8 +103,8 @@ concept DerivedFromAnyRBaseResourceStreamImpl
 template<class T>
 concept IsResourceStreamImpl = requires(T t, int v) {
     requires DerivedFromAnyRBaseResourceStreamImpl<T>;
-    { t.template read<int>("foo", v, RFlag_Default) } -> std::same_as<void>;
-    { t.template read<int>("foo", v, 100) } -> std::same_as<void>;
+    { t.template read<int>("foo", v, RFlag_Default, nullptr) } -> std::same_as<void>;
+    { t.template read<int>("foo", v, 100, nullptr) } -> std::same_as<void>;
     { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
 
@@ -126,15 +136,17 @@ public:
     }
 
     template<class T>
-    void read(std::string_view fieldName, T& value) const
+    void read(std::string_view fieldName, T& value, RLogsCollector* logs = nullptr) const
     {
-        impl.template read<T>(fieldName, value);
+        impl.template read<T>(fieldName, value, logs);
     }
 
     template<class T, class T2>
-    void read(std::string_view fieldName, T& value, T2&& defaultValue) const
+    void read(std::string_view fieldName, T& value, T2&& defaultValue,
+              RLogsCollector* logs = nullptr) const
     {
-        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
+        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue),
+                              logs);
     }
 
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
@@ -175,21 +187,36 @@ public:
 
     template<class T>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out, int flag = RFlag_Default) const
+    void read(std::string_view field, T& out, int flag = RFlag_Default,
+              RLogsCollector* logs = nullptr) const
     {
-        if (flag & RFlag_NonRequired && !_data.contains(field))
+        if (!_data.contains(field))
         {
+            if (flag & RFlag_Required)
+            {
+                if (logs)
+                {
+                    logs->emplace_back(field.data(), RStatus::NotFound);
+                }
+                throw std::runtime_error("Required field not found: '" + std::string(field) + "'");
+            }
             return;
         }
- out = _data.at(field).get<T>();
+        out = _data.at(field).get<T>();
     }
 
     template<class T, class T2>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out, T2&& defaultValue) const
+    void read(std::string_view field, T& out, T2&& defaultValue,
+              RLogsCollector* logs = nullptr) const
     {
         if (!_data.contains(field))
         {
+            if (logs)
+            {
+                logs->emplace_back(field.data(), RStatus::NotFound);
+            }
+
             out = defaultValue;
         }
         else
