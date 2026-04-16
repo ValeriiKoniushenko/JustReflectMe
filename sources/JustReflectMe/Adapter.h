@@ -72,6 +72,15 @@ enum class RStatus
     NotFound
 };
 
+inline const char* RStatusToString(RStatus status)
+{
+    // clang-format off
+    if (status == RStatus::Ok) return "Ok";
+    if (status == RStatus::NotFound) return "NotFound";
+    return "Unknown";
+    // clang-format on
+}
+
 using RLogsCollector = std::vector<std::pair<std::string, RStatus>>;
 
 //
