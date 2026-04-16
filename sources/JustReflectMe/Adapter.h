@@ -205,9 +205,9 @@ public:
     {
         if (!_data.contains(field))
         {
+            _logs.emplace_back(field.data(), RStatus::NotFound);
             if (flag & RFlag_Required)
             {
-                _logs.emplace_back(field.data(), RStatus::NotFound);
                 throw std::runtime_error("Required field not found: '" + std::string(field) + "'");
             }
             return;
