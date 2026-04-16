@@ -154,6 +154,9 @@ public:
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
     [[nodiscard]] auto& getData() noexcept { return impl.data(); }
 
+    [[nodiscard]] const RLogsCollector& logs() const noexcept { return impl.logs(); }
+    [[nodiscard]] RLogsCollector& logs() noexcept { return impl.logs(); }
+
 protected:
     RImpl impl;
 };
