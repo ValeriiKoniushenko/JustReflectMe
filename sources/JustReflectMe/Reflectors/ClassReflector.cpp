@@ -534,30 +534,23 @@ namespace JRM
     }
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj)
+    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)
     {
         RResourceStream<RImpl> s;@@F_SERIALIZE_
         return s;
     }
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    @@FUNC_PREF_void Serialize(const @@NAME_& obj, RResourceStream<RImpl>& s)
+    @@FUNC_PREF_void Serialize(const @@NAME_& obj, RResourceStream<RImpl>& s, bool noSignals = false)
     {
         @@F_SERIALIZE_
     }
 
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj)
+    static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
     {@@F_DESERIALIZE_
     })";
-
-        // Default find & replace
-        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
-        FindAndReplaceAll(finalString, onlyNameMark, data.name);
-        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
-        FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
-        FindAndReplaceAll(finalString, funcPrefMark, "static ");
 
         // Class-specific find & replace
         FindAndReplaceAll(finalString, fieldNumbers, std::to_string(data.fields.size()));
@@ -578,6 +571,12 @@ namespace JRM
         // =================== F_SERIALIZE_ =========================
         {
             std::string out;
+            out += R"(if (!noSignals)
+        {
+            _RTryCallPreSerialize(obj);
+        }
+)";
+
             for (const auto& parent : data.serializableParents)
             {
                 out += "\n\t\ts.write("s + namespaceName.data() + "<" + parent
@@ -588,16 +587,30 @@ namespace JRM
             {
                 out += "\n\t\ts.write(\"" + field.name + "\", obj." + field.name + ");";
             }
+
+            out += R"(
+        if (!noSignals)
+        {
+            _RTryCallPostSerialize(obj, s.logs());
+        })";
+
             FindAndReplaceAll(finalString, "@@F_SERIALIZE_", out);
         }
 
         // =================== F_DESERIALIZE_ =========================
         {
             std::string out;
+
+            out += R"(if (!noSignals)
+        {
+            _RTryCallPreDeserialize(obj);
+        }
+)";
+
             for (const auto& parent : data.serializableParents)
             {
                 out += "\n\t\t"s + namespaceName.data() + "<" + parent
-                       + ">::Deserialize<RImpl>(s, obj);";
+                       + ">::Deserialize<RImpl>(s, obj, true);";
             }
 
             for (const auto& field : data.fields)
@@ -613,7 +626,20 @@ namespace JRM
                 }
                 out += ");";
             }
+
+            out += R"(
+        if (!noSignals)
+        {
+            _RTryCallPostDeserialize(obj, s.logs());
+        })";
             FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
+
+            // Default find & replace
+            FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
+            FindAndReplaceAll(finalString, onlyNameMark, data.name);
+            FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
+            FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
+            FindAndReplaceAll(finalString, funcPrefMark, "static ");
         }
 
         return finalString;

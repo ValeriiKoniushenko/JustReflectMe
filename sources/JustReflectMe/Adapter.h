@@ -83,6 +83,58 @@ inline const char* RStatusToString(RStatus status)
 
 using RLogsCollector = std::vector<std::pair<std::string, RStatus>>;
 
+template<class T>
+concept RHasOnPreDeserialize = requires(std::remove_cv_t<T> v) { v.onPreDeserialize(nullptr); };
+
+template<class T>
+concept RHasOnPostDeserialize = requires(std::remove_cv_t<T> v, const RLogsCollector& logs) {
+    v.onPostDeserialize(nullptr, logs);
+};
+
+template<class T>
+concept RHasOnPreSerialize = requires(std::remove_cv_t<T> v) { v.onPreSerialize(nullptr); };
+
+template<class T>
+concept RHasOnPostSerialize = requires(std::remove_cv_t<T> v, const RLogsCollector& logs) {
+    v.onPostSerialize(nullptr, logs);
+};
+
+template<typename T>
+static void _RTryCallPreSerialize(const T& obj)
+{
+    if constexpr (RHasOnPreSerialize<T>)
+    {
+        obj.onPreSerialize(&obj);
+    }
+}
+
+template<typename T>
+static void _RTryCallPostSerialize(const T& obj, const RLogsCollector& logs)
+{
+    if constexpr (RHasOnPreSerialize<T>)
+    {
+        obj.onPostSerialize(&obj, logs);
+    }
+}
+
+template<typename T>
+static void _RTryCallPreDeserialize(const T& obj)
+{
+    if constexpr (RHasOnPreDeserialize<T>)
+    {
+        obj.onPreDeserialize(&obj);
+    }
+}
+
+template<typename T>
+static void _RTryCallPostDeserialize(const T& obj, const RLogsCollector& logs)
+{
+    if constexpr (RHasOnPreDeserialize<T>)
+    {
+        obj.onPostDeserialize(&obj, logs);
+    }
+}
+
 //
 //  ┏━┓┏┓ ┏━┓┏━┓┏━╸┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓╻┏┳┓┏━┓╻
 //  ┣┳┛┣┻┓┣━┫┗━┓┣╸ ┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃┃┃┃┃┣━┛┃
