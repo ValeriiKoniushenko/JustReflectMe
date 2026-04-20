@@ -549,7 +549,8 @@ namespace JRM
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
-    {@@F_DESERIALIZE_
+    {
+        @@F_DESERIALIZE_
     })";
 
         // Class-specific find & replace
