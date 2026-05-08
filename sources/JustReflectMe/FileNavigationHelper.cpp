@@ -240,6 +240,24 @@ namespace FileNavigator
             result.isConst = true;
         }
 
+        // Try to determine '*' and '&' at the end of the type
+        int transactionOffset = 0;
+        bool foundTypeSuffix = false;
+        while (source[transactionOffset] == ' ') // skip blanks between type and '*' or '&'
+        {
+            ++transactionOffset;
+        }
+        while (source[transactionOffset] == '*' || source[transactionOffset] == '&')
+        {
+            result.name.push_back(source[transactionOffset]);
+            ++transactionOffset;
+            foundTypeSuffix = true;
+        }
+        if (foundTypeSuffix)
+        {
+            source += transactionOffset;
+        }
+
         offset = static_cast<int>(source - originalSource);
         return result;
     }

@@ -316,6 +316,7 @@ namespace JRM
                                        TokenData& data)
     {
         static std::string_view fieldKeyword = "FIELD";
+        const char* const content = fileData.getContent().c_str();
 
         struct FieldMeta
         {
@@ -339,7 +340,7 @@ namespace JRM
                 it = SkipAllBlanks(it);
                 if (*it != '(') [[unlikely]]
                 {
-                    WarnMessage(it, it - fileData.getContent().c_str(), fileData.getPath(),
+                    WarnMessage(content, it - content, fileData.getPath(),
                                 "Can't parse field of the class: '" + data.name
                                     + "'. Can't validate the field's structure.");
                     continue;
@@ -372,7 +373,7 @@ namespace JRM
                     }
                     else
                     {
-                        WarnMessage(it, it - fileData.getContent().c_str(), fileData.getPath(),
+                        WarnMessage(content, it - content, fileData.getPath(),
                                     "The FIELD's parameter is not recognized: '" + type.name + "'");
                     }
                 }
@@ -401,7 +402,7 @@ namespace JRM
             field.type = ReadAsTypename(p, typenameReadOffset);
             if (field.type.name.empty())
             {
-                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                WarnMessage(content, p - content, fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
                                 + "'. Can't detect typename.");
                 continue;
@@ -410,7 +411,7 @@ namespace JRM
             p += typenameReadOffset;
             if (!IsSpace(*p))
             {
-                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                WarnMessage(content, p - content, fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
                                 + "'. Can't detect identifier.");
                 continue;
@@ -421,7 +422,7 @@ namespace JRM
             field.name = ReadAsIdentifier(p);
             if (field.name.empty())
             {
-                WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                WarnMessage(content, p - content, fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
                                 + "'. Can't detect field name.");
             }
@@ -443,7 +444,7 @@ namespace JRM
                     auto s = classScope->findDeepest(p);
                     if (!s || !s->isValid())
                     {
-                        WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                        WarnMessage(content, p - content, fileData.getPath(),
                                     "Can't parse field of the class: '" + data.name
                                         + "'. Can't detect initializer.");
                         continue;
@@ -456,7 +457,7 @@ namespace JRM
                     const auto* end = strchr(p, ';');
                     if (!end)
                     {
-                        WarnMessage(p, p - fileData.getContent().c_str(), fileData.getPath(),
+                        WarnMessage(content, p - content, fileData.getPath(),
                                     "Can't parse field of the class: '" + data.name
                                         + "'. Can't detect initializer(2).");
                         continue;
