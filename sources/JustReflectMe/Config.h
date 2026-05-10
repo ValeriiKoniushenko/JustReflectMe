@@ -118,7 +118,7 @@ namespace JRM
               "Ignore signals that are used for serialization purposes. If true, only the mehtod "
               "on(Pre/Post)[De]Serialize will be called from the top called object. If false, "
               "every class will try to use only its own on(Pre/Post)[De]Serialize method.",
-              false);
+              true);
     };
 #undef PARAM
 
