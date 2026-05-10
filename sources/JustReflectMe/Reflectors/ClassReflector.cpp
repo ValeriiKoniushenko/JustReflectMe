@@ -611,8 +611,10 @@ namespace JRM
 
             for (const auto& parent : data.serializableParents)
             {
+                const char* ignoreSignalParam
+                    = config.ignoreSerializationSignals->value ? "true" : "false";
                 out += "\n\t\t"s + namespaceName.data() + "<" + parent
-                       + ">::Deserialize<RImpl>(s, obj, true);";
+                       + ">::Deserialize<RImpl>(s, obj, " + ignoreSignalParam + ");";
             }
 
             for (const auto& field : data.fields)

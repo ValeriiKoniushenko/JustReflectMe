@@ -54,6 +54,7 @@ namespace JRM
         _params.emplace_back(alwaysDirtyCache);
         _params.emplace_back(insertCodeAtTheTop);
         _params.emplace_back(insertCodeAtTheBottom);
+        _params.emplace_back(ignoreSerializationSignals);
     }
 
     Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir, bool& hasError)
@@ -124,11 +125,17 @@ namespace JRM
             {
                 config.insertCodeAtTheBottom->value = item.As<std::string>();
             }
+
+            if (auto&& item = yaml[config.ignoreSerializationSignals->paramName.data()];
+                !item.IsNone())
+            {
+                config.ignoreSerializationSignals->value = item.As<bool>();
+            }
         }
         catch (Yaml::Exception& ex)
         {
             std::cerr << "[JustReflectMe] Failed to parse .yaml config file. Details: " << ex.what()
-                      << std::endl;
+                      << '\n';
             std::cerr << "[JustReflectMe] The JRM is configured incompletely!\n";
             hasError = true;
         }
@@ -212,6 +219,9 @@ namespace JRM
                       ? ""
                       : ("\"" + config.insertCodeAtTheBottom->value + "\""))
                + "\n\n"s;
+
+        out += genKey(*config.ignoreSerializationSignals)
+               + (config.ignoreSerializationSignals->value ? "true" : "false") + "\n\n"s;
 
         return out;
     }
