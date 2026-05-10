@@ -129,7 +129,7 @@ static void _RTryCallPreDeserialize(const T& obj)
 template<typename T>
 static void _RTryCallPostDeserialize(const T& obj, const RLogsCollector& logs)
 {
-    if constexpr (RHasOnPreDeserialize<T>)
+    if constexpr (RHasOnPostDeserialize<T>)
     {
         obj.onPostDeserialize(&obj, logs);
     }
