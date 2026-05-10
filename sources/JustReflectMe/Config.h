@@ -54,6 +54,10 @@ namespace JRM
     class BaseConfigParam
     {
     public:
+        BaseConfigParam(const BaseConfigParam&) = default;
+        BaseConfigParam(BaseConfigParam&&) = default;
+        BaseConfigParam& operator=(const BaseConfigParam&) = default;
+        BaseConfigParam& operator=(BaseConfigParam&&) = default;
         BaseConfigParam(std::string_view paramName, std::string_view description);
         virtual ~BaseConfigParam() = default;
 
@@ -69,7 +73,7 @@ namespace JRM
 
         Param(std::string_view paramName, std::string_view description, ValueT&& defaultValue)
             : BaseConfigParam(paramName, description),
-              value(std::forward<ValueT>(defaultValue))
+              value(std::move(defaultValue))
         {
         }
 
@@ -110,6 +114,11 @@ namespace JRM
               "A string will be added to the top of the generated file", "");
         PARAM(std::string, insertCodeAtTheBottom,
               "A string will be added to the bottom of the generated file", "");
+        PARAM(bool, ignoreSerializationSignals,
+              "Ignore signals that are used for serialization purposes. If true, only the mehtod "
+              "on(Pre/Post)[De]Serialize will be called from the top called object. If false, "
+              "every class will try to use only its own on(Pre/Post)[De]Serialize method.",
+              false);
     };
 #undef PARAM
 
