@@ -87,9 +87,8 @@ template<class T>
 concept RHasOnPreDeserialize = requires(std::remove_cv_t<T> v) { v.onPreDeserialize(nullptr); };
 
 template<class T>
-concept RHasOnPostDeserialize = requires(std::remove_cv_t<T> v, const RLogsCollector& logs) {
-    v.onPostDeserialize(nullptr, logs);
-};
+concept RHasOnPostDeserialize
+    = requires(T& v, const RLogsCollector& logs) { v.onPostDeserialize(&v, logs); };
 
 template<class T>
 concept RHasOnPreSerialize = requires(std::remove_cv_t<T> v) { v.onPreSerialize(nullptr); };
@@ -100,7 +99,7 @@ concept RHasOnPostSerialize = requires(std::remove_cv_t<T> v, const RLogsCollect
 };
 
 template<typename T>
-static void _RTryCallPreSerialize(const T& obj)
+void _RTryCallPreSerialize(const T& obj)
 {
     if constexpr (RHasOnPreSerialize<T>)
     {
@@ -109,16 +108,16 @@ static void _RTryCallPreSerialize(const T& obj)
 }
 
 template<typename T>
-static void _RTryCallPostSerialize(const T& obj, const RLogsCollector& logs)
+void _RTryCallPostSerialize(const T& obj, const RLogsCollector& logs)
 {
-    if constexpr (RHasOnPreSerialize<T>)
+    if constexpr (RHasOnPostSerialize<T>)
     {
         obj.onPostSerialize(&obj, logs);
     }
 }
 
 template<typename T>
-static void _RTryCallPreDeserialize(const T& obj)
+void _RTryCallPreDeserialize(T& obj)
 {
     if constexpr (RHasOnPreDeserialize<T>)
     {
@@ -127,7 +126,7 @@ static void _RTryCallPreDeserialize(const T& obj)
 }
 
 template<typename T>
-static void _RTryCallPostDeserialize(const T& obj, const RLogsCollector& logs)
+void _RTryCallPostDeserialize(T& obj, const RLogsCollector& logs)
 {
     if constexpr (RHasOnPostDeserialize<T>)
     {
@@ -313,7 +312,9 @@ public:
  * the parent of the current class. After that your current class, its parent, (its parent too...)
  * will be able to be serializable.
  */
-#define R_FRIEND(Class, ...) friend struct R<Class>
+#define R_FRIEND(Class, ...)                                                                       \
+    friend struct R<Class>;                                                                        \
+    static_assert(true, "")
 
 /**
  * Put it before the enum-class definition to highlight it for JRM.

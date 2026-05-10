@@ -575,7 +575,7 @@ namespace JRM
             std::string out;
             out += R"(if (!noSignals)
         {
-            _RTryCallPreSerialize(obj);
+            _RTryCallPreSerialize<@@NAME_>(obj);
         }
 )";
 
@@ -593,7 +593,7 @@ namespace JRM
             out += R"(
         if (!noSignals)
         {
-            _RTryCallPostSerialize(obj, s.logs());
+            _RTryCallPostSerialize<@@NAME_>(obj, s.logs());
         })";
 
             FindAndReplaceAll(finalString, "@@F_SERIALIZE_", out);
@@ -605,7 +605,7 @@ namespace JRM
 
             out += R"(if (!noSignals)
         {
-            _RTryCallPreDeserialize(obj);
+            _RTryCallPreDeserialize<@@NAME_>(obj);
         }
 )";
 
@@ -634,7 +634,7 @@ namespace JRM
             out += R"(
         if (!noSignals)
         {
-            _RTryCallPostDeserialize(obj, s.logs());
+            _RTryCallPostDeserialize<@@NAME_>(obj, s.logs());
         })";
             FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
 
