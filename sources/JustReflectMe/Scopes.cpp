@@ -210,6 +210,19 @@ namespace JRM
         {
             scope.type = Scope::Type::Class;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + classKeyword.size());
+            if (FileNavigator::StartWith(scope.identifierStart, "[["))
+            {
+                const auto* end = strstr(scope.identifierStart, "]]");
+                if (!end)
+                {
+                    scope.identifierStart = nullptr;
+                    scope.type = Scope::Type::Undefined;
+                    throw std::runtime_error(
+                        "Can't scan a class scope. The content contains attributes that can't be "
+                        "parsed.");
+                }
+                scope.identifierStart = FileNavigator::GoToNotSpace(end + 2);
+            }
         }
         else if (strncmp(p, structKeyword.data(), structKeyword.size()) == 0)
         {
