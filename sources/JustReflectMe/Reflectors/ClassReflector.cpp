@@ -126,9 +126,9 @@ namespace JRM
                 p = GoToNextLine(p);
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
-                                std::string(getTriggerKeyword())
-                                    + " keyword found, but 'class' wasn't found after it.");
+                    ErrorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                 std::string(getTriggerKeyword())
+                                     + " keyword found, but 'class' wasn't found after it.");
                     continue;
                 }
 
@@ -136,9 +136,9 @@ namespace JRM
                 p = FindWordOnThisLine(p, "class");
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
-                                std::string(getTriggerKeyword())
-                                    + " keyword found, but 'class' wasn't found after it.");
+                    ErrorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                                 std::string(getTriggerKeyword())
+                                     + " keyword found, but 'class' wasn't found after it.");
                     continue;
                 }
             }
@@ -147,6 +147,26 @@ namespace JRM
             p += classLength;
 
             TokenData data;
+
+            // try to read attributes: [[smth, smth]]
+            p = SkipAllBlanks(p);
+            if (StartWith(p, "[["))
+            {
+                p += 2;
+                p = SkipAllBlanks(p);
+
+                const auto* end = strstr(p, "]]");
+                if (!end)
+                {
+                    throw SyntaxException("Can't parse the attribute specifier[s] of the class.",
+                                          p - content.c_str());
+                }
+
+                data.attribs = SplitString(std::string(p, end - p));
+
+                p = end + 2;
+            }
+
             data.name = ReadAsIdentifier(p);
             if (data.name.empty())
             {
@@ -157,10 +177,10 @@ namespace JRM
             {
                 if (scope->attribute & Scope::Attr_Template)
                 {
-                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
-                                "The current version of JRM can't process 'class' inside a "
-                                "template scope: '"
-                                    + PrettyPrintIdentifier(scope) + "'");
+                    ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                                 "The current version of JRM can't process 'class' inside a "
+                                 "template scope: '"
+                                     + PrettyPrintIdentifier(scope) + "'");
                     continue;
                 }
                 data.parentSpace = PrettyPrintScope(scope);
@@ -202,7 +222,7 @@ namespace JRM
 
                 if (*p == ';')
                 {
-                    WarnMessage(
+                    ErrorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Expected class definition. But was found the forward declaration of the class: '"s
                             + data.name + "'");
@@ -214,9 +234,9 @@ namespace JRM
 
             if (!p || *p != '{') [[unlikely]]
             {
-                WarnMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
-                            "Can't parse the class: '"s + data.name
-                                + "' due to overloaded syntax or syntax errors.");
+                ErrorMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
+                             "Can't parse the class: '"s + data.name
+                                 + "' due to overloaded syntax or syntax errors.");
                 continue;
             }
 
@@ -224,9 +244,9 @@ namespace JRM
             if (!classScope || !classScope->isValid() || classScope->type != Scope::Type::Class)
                 [[unlikely]]
             {
-                WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
-                            "Can't parse scopes of the class: '"s + data.name
-                                + "' due to overloaded syntax or syntax errors.");
+                ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                             "Can't parse scopes of the class: '"s + data.name
+                                 + "' due to overloaded syntax or syntax errors.");
                 continue;
             }
 
@@ -237,7 +257,7 @@ namespace JRM
                 const auto pos = src.find(rFriend);
                 if (pos == std::string_view::npos)
                 {
-                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                    ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                             "Can't parse the class: '"s + data.name
                                 + "' - was skipped `R_FRIEND(" + data.name +");` in the class's scope. The absence of R_FRIEND won't able to generate reflective code in the correct way.");
                     continue;
@@ -264,7 +284,7 @@ namespace JRM
 
                 if (*bracketPos != '(')
                 {
-                    WarnMessage(
+                    ErrorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
                             + ");` in the class's scope. Internal error or syntax is too complex.");
@@ -274,7 +294,7 @@ namespace JRM
                 const auto bracketEnd = FileNavigator::FindScopeEnd(bracketPos);
                 if (!bracketEnd) [[unlikely]]
                 {
-                    WarnMessage(
+                    ErrorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
                             + ");` in the class's scope. Internal error(2) or syntax is too complex.");
@@ -340,9 +360,9 @@ namespace JRM
                 it = SkipAllBlanks(it);
                 if (*it != '(') [[unlikely]]
                 {
-                    WarnMessage(content, it - content, fileData.getPath(),
-                                "Can't parse field of the class: '" + data.name
-                                    + "'. Can't validate the field's structure.");
+                    ErrorMessage(content, it - content, fileData.getPath(),
+                                 "Can't parse field of the class: '" + data.name
+                                     + "'. Can't validate the field's structure.");
                     continue;
                 }
 
@@ -402,18 +422,18 @@ namespace JRM
             field.type = ReadAsTypename(p, typenameReadOffset);
             if (field.type.name.empty())
             {
-                WarnMessage(content, p - content, fileData.getPath(),
-                            "Can't parse field of the class: '" + data.name
-                                + "'. Can't detect typename.");
+                ErrorMessage(content, p - content, fileData.getPath(),
+                             "Can't parse field of the class: '" + data.name
+                                 + "'. Can't detect typename.");
                 continue;
             }
 
             p += typenameReadOffset;
             if (!IsSpace(*p))
             {
-                WarnMessage(content, p - content, fileData.getPath(),
-                            "Can't parse field of the class: '" + data.name
-                                + "'. Can't detect identifier.");
+                ErrorMessage(content, p - content, fileData.getPath(),
+                             "Can't parse field of the class: '" + data.name
+                                 + "'. Can't detect identifier.");
                 continue;
             }
 
@@ -444,9 +464,9 @@ namespace JRM
                     auto s = classScope->findDeepest(p);
                     if (!s || !s->isValid())
                     {
-                        WarnMessage(content, p - content, fileData.getPath(),
-                                    "Can't parse field of the class: '" + data.name
-                                        + "'. Can't detect initializer.");
+                        ErrorMessage(content, p - content, fileData.getPath(),
+                                     "Can't parse field of the class: '" + data.name
+                                         + "'. Can't detect initializer.");
                         continue;
                     }
 
@@ -457,9 +477,9 @@ namespace JRM
                     const auto* end = strchr(p, ';');
                     if (!end)
                     {
-                        WarnMessage(content, p - content, fileData.getPath(),
-                                    "Can't parse field of the class: '" + data.name
-                                        + "'. Can't detect initializer(2).");
+                        ErrorMessage(content, p - content, fileData.getPath(),
+                                     "Can't parse field of the class: '" + data.name
+                                         + "'. Can't detect initializer(2).");
                         continue;
                     }
 

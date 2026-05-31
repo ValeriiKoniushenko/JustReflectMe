@@ -66,6 +66,13 @@ namespace JRM
     public:
         constexpr static std::string_view namespaceName = "R";
 
+        enum class Severity
+        {
+            Warning,
+            Error
+        };
+
+    public:
         BaseReflector() = default;
         BaseReflector(const BaseReflector&) = default;
         BaseReflector& operator=(const BaseReflector&) = default;
@@ -88,7 +95,11 @@ namespace JRM
         [[nodiscard]] bool hasImplTranslationUnit() const noexcept;
         [[nodiscard]] bool isSupportImplTranslationUnit() const noexcept;
 
-        [[nodiscard]] bool hasWarnings() const noexcept { return _hasWarnings; }
+        [[nodiscard]] bool hasWarnings() const;
+        [[nodiscard]] bool hasErrors() const;
+        [[nodiscard]] int numberOfWarnings() const;
+        [[nodiscard]] int numberOfErrors() const;
+        [[nodiscard]] int numberOfSeverity(Severity severity) const;
 
     protected:
         /**
@@ -172,6 +183,10 @@ namespace JRM
 
         void WarnMessage(const char* source, std::size_t indexInFileWithError,
                          const std::string& filepath, const std::string& errorMessage);
+
+        void ErrorMessage(const char* source, std::size_t indexInFileWithError,
+                          const std::string& filepath, const std::string& errorMessage);
+
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
@@ -184,10 +199,13 @@ namespace JRM
         }
         virtual void onScan(const FileData& content) = 0;
 
-    protected:
         [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
                                                             std::string_view keyword,
                                                             std::size_t offset);
+
+    private:
+        void PutMessage(Severity severity, const char* source, std::size_t indexInFileWithError,
+                        const std::string& filepath, const std::string& errorMessage);
 
     protected:
         std::vector<TokenEntry> _tokens;
@@ -195,7 +213,7 @@ namespace JRM
         bool _hasImplTranslationUnit = false;
 
     private:
-        bool _hasWarnings = false;
+        std::unordered_map<Severity, int> _severityTraces;
     };
 
     template<class T>

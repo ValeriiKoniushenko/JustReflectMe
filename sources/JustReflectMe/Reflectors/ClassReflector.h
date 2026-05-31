@@ -62,6 +62,7 @@ namespace JRM
             std::vector<FieldData> fields;
             std::vector<std::string> parents;
             std::vector<std::string> serializableParents;
+            std::vector<std::string> attribs;
         };
 
         static constexpr std::string_view fieldNumbers = "@@FIELD_NUMBERS_";

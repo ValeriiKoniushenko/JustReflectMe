@@ -24,6 +24,9 @@
 
 #include "StringHelper.h"
 
+#include <algorithm>
+#include <sstream>
+
 namespace StringHelper
 {
 
@@ -35,6 +38,32 @@ namespace StringHelper
             str.replace(foundPos, from.size(), to);
             foundPos = str.find(from, foundPos + to.size());
         }
+    }
+
+    void TrimInPlace(std::string& s)
+    {
+        const auto notSpace = [](unsigned char c) { return !std::isspace(c); };
+        s.erase(s.begin(), std::ranges::find_if(s, notSpace));
+        s.erase(std::find_if(s.rbegin(), s.rend(), notSpace).base(), s.end());
+    }
+
+    std::vector<std::string> SplitString(const std::string& str, char delim, bool isTrim)
+    {
+        std::vector<std::string> tokens;
+        std::istringstream stream(str);
+        std::string token;
+
+        while (std::getline(stream, token, delim))
+        {
+            if (isTrim)
+            {
+                TrimInPlace(token);
+            }
+
+            tokens.push_back(std::move(token));
+        }
+
+        return tokens;
     }
 
 } // namespace StringHelper

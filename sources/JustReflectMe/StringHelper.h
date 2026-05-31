@@ -25,8 +25,15 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace StringHelper
 {
     void FindAndReplaceAll(std::string& str, std::string_view from, const std::string& to);
-}
+
+    void TrimInPlace(std::string& s);
+
+    std::vector<std::string> SplitString(const std::string& str, char delim = ',',
+                                         bool isTrim = true);
+
+} // namespace StringHelper

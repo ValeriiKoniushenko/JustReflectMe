@@ -465,7 +465,7 @@ namespace JRM
 
             atLeastOneInsert = true;
             result += reflector->generateHeaderFile(data, *_config);
-            errors |= reflector->hasWarnings();
+            errors |= reflector->hasErrors();
         }
 
         result += _config->insertCodeAtTheBottom->value;
@@ -520,7 +520,7 @@ namespace JRM
 
             atLeastOneInsert = true;
             src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
-            errors |= reflector->hasWarnings();
+            errors |= reflector->hasErrors();
         }
 
         if (!atLeastOneInsert)

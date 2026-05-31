@@ -140,6 +140,31 @@ namespace JRM
         return _isSupportImplTranslationUnit;
     }
 
+    bool BaseReflector::hasWarnings() const
+    {
+        return _severityTraces.contains(Severity::Warning);
+    }
+
+    bool BaseReflector::hasErrors() const
+    {
+        return _severityTraces.contains(Severity::Error);
+    }
+
+    int BaseReflector::numberOfWarnings() const
+    {
+        return numberOfSeverity(Severity::Warning);
+    }
+
+    int BaseReflector::numberOfErrors() const
+    {
+        return numberOfSeverity(Severity::Error);
+    }
+
+    int BaseReflector::numberOfSeverity(Severity severity) const
+    {
+        return _severityTraces.contains(severity) ? _severityTraces.at(severity) : 0;
+    }
+
     void BaseReflector::TokenEntry::requireValidTokenBasedOnContent(
         const std::string& content) const
     {
@@ -169,17 +194,13 @@ namespace JRM
     void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
                                     const std::string& filepath, const std::string& errorMessage)
     {
-        const auto pos = GetLineNumberAndColumn(source, indexInFileWithError);
-        std::string result;
-        result.reserve(192);
-        result = filepath;
-        result += ":";
-        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": warning: ";
-        result += errorMessage;
+        PutMessage(Severity::Warning, source, indexInFileWithError, filepath, errorMessage);
+    }
 
-        std::cout << result << "\n";
-
-        _hasWarnings = true;
+    void BaseReflector::ErrorMessage(const char* source, std::size_t indexInFileWithError,
+                                     const std::string& filepath, const std::string& errorMessage)
+    {
+        PutMessage(Severity::Error, source, indexInFileWithError, filepath, errorMessage);
     }
 
     std::string BaseReflector::PrettyPrintScope(const Scope* scope)
@@ -224,6 +245,23 @@ namespace JRM
         }
 
         return std::string::npos;
+    }
+
+    void BaseReflector::PutMessage(Severity severity, const char* source,
+                                   std::size_t indexInFileWithError, const std::string& filepath,
+                                   const std::string& errorMessage)
+    {
+        const auto pos = GetLineNumberAndColumn(source, indexInFileWithError);
+        std::string result;
+        result.reserve(192);
+        result = filepath;
+        result += ":";
+        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": warning: ";
+        result += errorMessage;
+
+        std::cout << result << "\n";
+
+        _severityTraces[severity] += 1;
     }
 
 } // namespace JRM
