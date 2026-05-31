@@ -704,7 +704,7 @@ namespace JRM
         }
 
         _pathImpl = extrudeImplPath(path);
-        for (auto& reflector : _reflectors)
+        for (const auto& reflector : _reflectors)
         {
             reflector->setHasImplTranslationUnit(!_pathImpl.empty());
         }
