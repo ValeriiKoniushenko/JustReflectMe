@@ -723,14 +723,17 @@ namespace JRM
         catch (const JRM::SyntaxException& e)
         {
             std::cerr << "[JustReflectMe] " << e.getFullMessage(data.getContent(), _path) << "\n";
+            isOk = false;
         }
         catch (const JRM::GenerationException& e)
         {
+            isOk = false;
             std::cerr << "[JustReflectMe] " << _path << ": generation exception: " << e.what()
                       << "\n";
         }
         catch (const std::exception& e)
         {
+            isOk = false;
             std::cerr << "[JustReflectMe] Error while processing the file: '" << _path
                       << "' Details: " << e.what() << "\n";
         }
