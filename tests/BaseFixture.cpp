@@ -30,7 +30,7 @@
 
 std::string BaseFixture::getFileFromResources(const std::string& filename) const
 {
-    std::ifstream file(filename, std::ios::ate);
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file)
     {
         throw std::runtime_error("Cannot open file");

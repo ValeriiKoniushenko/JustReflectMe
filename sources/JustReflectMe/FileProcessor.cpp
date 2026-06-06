@@ -41,7 +41,7 @@ namespace
 {
     [[nodiscard]] std::string ReadFile(const std::string& filename)
     {
-        std::ifstream file(filename, std::ios::ate);
+        std::ifstream file(filename, std::ios::ate | std::ios::binary);
         if (!file)
         {
             throw std::runtime_error("Cannot open a file: " + filename);
