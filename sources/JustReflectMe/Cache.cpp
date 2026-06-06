@@ -38,6 +38,8 @@
 
 namespace fs = std::filesystem;
 
+using file_time = std::filesystem::file_time_type;
+
 namespace JRM
 {
 
@@ -82,22 +84,23 @@ namespace JRM
 
     bool Cache::isNeedUpdate(const std::filesystem::path& path)
     {
-        if (!_files.contains(path))
+        if (!_files.contains(path.generic_string()))
         {
             return true;
         }
 
-        return _files[path] != fs::file_time_type(fs::last_write_time(path));
+        return _files[path.generic_string()] != fs::file_time_type(fs::last_write_time(path));
     }
 
     bool Cache::isNeedUpdate(const std::filesystem::path& path,
                              const std::filesystem::file_time_type& time)
     {
+        const auto str = path.generic_string();
 #ifdef NDEBUG
         if (path.is_absolute()) [[unlikely]]
         {
             std::cerr << "[JustReflectMe] Error. Absolute path is passed to isNeedUpdate. File: "
-                      << path.generic_string() << "\n";
+                      << str << "\n";
         }
 #endif
         if (_ignoreCacheRequests)
@@ -105,12 +108,13 @@ namespace JRM
             return true;
         }
 
-        if (!_files.contains(path))
+        if (!_files.contains(str))
         {
             return true;
         }
 
-        return _files[path] != time;
+        const auto t = _files[str];
+        return t != time;
     }
 
     void Cache::updateFile(const fs::path& path)
@@ -120,7 +124,8 @@ namespace JRM
             return;
         }
 
-        _files[path.is_absolute() ? path.lexically_relative(_projectDir) : path]
+        _files[path.is_absolute() ? path.lexically_relative(_projectDir).generic_string()
+                                  : path.generic_string()]
             = fs::file_time_type(fs::last_write_time(path));
     }
 
@@ -195,21 +200,14 @@ namespace JRM
 
             std::filesystem::path path(std::string_view(p, newLine - p));
 
-            using file_time = std::filesystem::file_time_type;
-
-            const auto sys = std::chrono::sys_time<std::chrono::nanoseconds>{
-                std::chrono::nanoseconds{ lastWriteTime }
-            };
-
-            const auto ft = std::chrono::time_point_cast<file_time::duration>(
-                std::chrono::clock_cast<file_time::clock>(sys));
+            const auto ft = file_time{ file_time::duration{ lastWriteTime } };
 
             if (path.is_absolute())
             {
                 path = path.lexically_relative(_projectDir);
             }
 
-            _files.emplace(path, ft);
+            _files.emplace(path.generic_string(), ft);
 
             if (*newLine == '\0')
             {
@@ -250,13 +248,11 @@ namespace JRM
 
         for (const auto& [path, time] : files)
         {
-            auto sys = std::chrono::clock_cast<std::chrono::system_clock>(time);
-            const int64_t unixNs
-                = std::chrono::duration_cast<std::chrono::nanoseconds>(sys.time_since_epoch())
-                      .count();
+            // cross-platform: convert file_time to Unix nanoseconds via to_sys
+            const int64_t rawTicks = time.time_since_epoch().count();
 
             const auto res = std::to_chars(timeAsString.data(),
-                                           timeAsString.data() + timeAsString.size(), unixNs);
+                                           timeAsString.data() + timeAsString.size(), rawTicks);
             if (res.ec != std::errc{}) [[unlikely]]
             {
                 std::cerr << "[JustReflectMe] Corruption while saving cache. Failed to convert "

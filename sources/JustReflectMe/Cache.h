@@ -60,7 +60,7 @@ namespace JRM
         void writeCache();
 
     private:
-        std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> _files;
+        std::unordered_map<std::string, std::filesystem::file_time_type> _files;
         std::filesystem::path _projectDir;
         std::filesystem::path _targetFile;
 
