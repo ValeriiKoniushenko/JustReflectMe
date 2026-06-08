@@ -33,6 +33,7 @@
 #include <iostream>
 #include <ranges>
 #include <stdexcept>
+#include <algorithm>
 
 using namespace FileNavigator;
 using namespace StringHelper;

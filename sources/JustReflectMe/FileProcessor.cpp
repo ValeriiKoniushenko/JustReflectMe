@@ -409,12 +409,17 @@ namespace JRM
         if (onlyFileNames)
         {
             namespace fs = std::filesystem;
-            using Path = std::filesystem::path;
 
-            headerPath = fs::relative(headerPath, Path(_path).parent_path().generic_string())
-                             .generic_string();
-            sourcePath = fs::relative(sourcePath, Path(_path).parent_path().generic_string())
-                             .generic_string();
+            std::filesystem::path path = _path;
+
+            if (path.has_parent_path())
+            {
+                headerPath = fs::relative(headerPath, path.parent_path().generic_string())
+                                 .generic_string();
+
+                sourcePath = fs::relative(sourcePath, path.parent_path().generic_string())
+                                 .generic_string();
+            }
         }
 
         return { headerPath, sourcePath };

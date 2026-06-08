@@ -1,12 +1,5 @@
 include(FetchContent)
 
-function(JRF_SuppressAllSubmoduleWarnings Target)
-    target_compile_options(${Target} PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/w>
-        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-w>
-    )
-endfunction()
-
 if (NOT JRM_DISABLE_TESTS)
 
     FetchContent_Declare(GoogleTest
@@ -18,6 +11,5 @@ if (NOT JRM_DISABLE_TESTS)
     set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
     FetchContent_MakeAvailable(GoogleTest)
-    JRF_SuppressAllSubmoduleWarnings(gtest)
 
 endif ()

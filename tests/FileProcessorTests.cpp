@@ -120,7 +120,7 @@ std::string sss = "////////"; // 19
         .WillOnce(testing::Invoke(
             [&](const std::string& content)
             {
-                ASSERT_TRUE(content.contains("#include \"test.generated.inl\""));
+                ASSERT_TRUE(content.contains("#include \"test.generated.h\""));
                 //
             }));
 
@@ -175,7 +175,7 @@ namespace NS
         .WillOnce(testing::Invoke(
             [&](const std::string& content)
             {
-                ASSERT_TRUE(content.contains("#include \"test_1.generated.inl\""));
+                ASSERT_TRUE(content.contains("#include \"test_1.generated.h\""));
                 //
             }));
 
