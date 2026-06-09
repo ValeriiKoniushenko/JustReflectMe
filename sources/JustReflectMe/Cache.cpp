@@ -243,6 +243,13 @@ namespace JRM
         std::map<std::filesystem::path, std::filesystem::file_time_type> files;
         for (auto&& [path, time] : _files)
         {
+            if (path.empty())
+            {
+                std::cerr << "[JustReflectMe] Internal error: While writing the cache was found "
+                             "empty path. Ignored.\n";
+                continue;
+            }
+
             files.emplace(path, time);
         }
 

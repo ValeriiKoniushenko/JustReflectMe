@@ -271,6 +271,11 @@ namespace JRM
                     continue;
                 }
 
+                if (relPath == "sources/Scene/Scene.h")
+                {
+                    int i = 1;
+                }
+
                 ++iteratedOverParsable;
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
