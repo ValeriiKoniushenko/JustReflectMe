@@ -24,12 +24,8 @@ configure_file(
 )
 
 # ========= Adding subdirectories =========
-# Adding dependencies
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FetchDependencies.cmake)
+add_subdirectory(dependencies)
 
-add_subdirectory(dependencies/MiniYaml)
-
-# Adding core
 if (NOT JRM_DISABLE_TESTS)
     add_subdirectory(tests)
 endif ()
