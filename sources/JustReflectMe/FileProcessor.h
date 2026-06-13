@@ -95,6 +95,17 @@ namespace JRM
         virtual void onPostGenerateHeaderContent(const std::string& content) const {}
         [[nodiscard]] std::set<std::string> getAllRequiredIncludes() const;
 
+        /** Writes `text` to `path` only if the existing content differs.
+         *  No write -> timestamps stay unchanged.
+         *
+         *  Linux:   mmap + O_NOATIME + posix_fadvise for zero-copy comparison
+         *  Windows: CreateFileMapping + FILE_FLAG_SEQUENTIAL_SCAN
+         *
+         *  @throw std::system_error  on I/O failure
+         *  @throw std::runtime_error on a bad path
+         */
+        void WriteIfDifferent(const std::string& text, const std::filesystem::path& path);
+
     private:
         void scanContent(FileData& data) const;
         [[nodiscard]] static PostProcessedFile getFileContent(const std::string& filename);

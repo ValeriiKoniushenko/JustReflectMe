@@ -37,6 +37,179 @@
 #include <filesystem>
 #include <fstream>
 
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+#else
+    #include <fcntl.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <unistd.h>
+#endif
+
+namespace fs = std::filesystem;
+
+namespace
+{
+
+    // ── Windows ──────────────────────────────────────────────────────────────────
+
+#ifdef _WIN32
+
+    bool ContentEquals(const std::filesystem::path& path, const std::string& text) noexcept
+    {
+        HANDLE h = CreateFileW(
+            path.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, // kernel readahead hint
+            nullptr);
+        if (h == INVALID_HANDLE_VALUE)
+        {
+            return false;
+        }
+
+        LARGE_INTEGER sz{};
+        if (!GetFileSizeEx(h, &sz) || static_cast<size_t>(sz.QuadPart) != text.size())
+        {
+            CloseHandle(h);
+            return false;
+        }
+        if (text.empty())
+        {
+            CloseHandle(h);
+            return true;
+        }
+
+        HANDLE hMap = CreateFileMappingW(h, nullptr, PAGE_READONLY, 0, 0, nullptr);
+        CloseHandle(h);
+
+        if (!hMap)
+        {
+            return false;
+        }
+
+        const void* view = MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, 0);
+        const bool equal = view && (std::memcmp(view, text.data(), text.size()) == 0);
+
+        if (view)
+        {
+            UnmapViewOfFile(view);
+        }
+        CloseHandle(hMap);
+        return equal;
+    }
+
+    void WriteContent(const std::filesystem::path& path, const std::string& text)
+    {
+        HANDLE h = CreateFileW(path.wstring().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
+                               FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (h == INVALID_HANDLE_VALUE)
+        {
+            throw std::system_error(static_cast<int>(GetLastError()), std::system_category(),
+                                    "Can't open a file for write: " + path.string());
+        }
+
+        const char* ptr = text.data();
+        size_t left = text.size();
+        while (left > 0)
+        {
+            DWORD chunk = static_cast<DWORD>(std::min<size_t>(left, MAXDWORD));
+            DWORD written = 0;
+            if (!::WriteFile(h, ptr, chunk, &written, nullptr))
+            {
+                DWORD err = GetLastError();
+                CloseHandle(h);
+                throw std::system_error(static_cast<int>(err), std::system_category(),
+                                        "Can't write to a file: " + path.string());
+            }
+            ptr += written;
+            left -= written;
+        }
+        CloseHandle(h);
+    }
+
+    // ── POSIX / Linux ─────────────────────────────────────────────────────────────
+
+#else
+
+    bool ContentEquals(const std::filesystem::path& path, const std::string& text) noexcept
+    {
+        int fd = ::open(path.c_str(), O_RDONLY | O_NOATIME | O_CLOEXEC);
+        if (fd == -1)
+        {
+            if (errno == EPERM || errno == ENOTSUP)
+            {
+                fd = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+            }
+            if (fd == -1)
+            {
+                return false;
+            }
+        }
+
+        struct stat st{};
+        if (::fstat(fd, &st) == -1 || static_cast<size_t>(st.st_size) != text.size())
+        {
+            ::close(fd);
+            return false;
+        }
+        if (text.empty())
+        {
+            ::close(fd);
+            return true;
+        }
+
+        ::posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
+        ::posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+
+        const auto sz = static_cast<size_t>(st.st_size);
+        void* map = ::mmap(nullptr, sz, PROT_READ, MAP_PRIVATE, fd, 0);
+        ::close(fd);
+
+        if (map == MAP_FAILED)
+        {
+            return false;
+        }
+
+        ::madvise(map, sz, MADV_SEQUENTIAL);
+
+        const bool equal = (std::memcmp(map, text.data(), sz) == 0);
+        ::munmap(map, sz);
+        return equal;
+    }
+
+    void WriteContent(const std::filesystem::path& path, const std::string& text)
+    {
+        int fd = ::open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);
+        if (fd == -1)
+        {
+            throw std::system_error(errno, std::system_category(), "open: " + path.string());
+        }
+
+        const char* ptr = text.data();
+        size_t left = text.size();
+        while (left > 0)
+        {
+            ssize_t n = ::write(fd, ptr, left);
+            if (n < 0)
+            {
+                int err = errno;
+                ::close(fd);
+                throw std::system_error(err, std::system_category(), "write: " + path.string());
+            }
+            ptr += n;
+            left -= static_cast<size_t>(n);
+        }
+
+        if (::close(fd) == -1)
+        {
+            throw std::system_error(errno, std::system_category(), "close: " + path.string());
+        }
+    }
+
+#endif
+
+} // anonymous namespace
+
 namespace
 {
     [[nodiscard]] std::string ReadFile(const std::string& filename)
@@ -109,6 +282,33 @@ namespace JRM
             }
         }
         return out;
+    }
+
+    void FileProcessor::WriteIfDifferent(const std::string& text, const std::filesystem::path& path)
+    {
+        if (const auto parent = path.parent_path(); !parent.empty())
+        {
+            std::error_code ec;
+            if (!fs::exists(parent, ec) || ec)
+            {
+                throw std::runtime_error("Parent directory does not exist: " + parent.string());
+            }
+        }
+
+        std::error_code ec;
+        if (fs::exists(path, ec) && !ec)
+        {
+            if (!fs::is_regular_file(path))
+            {
+                throw std::runtime_error("Not a regular file: " + path.string());
+            }
+            if (ContentEquals(path, text))
+            {
+                return; // identical - timestamps are untouched
+            }
+        }
+
+        WriteContent(path, text);
     }
 
     void FileProcessor::scanContent(FileData& data) const
@@ -484,14 +684,7 @@ namespace JRM
             return false;
         }
 
-        const auto hppPath = generateFilenames().first;
-        std::ofstream out(hppPath);
-        if (!out.is_open())
-        {
-            throw std::runtime_error("Cannot open file for write: " + hppPath);
-        }
-        out.write(result.c_str(), result.size() * sizeof(char));
-
+        WriteIfDifferent(result, generateFilenames().first);
         return !errors;
     }
 
@@ -539,13 +732,7 @@ namespace JRM
             src += '\n';
         }
 
-        std::ofstream out(cppPath);
-        if (!out.is_open())
-        {
-            throw std::runtime_error("Cannot open file for write: " + cppPath);
-        }
-        out.write(src.c_str(), src.size() * sizeof(char));
-
+        WriteIfDifferent(src, cppPath);
         return !errors;
     }
 
