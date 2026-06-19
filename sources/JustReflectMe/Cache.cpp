@@ -190,14 +190,14 @@ namespace JRM
                 return;
             }
 
-            int64_t lastWriteTime = 0;
+            uint64_t lastWriteTime = 0;
             std::from_chars(p, spaceP, lastWriteTime);
             p = spaceP + 1;
 
-            if (lastWriteTime < 0)
+            /*if (lastWriteTime < 0)
             {
                 debugCheck_FoundNegativeTime = true;
-            }
+            }*/
 
             const char* newLine = strchr(spaceP, '\n');
             if (!newLine)
@@ -280,7 +280,7 @@ namespace JRM
         for (const auto& [path, time] : files)
         {
             // cross-platform: convert file_time to Unix nanoseconds via to_sys
-            const int64_t rawTicks = time.time_since_epoch().count();
+            const uint64_t rawTicks = time.time_since_epoch().count();
 
             const auto res = std::to_chars(timeAsString.data(),
                                            timeAsString.data() + timeAsString.size(), rawTicks);
