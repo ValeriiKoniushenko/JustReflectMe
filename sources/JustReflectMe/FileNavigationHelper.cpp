@@ -393,6 +393,19 @@ namespace FileNavigator
         return strncmp(content, prefix.data(), prefix.size()) == 0;
     }
 
+    bool LeadToNewLine(const char* content) noexcept
+    {
+        while (std::isspace(*content))
+        {
+            if (*content == '\n')
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     void Typename::setAttributeFromStr(std::string_view str)
     {
         if (str == "constexpr")

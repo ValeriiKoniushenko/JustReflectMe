@@ -168,11 +168,21 @@ namespace JRM
             buffer.pop_back();
         }
 
+        bool debugCheck_FoundNegativeTime = false;
+        bool debugCheck_FoundEmptyLine = false;
+
         const char* p = buffer.c_str();
         while (p && *p != '\0')
         {
-            const auto* space = strchr(p, ' ');
-            if (!space) [[unlikely]]
+            if (FileNavigator::LeadToNewLine(p))
+            {
+                debugCheck_FoundEmptyLine = true;
+                p = strchr(p, '\n') + 1;
+                continue;
+            }
+
+            const auto* spaceP = strchr(p, ' ');
+            if (!spaceP) [[unlikely]]
             {
                 std::cerr << "[JustReflectMe] Cache file corrupted(1). Delete it manually. It will "
                              "be regenerated automatically. File: "
@@ -181,13 +191,18 @@ namespace JRM
             }
 
             int64_t lastWriteTime = 0;
-            std::from_chars(p, space, lastWriteTime);
-            p = space + 1;
+            std::from_chars(p, spaceP, lastWriteTime);
+            p = spaceP + 1;
 
-            const char* newLine = strchr(space, '\n');
+            if (lastWriteTime < 0)
+            {
+                debugCheck_FoundNegativeTime = true;
+            }
+
+            const char* newLine = strchr(spaceP, '\n');
             if (!newLine)
             {
-                newLine = strchr(space, '\0');
+                newLine = strchr(spaceP, '\0');
                 if (!newLine) [[unlikely]]
                 {
                     std::cerr
@@ -215,6 +230,15 @@ namespace JRM
             }
 
             p = newLine + 1;
+        }
+
+        if (debugCheck_FoundNegativeTime)
+        {
+            std::cout << "[JustReflectMe] Debug checks: Found negative time value[s] in cache\n";
+        }
+        if (debugCheck_FoundEmptyLine)
+        {
+            std::cout << "[JustReflectMe] Debug checks: Found an empty line in cache\n";
         }
 
         // std::cout << "[JustReflectMe] Cache has read successfully.\n";

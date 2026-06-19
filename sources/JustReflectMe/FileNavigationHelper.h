@@ -55,6 +55,8 @@ namespace FileNavigator
     [[nodiscard]] int StartWith(const char* content, const std::vector<std::string_view>& prefixes);
     [[nodiscard]] bool StartWith(const char* content, std::string_view prefix);
 
+    [[nodiscard]] bool LeadToNewLine(const char* content) noexcept;
+
     [[nodiscard]] inline bool IsNewLine(int ch) noexcept
     {
         return ch == '\n' || ch == JRM::PostProcessedFile::newLinePlaceholder;
