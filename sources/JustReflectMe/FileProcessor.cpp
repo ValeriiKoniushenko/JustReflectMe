@@ -444,7 +444,10 @@ namespace JRM
 
         for (std::size_t i = 0; i < content2.size() && content2[i]; ++i)
         {
-            if (content2[i] == '\'')
+            bool hasNumBefore = i > 0 ? std::isdigit(content2[i - 1]) : false;
+            bool hasNumAfter = (i + 1) < content2.size() ? std::isdigit(content2[i + 1]) : false;
+
+            if (content2[i] == '\'' && !(hasNumBefore && hasNumAfter))
             {
                 nowSingleQuote = !nowSingleQuote;
                 if (nowSingleQuote && (i > 0 && content2[i - 1] != '\\'))
