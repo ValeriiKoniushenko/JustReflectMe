@@ -271,11 +271,6 @@ namespace JRM
                     continue;
                 }
 
-                if (relPath == "sources/Scene/Scene.h")
-                {
-                    int i = 1;
-                }
-
                 ++iteratedOverParsable;
                 if (!cache.isNeedUpdate(relPath, lastWriteTime))
                 {
@@ -287,7 +282,8 @@ namespace JRM
                     continue;
                 }
 
-                std::cout << "[JustReflectMe] Reflecting: " << path.generic_string() << "\n";
+                std::cout << "[JustReflectMe] Reflecting: "
+                          << path.lexically_relative(_sourcePath).generic_string() << "\n";
 
                 ++processedTotal;
                 try
