@@ -238,7 +238,8 @@ namespace JRM
 
                 if (_config.showEveryIteratedFilePath->value)
                 {
-                    std::cout << "[JustReflectMe] Looking at: " << path.generic_string() << "\n";
+                    std::cout << "[JustReflectMe] Looking at: "
+                              << path.lexically_relative(_sourcePath).generic_string() << "\n";
                 }
 
                 if (entry.is_regular_file())
@@ -266,7 +267,8 @@ namespace JRM
 
                 if (ec)
                 {
-                    std::cerr << "[JustReflectMe] Error getting last write time for file: " << path
+                    std::cerr << "[JustReflectMe] Error getting last write time for file: "
+                              << path.lexically_relative(_sourcePath).generic_string()
                               << " Details: " << ec.message() << "\n";
                     continue;
                 }
@@ -276,8 +278,8 @@ namespace JRM
                 {
                     if (_config.showSkippedFiles->value)
                     {
-                        std::cout << "[JustReflectMe] No need update: " << path.generic_string()
-                                  << "\n";
+                        std::cout << "[JustReflectMe] No need update: "
+                                  << path.lexically_relative(_sourcePath).generic_string() << "\n";
                     }
                     continue;
                 }
