@@ -548,6 +548,7 @@ namespace JRM
     {
         std::string finalString = R"(
     @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_constexpr std::string_view FullName() { return "@@NAME_"; }
     @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
     @@FUNC_PREF_constexpr std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
     @@FUNC_PREF_constexpr std::vector<RClassField> GetFields() {
