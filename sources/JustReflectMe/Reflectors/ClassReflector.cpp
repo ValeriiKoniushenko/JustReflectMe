@@ -133,7 +133,7 @@ namespace JRM
                 p = GoToNextLine(p);
                 if (!p)
                 {
-                    ErrorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                    errorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
                                  std::string(getTriggerKeyword())
                                      + " keyword found, but 'class' wasn't found after it.");
                     continue;
@@ -149,7 +149,7 @@ namespace JRM
                 }
                 if (!p)
                 {
-                    ErrorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                    errorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
                                  std::string(getTriggerKeyword())
                                      + " keyword found, but 'class' wasn't found after it.");
                     continue;
@@ -190,7 +190,7 @@ namespace JRM
             {
                 if (scope->attribute & Scope::Attr_Template)
                 {
-                    ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                    errorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                                  "The current version of JRM can't process 'class' inside a "
                                  "template scope: '"
                                      + PrettyPrintIdentifier(scope) + "'");
@@ -235,7 +235,7 @@ namespace JRM
 
                 if (*p == ';')
                 {
-                    ErrorMessage(
+                    errorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Expected class definition. But was found the forward declaration of the class: '"s
                             + data.name + "'");
@@ -247,7 +247,7 @@ namespace JRM
 
             if (!p || *p != '{') [[unlikely]]
             {
-                ErrorMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
+                errorMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
                              "Can't parse the class: '"s + data.name
                                  + "' due to unexpected syntax or syntax errors.");
                 continue;
@@ -258,7 +258,7 @@ namespace JRM
                 || (classScope->type != Scope::Type::Class
                     && classScope->type != Scope::Type::Struct)) [[unlikely]]
             {
-                ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                errorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                              "Can't parse scopes of the class: '"s + data.name
                                  + "' due to unexpected syntax or syntax errors.");
                 continue;
@@ -271,7 +271,7 @@ namespace JRM
                 const auto pos = src.find(rFriend);
                 if (pos == std::string_view::npos)
                 {
-                    ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                    errorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                             "Can't parse the class: '"s + data.name
                                 + "' - was skipped `R_FRIEND(" + data.name +");` in the class's scope. The absence of R_FRIEND won't able to generate reflective code in the correct way.");
                     continue;
@@ -298,7 +298,7 @@ namespace JRM
 
                 if (*bracketPos != '(')
                 {
-                    ErrorMessage(
+                    errorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
                             + ");` in the class's scope. Internal error or syntax is too complex.");
@@ -308,7 +308,7 @@ namespace JRM
                 const auto bracketEnd = FileNavigator::FindScopeEnd(bracketPos);
                 if (!bracketEnd) [[unlikely]]
                 {
-                    ErrorMessage(
+                    errorMessage(
                         content.c_str(), p - content.c_str(), fileData.getPath(),
                         "Can't parse the class: '"s + data.name + "' - `R_FRIEND(" + data.name
                             + ");` in the class's scope. Internal error(2) or syntax is too complex.");
@@ -374,7 +374,7 @@ namespace JRM
                 it = SkipAllBlanks(it);
                 if (*it != '(') [[unlikely]]
                 {
-                    ErrorMessage(content, it - content, fileData.getPath(),
+                    errorMessage(content, it - content, fileData.getPath(),
                                  "Can't parse field of the class: '" + data.name
                                      + "'. Can't validate the field's structure.");
                     continue;
@@ -407,7 +407,7 @@ namespace JRM
                     }
                     else
                     {
-                        WarnMessage(content, it - content, fileData.getPath(),
+                        warnMessage(content, it - content, fileData.getPath(),
                                     "The FIELD's parameter is not recognized: '" + type.name + "'");
                     }
                 }
@@ -436,7 +436,7 @@ namespace JRM
             field.type = ReadAsTypename(p, typenameReadOffset);
             if (field.type.name.empty())
             {
-                ErrorMessage(content, p - content, fileData.getPath(),
+                errorMessage(content, p - content, fileData.getPath(),
                              "Can't parse field of the class: '" + data.name
                                  + "'. Can't detect typename.");
                 continue;
@@ -445,7 +445,7 @@ namespace JRM
             p += typenameReadOffset;
             if (!IsSpace(*p))
             {
-                ErrorMessage(content, p - content, fileData.getPath(),
+                errorMessage(content, p - content, fileData.getPath(),
                              "Can't parse field of the class: '" + data.name
                                  + "'. Can't detect identifier.");
                 continue;
@@ -456,7 +456,7 @@ namespace JRM
             field.name = ReadAsIdentifier(p);
             if (field.name.empty())
             {
-                WarnMessage(content, p - content, fileData.getPath(),
+                warnMessage(content, p - content, fileData.getPath(),
                             "Can't parse field of the class: '" + data.name
                                 + "'. Can't detect field name.");
             }
@@ -478,7 +478,7 @@ namespace JRM
                     auto s = classScope->findDeepest(p);
                     if (!s || !s->isValid())
                     {
-                        ErrorMessage(content, p - content, fileData.getPath(),
+                        errorMessage(content, p - content, fileData.getPath(),
                                      "Can't parse field of the class: '" + data.name
                                          + "'. Can't detect initializer.");
                         continue;
@@ -491,7 +491,7 @@ namespace JRM
                     const auto* end = strchr(p, ';');
                     if (!end)
                     {
-                        ErrorMessage(content, p - content, fileData.getPath(),
+                        errorMessage(content, p - content, fileData.getPath(),
                                      "Can't parse field of the class: '" + data.name
                                          + "'. Can't detect initializer(2).");
                         continue;

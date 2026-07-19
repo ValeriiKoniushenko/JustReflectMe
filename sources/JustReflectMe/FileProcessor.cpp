@@ -239,6 +239,11 @@ namespace
 namespace JRM
 {
 
+    const std::vector<std::unique_ptr<BaseReflector>>& FileProcessor::getReflectors() const
+    {
+        return _reflectors;
+    }
+
     const std::string& FileProcessor::getHeaderFilename() const
     {
         return _path;

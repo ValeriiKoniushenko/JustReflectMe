@@ -86,6 +86,8 @@ namespace JRM
         template<IsBaseReflector T>
         [[nodiscard]] bool hasReflector();
 
+        [[nodiscard]] const std::vector<std::unique_ptr<BaseReflector>>& getReflectors() const;
+
         [[nodiscard]] const std::string& getHeaderFilename() const;
         [[nodiscard]] std::string getSourceFilename() const;
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);

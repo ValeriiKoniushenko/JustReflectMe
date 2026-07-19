@@ -71,6 +71,7 @@ namespace JRM
             Warning,
             Error
         };
+        [[nodiscard]] static std::string SeverityToString(Severity severity);
 
     public:
         BaseReflector() = default;
@@ -181,10 +182,10 @@ namespace JRM
             [[nodiscard]] virtual std::string fullNamePath() const;
         };
 
-        void WarnMessage(const char* source, std::size_t indexInFileWithError,
+        void warnMessage(const char* source, std::size_t indexInFileWithError,
                          const std::string& filepath, const std::string& errorMessage);
 
-        void ErrorMessage(const char* source, std::size_t indexInFileWithError,
+        void errorMessage(const char* source, std::size_t indexInFileWithError,
                           const std::string& filepath, const std::string& errorMessage);
 
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);

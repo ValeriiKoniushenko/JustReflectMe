@@ -59,7 +59,7 @@ namespace JRM
                                                                                        char** argv);
         [[nodiscard]] bool isParseableFileEntry(
             const std::filesystem::directory_entry& entry) const;
-        void goThroughFiles();
+        [[nodiscard]] bool goThroughFiles();
 
     private:
         std::filesystem::path _sourcePath;

@@ -53,6 +53,19 @@ namespace JRM
         return result;
     }
 
+    std::string BaseReflector::SeverityToString(Severity severity)
+    {
+        switch (severity)
+        {
+            case Severity::Warning:
+                return "warning";
+            case Severity::Error:
+                return "error";
+            default:
+                return "unknown";
+        }
+    }
+
     bool BaseReflector::canProcessContent(const std::string& content) const
     {
         auto pos = content.find(getTriggerKeyword());
@@ -191,13 +204,13 @@ namespace JRM
         return parentSpace + "::" + name;
     }
 
-    void BaseReflector::WarnMessage(const char* source, std::size_t indexInFileWithError,
+    void BaseReflector::warnMessage(const char* source, std::size_t indexInFileWithError,
                                     const std::string& filepath, const std::string& errorMessage)
     {
         PutMessage(Severity::Warning, source, indexInFileWithError, filepath, errorMessage);
     }
 
-    void BaseReflector::ErrorMessage(const char* source, std::size_t indexInFileWithError,
+    void BaseReflector::errorMessage(const char* source, std::size_t indexInFileWithError,
                                      const std::string& filepath, const std::string& errorMessage)
     {
         PutMessage(Severity::Error, source, indexInFileWithError, filepath, errorMessage);
@@ -256,7 +269,8 @@ namespace JRM
         result.reserve(192);
         result = filepath;
         result += ":";
-        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": warning: ";
+        result += std::to_string(pos.first) + ":" + std::to_string(pos.second) + ": "
+                  + SeverityToString(severity) + ": ";
         result += errorMessage;
 
         std::cout << result << "\n";

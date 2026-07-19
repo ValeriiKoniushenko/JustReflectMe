@@ -29,11 +29,11 @@
 #include "JustReflectMe/FileNavigationHelper.h"
 #include "JustReflectMe/StringHelper.h"
 
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <ranges>
 #include <stdexcept>
-#include <algorithm>
 
 using namespace FileNavigator;
 using namespace StringHelper;
@@ -119,7 +119,7 @@ namespace JRM
                 p = GoToNextLine(p);
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                    warnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
                                 std::string(getTriggerKeyword())
                                     + " keyword found, but 'enum class' wasn't found after it.");
                     continue;
@@ -129,7 +129,7 @@ namespace JRM
                 p = FindWordOnThisLine(p, "enum class");
                 if (!p)
                 {
-                    WarnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                    warnMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
                                 std::string(getTriggerKeyword())
                                     + " keyword found, but 'enum class' wasn't found after it.");
                     continue;
@@ -150,7 +150,7 @@ namespace JRM
             {
                 if (scope->attribute & Scope::Attr_Template)
                 {
-                    WarnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
+                    warnMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                                 "The current version of JRM can't process 'enum class' inside a "
                                 "template scope: \""
                                     + PrettyPrintIdentifier(scope) + "\"");

@@ -125,7 +125,7 @@ namespace JRM
                 std::cout << "\n";
             }
 
-            goThroughFiles();
+            hasError = goThroughFiles();
         }
         catch (const std::exception& er)
         {
@@ -204,7 +204,7 @@ namespace JRM
         return false;
     }
 
-    void JustReflectMe::goThroughFiles()
+    bool JustReflectMe::goThroughFiles()
     {
         struct Frame
         {
@@ -221,6 +221,7 @@ namespace JRM
         std::size_t iteratedOverParsable = 0;
         std::size_t processedTotal = 0;
         std::size_t processedWithErrors = 0;
+        std::size_t processedWithWarnings = 0;
 
         while (!frames.empty())
         {
@@ -298,6 +299,12 @@ namespace JRM
                     {
                         cache.updateFile(path);
                     }
+
+                    for (const auto& ref : processor.getReflectors())
+                    {
+                        processedWithWarnings += ref->numberOfWarnings();
+                        processedWithErrors += ref->numberOfErrors();
+                    }
                 }
                 catch (const std::exception& er)
                 {
@@ -315,8 +322,10 @@ namespace JRM
 
         std::cout << "[JustReflectMe] Scanned " << iteratedOverTotal
                   << " files [parsable: " << iteratedOverParsable
-                  << " | updated: " << processedTotal << " | with errors: " << processedWithErrors
-                  << "]\n";
+                  << " | updated: " << processedTotal
+                  << " | warnings/errors: " << processedWithErrors + processedWithWarnings << "]\n";
+
+        return processedWithErrors + processedWithWarnings;
     }
 
     void JustReflectMe::printHelp()
