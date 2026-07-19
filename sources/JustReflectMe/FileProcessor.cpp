@@ -752,7 +752,7 @@ namespace JRM
     void FileProcessor::integrateHeaderIncludes(const FileData& data,
                                                 const std::string& generatedHpp)
     {
-        const auto includeString = "\n#include \"" + generatedHpp + "\"";
+        const auto includeString = "#include \"" + generatedHpp + "\"";
         const auto hpp = getHeaderFilename();
         auto originalSources = ReadFile(hpp);
 
@@ -761,10 +761,20 @@ namespace JRM
             return;
         }
 
+        std::size_t numberOfEndlines = 0;
+        {
+            std::size_t i = std::min(originalSources.size() - 1, originalSources.size());
+            while (std::isspace(originalSources.at(i)))
+            {
+                if (originalSources.at(i) == '\n')
+                {
+                    ++numberOfEndlines;
+                }
+            }
+        }
+
         std::string integrationString;
-        for (auto i = std::count_if(originalSources.rbegin(), originalSources.rend(),
-                                    [](auto ch) { return FileNavigator::IsNewLine(ch); });
-             i < 2; ++i)
+        for (auto i = numberOfEndlines; i < 2; ++i)
         {
             integrationString += "\n";
         }
@@ -799,7 +809,7 @@ namespace JRM
             return;
         }
 
-        const auto includeString = "\n#include \"" + generatedCpp + "\"";
+        const auto includeString = "#include \"" + generatedCpp + "\"";
         auto originalSources = ReadFile(_pathImpl);
         if (originalSources.contains(includeString))
         {
@@ -807,9 +817,19 @@ namespace JRM
         }
 
         std::string integrationString;
-        for (auto i = std::count_if(originalSources.rbegin(), originalSources.rend(),
-                                    [](auto ch) { return FileNavigator::IsNewLine(ch); });
-             i < 2; ++i)
+        std::size_t numberOfEndlines = 0;
+        {
+            std::size_t i = std::min(originalSources.size() - 1, originalSources.size());
+            while (std::isspace(originalSources.at(i)))
+            {
+                if (originalSources.at(i) == '\n')
+                {
+                    ++numberOfEndlines;
+                }
+            }
+        }
+
+        for (auto i = numberOfEndlines; i < 2; ++i)
         {
             integrationString += "\n";
         }

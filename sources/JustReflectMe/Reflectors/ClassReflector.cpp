@@ -117,7 +117,14 @@ namespace JRM
                                       prevP - content.c_str());
             }
 
+            bool trueIfIsClass = true;
             p = FindWordOnThisLine(p, "class");
+            if (!p)
+            {
+                p = prevP;
+                p = FindWordOnThisLine(p, "struct");
+                trueIfIsClass = false;
+            }
             if (!p)
             {
                 p = prevP;
@@ -136,6 +143,12 @@ namespace JRM
                 p = FindWordOnThisLine(p, "class");
                 if (!p)
                 {
+                    p = prevP;
+                    p = FindWordOnThisLine(p, "struct");
+                    trueIfIsClass = false;
+                }
+                if (!p)
+                {
                     ErrorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
                                  std::string(getTriggerKeyword())
                                      + " keyword found, but 'class' wasn't found after it.");
@@ -143,7 +156,7 @@ namespace JRM
                 }
             }
 
-            static const auto classLength = strlen("class");
+            static const auto classLength = strlen(trueIfIsClass ? "class" : "struct");
             p += classLength;
 
             TokenData data;
@@ -236,17 +249,18 @@ namespace JRM
             {
                 ErrorMessage(content.c_str(), (p ? p - content.c_str() : 0), fileData.getPath(),
                              "Can't parse the class: '"s + data.name
-                                 + "' due to overloaded syntax or syntax errors.");
+                                 + "' due to unexpected syntax or syntax errors.");
                 continue;
             }
 
             const Scope* classScope = fileData.getScopes().getScopeAt(p);
-            if (!classScope || !classScope->isValid() || classScope->type != Scope::Type::Class)
-                [[unlikely]]
+            if (!classScope || !classScope->isValid()
+                || (classScope->type != Scope::Type::Class
+                    && classScope->type != Scope::Type::Struct)) [[unlikely]]
             {
                 ErrorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                              "Can't parse scopes of the class: '"s + data.name
-                                 + "' due to overloaded syntax or syntax errors.");
+                                 + "' due to unexpected syntax or syntax errors.");
                 continue;
             }
 
