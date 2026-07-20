@@ -55,6 +55,7 @@ namespace JRM
         _params.emplace_back(insertCodeAtTheTop);
         _params.emplace_back(insertCodeAtTheBottom);
         _params.emplace_back(ignoreSerializationSignals);
+        _params.emplace_back(rFriendAliases);
     }
 
     Config ConfigManager::initializeProjectAndLoadConfig(const fs::path& projectDir, bool& hasError)
@@ -130,6 +131,15 @@ namespace JRM
                 !item.IsNone())
             {
                 config.ignoreSerializationSignals->value = item.As<bool>();
+            }
+
+            if (auto&& item = yaml[config.rFriendAliases->paramName.data()]; !item.IsNone())
+            {
+                config.rFriendAliases->value.clear();
+                for (auto it = item.Begin(); it != item.End(); it++)
+                {
+                    config.rFriendAliases->value.emplace_back((*it).second.As<std::string>());
+                }
             }
         }
         catch (Yaml::Exception& ex)
@@ -222,6 +232,13 @@ namespace JRM
 
         out += genKey(*config.ignoreSerializationSignals)
                + (config.ignoreSerializationSignals->value ? "true" : "false") + "\n\n"s;
+
+        out += genKey(*config.rFriendAliases) + "\n";
+        for (const auto& alias : config.rFriendAliases->value)
+        {
+            out += "  - "s + alias + "\n";
+        }
+        out += "\n";
 
         return out;
     }

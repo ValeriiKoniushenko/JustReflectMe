@@ -99,12 +99,12 @@ namespace JRM
         onScan(data);
     }
 
-    std::string BaseReflector::generateHeaderFile(FileData& data, const Config& config) const
+    std::string BaseReflector::generateHeaderFile(FileData& data) const
     {
         std::string result;
         result.reserve(1024);
 
-        result += onGenerateHeaderFile(data, config);
+        result += onGenerateHeaderFile(data);
 
         if (!result.empty() && result.back() != '\n')
         {
@@ -114,13 +114,13 @@ namespace JRM
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath, FileData& data,
-                                                  const Config& config) const
+    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath,
+                                                  FileData& data) const
     {
         std::string result;
         result.reserve(1024);
 
-        result += onGenerateSourceFile(data, config);
+        result += onGenerateSourceFile(data);
 
         if (!result.empty() && result.back() != '\n')
         {
@@ -176,6 +176,11 @@ namespace JRM
     int BaseReflector::numberOfSeverity(Severity severity) const
     {
         return _severityTraces.contains(severity) ? _severityTraces.at(severity) : 0;
+    }
+
+    void BaseReflector::setConfig(const Config& config) noexcept
+    {
+        _config = &config;
     }
 
     void BaseReflector::TokenEntry::requireValidTokenBasedOnContent(

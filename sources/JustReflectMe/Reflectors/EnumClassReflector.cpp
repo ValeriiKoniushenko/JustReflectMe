@@ -51,8 +51,7 @@ namespace JRM
         return out;
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData,
-                                                         const Config& config) const
+    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData) const
     {
         std::string result;
         result.reserve(1024 * 4);
@@ -83,7 +82,7 @@ namespace JRM
             result += "template<>\n";
             result += structName;
             result += "\n{";
-            result += generateSources(data, config);
+            result += generateSources(data);
             result += "\n}; // " + structName + "\n\n";
         }
 
@@ -224,8 +223,7 @@ namespace JRM
         }
     }
 
-    std::string EnumClassReflector::generateSources(const TokenData& data,
-                                                    const Config& config) const
+    std::string EnumClassReflector::generateSources(const TokenData& data) const
     {
         std::string finalString = R"(
     @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }

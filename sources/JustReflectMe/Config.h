@@ -119,6 +119,11 @@ namespace JRM
               "on(Pre/Post)[De]Serialize will be called from the top called object. If false, "
               "every class will try to use only its own on(Pre/Post)[De]Serialize method.",
               true);
+
+        PARAM(std::vector<std::string>, rFriendAliases,
+              "Put the alias(es) for R_FRIEND to be able to extend the default behavior. It will "
+              "be assumed that you included this alias deeper in your system.",
+              { "R_FRIEND" });
     };
 #undef PARAM
 

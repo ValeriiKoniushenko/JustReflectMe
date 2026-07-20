@@ -677,7 +677,7 @@ namespace JRM
             }
 
             atLeastOneInsert = true;
-            result += reflector->generateHeaderFile(data, *_config);
+            result += reflector->generateHeaderFile(data);
             errors |= reflector->hasErrors();
         }
 
@@ -725,7 +725,7 @@ namespace JRM
             }
 
             atLeastOneInsert = true;
-            src += reflector->generateSourceFile(generateFilenames(true).first, data, *_config);
+            src += reflector->generateSourceFile(generateFilenames(true).first, data);
             errors |= reflector->hasErrors();
         }
 
@@ -775,6 +775,8 @@ namespace JRM
                 {
                     ++numberOfEndlines;
                 }
+
+                --i;
             }
         }
 
@@ -927,6 +929,7 @@ namespace JRM
         for (const auto& reflector : _reflectors)
         {
             reflector->setHasImplTranslationUnit(!_pathImpl.empty());
+            reflector->setConfig(config);
         }
 
         FileData data;

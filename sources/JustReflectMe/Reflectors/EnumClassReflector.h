@@ -58,13 +58,11 @@ namespace JRM
 
         static constexpr std::string_view countMark = "@@COUNT_";
 
-        [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData,
-                                                       const Config& config) const override;
+        [[nodiscard]] std::string onGenerateHeaderFile(FileData& fileData) const override;
         void onScan(const FileData& fileData) override;
 
     private:
-        [[nodiscard]] std::string generateSources(const TokenData& data,
-                                                  const Config& config) const;
+        [[nodiscard]] std::string generateSources(const TokenData& data) const;
 
     protected:
         std::unordered_map<TokenEntry, TokenData, TokenEntry::Hasher> _data;

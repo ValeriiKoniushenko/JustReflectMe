@@ -50,7 +50,7 @@ namespace JRM
         return out;
     }
 
-    std::string ClassReflector::onGenerateHeaderFile(FileData& fileData, const Config& config) const
+    std::string ClassReflector::onGenerateHeaderFile(FileData& fileData) const
     {
         std::string result;
         result.reserve(1024 * 4);
@@ -89,7 +89,7 @@ namespace JRM
             result += "template<>\n";
             result += structName;
             result += "\n{";
-            result += generateSources(*data, config);
+            result += generateSources(*data);
             result += "\n}; // " + structName;
         }
 
@@ -266,9 +266,19 @@ namespace JRM
 
             {
                 // Validation for R_FRIEND();
-                static std::string_view rFriend = "R_FRIEND";
                 std::string_view src(classScope->start, classScope->end - classScope->start + 1);
-                const auto pos = src.find(rFriend);
+                std::size_t pos = std::string_view::npos;
+                std::string rFriend;
+                for (auto val : _config->rFriendAliases->value)
+                {
+                    pos = src.find(val + "(");
+                    if (pos != std::string_view::npos)
+                    {
+                        rFriend = val;
+                        break;
+                    }
+                }
+
                 if (pos == std::string_view::npos)
                 {
                     errorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
@@ -558,7 +568,7 @@ namespace JRM
         }
     }
 
-    std::string ClassReflector::generateSources(const TokenData& data, const Config& config) const
+    std::string ClassReflector::generateSources(const TokenData& data) const
     {
         std::string finalString = R"(
     @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
@@ -647,7 +657,7 @@ namespace JRM
             for (const auto& parent : data.serializableParents)
             {
                 const char* ignoreSignalParam
-                    = config.ignoreSerializationSignals->value ? "true" : "false";
+                    = _config->ignoreSerializationSignals->value ? "true" : "false";
                 out += "\n\t\t"s + namespaceName.data() + "<" + parent
                        + ">::Deserialize<RImpl>(s, obj, " + ignoreSignalParam + ");";
             }

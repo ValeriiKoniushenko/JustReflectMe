@@ -86,9 +86,9 @@ namespace JRM
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual constexpr std::string_view getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] std::string generateHeaderFile(FileData& data, const Config& config) const;
+        [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
-                                                     FileData& data, const Config& config) const;
+                                                     FileData& data) const;
 
         [[nodiscard]] virtual std::set<std::string> getIncludes() const;
 
@@ -101,6 +101,8 @@ namespace JRM
         [[nodiscard]] int numberOfWarnings() const;
         [[nodiscard]] int numberOfErrors() const;
         [[nodiscard]] int numberOfSeverity(Severity severity) const;
+
+        void setConfig(const Config& config) noexcept;
 
     protected:
         /**
@@ -191,13 +193,9 @@ namespace JRM
         [[nodiscard]] static std::string PrettyPrintScope(const Scope* scope);
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
-        [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data,
-                                                               const Config& config) const = 0;
-        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data,
-                                                               const Config& config) const
-        {
-            return {};
-        }
+        [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data) const = 0;
+        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data) const { return {}; }
+        
         virtual void onScan(const FileData& content) = 0;
 
         [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
@@ -212,6 +210,7 @@ namespace JRM
         std::vector<TokenEntry> _tokens;
         bool _isSupportImplTranslationUnit = false;
         bool _hasImplTranslationUnit = false;
+        const Config* _config = nullptr;
 
     private:
         std::unordered_map<Severity, int> _severityTraces;
