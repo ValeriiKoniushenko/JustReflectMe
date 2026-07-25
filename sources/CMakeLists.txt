@@ -1,5 +1,6 @@
 add_library(_JustReflectMe_Adapter INTERFACE JustReflectMe/Adapter.h)
 add_library(JustReflectMe::Adapter ALIAS _JustReflectMe_Adapter)
+target_link_libraries(_JustReflectMe_Adapter INTERFACE NlohmannJson)
 target_include_directories(_JustReflectMe_Adapter INTERFACE .)
 
 file(GLOB_RECURSE CPP_SOURCES "JustReflectMe/*.cpp")
