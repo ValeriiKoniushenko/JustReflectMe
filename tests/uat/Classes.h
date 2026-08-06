@@ -278,4 +278,29 @@ namespace nlohmann
     }
 } // namespace nlohmann
 
+ENUM_CLASS();
+enum class AnimalType
+{
+    None,
+    Cat = 1 << 5,
+    Dog = 1 << 8,
+    Horse = 1 << 12,
+};
+
+CLASS();
+class Animal
+{
+    R_FRIEND(Animal);
+
+public:
+    FIELD();
+    AnimalType _type = AnimalType::None;
+
+    FIELD();
+    std::string _name;
+
+    FIELD();
+    int _age = 0;
+};
+
 #include "Classes.generated.h" // added by the code generator. Better don't move it.

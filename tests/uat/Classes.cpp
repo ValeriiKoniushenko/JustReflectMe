@@ -31,24 +31,28 @@ TEST(Classes, FullNames)
 {
     ASSERT_EQ(R<Human>::FullName(), "Human");
     ASSERT_EQ(R<NS::Car>::FullName(), "NS::Car");
+    ASSERT_EQ(R<Animal>::FullName(), "Animal");
 }
 
 TEST(Classes, Names)
 {
     ASSERT_EQ(R<Human>::Name(), "Human");
     ASSERT_EQ(R<NS::Car>::Name(), "Car");
+    ASSERT_EQ(R<Animal>::Name(), "Animal");
 }
 
 TEST(Classes, ParentScopes)
 {
     ASSERT_EQ(R<Human>::ParentScope(), "");
     ASSERT_EQ(R<NS::Car>::ParentScope(), "NS");
+    ASSERT_EQ(R<Animal>::ParentScope(), "");
 }
 
 TEST(Classes, FieldNumbers)
 {
     ASSERT_EQ(R<Human>::GetFieldNumbers(), 2);
     ASSERT_EQ(R<NS::Car>::GetFieldNumbers(), 11);
+    ASSERT_EQ(R<Animal>::GetFieldNumbers(), 3);
 }
 
 TEST(Classes, FieldMetadata_Human)
@@ -115,4 +119,18 @@ TEST(Classes, FieldMetadata_Car)
 
     ASSERT_EQ(fields.find("_tirePressure")->second.name, "_tirePressure");
     ASSERT_EQ(fields.find("_tirePressure")->second.type, "std::array<double, 4>");
+}
+
+TEST(Classes, FieldMetadata_Animal)
+{
+    const auto fields = R<Animal>::GetFieldsMap();
+
+    ASSERT_EQ(fields.size(), 3);
+    ASSERT_TRUE(fields.contains("_type"));
+    ASSERT_TRUE(fields.contains("_name"));
+    ASSERT_TRUE(fields.contains("_age"));
+
+    ASSERT_EQ(fields.find("_type")->second.type, "AnimalType");
+    ASSERT_EQ(fields.find("_name")->second.type, "std::string");
+    ASSERT_EQ(fields.find("_age")->second.type, "int");
 }
