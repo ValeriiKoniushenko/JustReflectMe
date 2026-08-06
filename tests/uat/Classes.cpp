@@ -51,9 +51,10 @@ TEST(Classes, FieldNumbers)
     ASSERT_EQ(R<NS::Car>::GetFieldNumbers(), 11);
 }
 
-TEST(Classes, FieldNumberss_Human)
+TEST(Classes, FieldMetadata_Human)
 {
     const auto fields = R<Human>::GetFieldsMap();
+
     ASSERT_EQ(fields.size(), 2);
     ASSERT_TRUE(fields.contains("_age"));
     ASSERT_TRUE(fields.contains("_name"));
@@ -62,4 +63,56 @@ TEST(Classes, FieldNumberss_Human)
     ASSERT_EQ(fields.find("_age")->second.type, "int");
     ASSERT_EQ(fields.find("_name")->second.name, "_name");
     ASSERT_EQ(fields.find("_name")->second.type, "std::string");
+}
+
+TEST(Classes, FieldMetadata_Car)
+{
+    const auto fields = R<NS::Car>::GetFieldsMap();
+
+    ASSERT_EQ(fields.size(), 11);
+
+    ASSERT_TRUE(fields.contains("i"));
+    ASSERT_TRUE(fields.contains("a"));
+    ASSERT_TRUE(fields.contains("b"));
+    ASSERT_TRUE(fields.contains("c"));
+    ASSERT_TRUE(fields.contains("_id"));
+    ASSERT_TRUE(fields.contains("_brand"));
+    ASSERT_TRUE(fields.contains("_model"));
+    ASSERT_TRUE(fields.contains("_engine"));
+    ASSERT_TRUE(fields.contains("ch"));
+    ASSERT_TRUE(fields.contains("_spec"));
+    ASSERT_TRUE(fields.contains("_tirePressure"));
+
+    ASSERT_EQ(fields.find("i")->second.name, "i");
+    ASSERT_EQ(fields.find("i")->second.type, "int");
+
+    ASSERT_EQ(fields.find("a")->second.name, "a");
+    ASSERT_EQ(fields.find("a")->second.type, "int");
+
+    ASSERT_EQ(fields.find("b")->second.name, "b");
+    ASSERT_EQ(fields.find("b")->second.type, "int");
+
+    ASSERT_EQ(fields.find("c")->second.name, "c");
+    ASSERT_EQ(fields.find("c")->second.type, "int");
+
+    ASSERT_EQ(fields.find("_id")->second.name, "_id");
+    ASSERT_EQ(fields.find("_id")->second.type, "const unsigned");
+
+    ASSERT_EQ(fields.find("_brand")->second.name, "_brand");
+    ASSERT_EQ(fields.find("_brand")->second.type, "std::string");
+
+    ASSERT_EQ(fields.find("_model")->second.name, "_model");
+    ASSERT_EQ(fields.find("_model")->second.type, "std::string");
+
+    ASSERT_EQ(fields.find("_engine")->second.name, "_engine");
+    ASSERT_EQ(fields.find("_engine")->second.type, "EngineType");
+
+    ASSERT_EQ(fields.find("ch")->second.name, "ch");
+    ASSERT_EQ(fields.find("ch")->second.type, "char");
+
+    ASSERT_EQ(fields.find("_spec")->second.name, "_spec");
+    ASSERT_EQ(fields.find("_spec")->second.type, "Spec");
+
+    ASSERT_EQ(fields.find("_tirePressure")->second.name, "_tirePressure");
+    ASSERT_EQ(fields.find("_tirePressure")->second.type, "std::array<double, 4>");
 }
