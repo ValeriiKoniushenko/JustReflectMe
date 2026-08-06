@@ -1,17 +1,25 @@
-add_library(_JustReflectMe_Adapter INTERFACE JustReflectMe/Adapter.h)
+add_library(_JustReflectMe_Adapter STATIC
+    JustReflectMe/Adapter.h
+    JustReflectMe/Adapter.cpp
+)
 add_library(JustReflectMe::Adapter ALIAS _JustReflectMe_Adapter)
-target_link_libraries(_JustReflectMe_Adapter INTERFACE NlohmannJson)
-target_include_directories(_JustReflectMe_Adapter INTERFACE .)
+target_compile_features(_JustReflectMe_Adapter PUBLIC ${CXX_STANDARD})
+target_link_libraries(_JustReflectMe_Adapter PUBLIC NlohmannJson)
+target_include_directories(_JustReflectMe_Adapter PUBLIC .)
 
 file(GLOB_RECURSE CPP_SOURCES "JustReflectMe/*.cpp")
+list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/Adapter\\.cpp$")
+
 set_source_files_properties(${CPP_SOURCES} PROPERTIES LANGUAGE CXX)
 file(GLOB_RECURSE HEADERS "*.h")
 
 add_library(_JustReflectMe_Core STATIC ${CPP_SOURCES} ${HEADERS})
 add_library(JustReflectMe::Core ALIAS _JustReflectMe_Core)
-target_link_libraries(_JustReflectMe_Core PRIVATE
+target_link_libraries(_JustReflectMe_Core
+    PRIVATE
     JustReflectMe::Adapter
     Yaml
+    PUBLIC
     NlohmannJson
 )
 target_include_directories(_JustReflectMe_Core PUBLIC .)

@@ -31,55 +31,61 @@
 #include <filesystem>
 #include <fstream>
 
-struct MockFileProcessor : public JRM::FileProcessor
+namespace
 {
-    using JRM::FileProcessor::FileProcessor;
 
-    MOCK_METHOD(void, onPreGenerateContent, (const std::string& content), (const, override));
-    MOCK_METHOD(void, onPostGenerateHeaderContent, (const std::string& content), (const, override));
-};
-
-class FileProcessorTests : public testing::Test
-{
-public:
-    struct RAIIFile
+    struct MockFileProcessor : public JRM::FileProcessor
     {
-        RAIIFile(const std::string& filename_, const std::string& content)
-        {
-            filename = filename_;
+        using JRM::FileProcessor::FileProcessor;
 
-            std::ofstream out(filename);
-            if (!out.is_open())
-            {
-                throw std::runtime_error("Cannot open file: " + filename);
-            }
-
-            out.write(content.c_str(), content.size() * sizeof(char));
-        }
-        ~RAIIFile() { release(); }
-
-        void release() { std::filesystem::remove(filename.c_str()); }
-
-        [[nodiscard]] const std::string& getFilename() const { return filename; }
-        [[nodiscard]] operator const std::string&() const { return filename; }
-        [[nodiscard]] operator std::filesystem::path() const
-        {
-            return std::filesystem::path(filename);
-        }
-
-    private:
-        std::string filename;
+        MOCK_METHOD(void, onPreGenerateContent, (const std::string& content), (const, override));
+        MOCK_METHOD(void, onPostGenerateHeaderContent, (const std::string& content),
+                    (const, override));
     };
 
-    MockFileProcessor processor;
+    class FileProcessorTests : public testing::Test
+    {
+    public:
+        struct RAIIFile
+        {
+            RAIIFile(const std::string& filename_, const std::string& content)
+            {
+                filename = filename_;
 
-public:
-    FileProcessorTests() = default;
-    ~FileProcessorTests() override = default;
+                std::ofstream out(filename);
+                if (!out.is_open())
+                {
+                    throw std::runtime_error("Cannot open file: " + filename);
+                }
 
-    void SetUp() override {}
-    void TearDown() override {}
-};
+                out.write(content.c_str(), content.size() * sizeof(char));
+            }
+            ~RAIIFile() { release(); }
+
+            void release() { std::filesystem::remove(filename.c_str()); }
+
+            [[nodiscard]] const std::string& getFilename() const { return filename; }
+            [[nodiscard]] operator const std::string&() const { return filename; }
+            [[nodiscard]] operator std::filesystem::path() const
+            {
+                return std::filesystem::path(filename);
+            }
+
+        private:
+            std::string filename;
+        };
+
+        MockFileProcessor processor;
+
+    public:
+        FileProcessorTests() = default;
+        ~FileProcessorTests() override = default;
+
+        void SetUp() override {}
+        void TearDown() override {}
+    };
+
+} // namespace
 
 TEST_F(FileProcessorTests, SingleFile)
 {

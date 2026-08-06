@@ -38,26 +38,25 @@
 
 struct RClassField
 {
-    constexpr RClassField(std::string_view type, std::string_view name) noexcept
-        : type(type),
-          name(name)
-    {
-    }
-
     std::string_view type;
     std::string_view name;
 };
 
-template<class T>
+namespace RInternal
+{
+    [[nodiscard]] std::unordered_map<std::string, RClassField> GetClassFieldsAsMap(
+        const std::vector<RClassField>& fields);
+} // namespace RInternal
+
+template<class T = void>
 struct R
 {
+    constexpr static uint64_t Default = 1 << 0;
+    constexpr static uint64_t Min = 1 << 1;
+    constexpr static uint64_t NoDefaultValue = 1 << 2;
 };
 
-enum class RFieldGen
-{
-    Default,        // Default behavior
-    NoDefaultValue, // Will ignore default value while all steps of work
-};
+using RPoint = R<void>;
 
 enum RFlag
 {
@@ -356,7 +355,7 @@ public:
  * @code
  * CLASS();
  * class Foo{
- *     FIELD(RFieldGen::NoDefaultValue, RFieldGen::xyz);
+ *     FIELD(R::NoDefaultValue, R::xyz);
  *     int a = 1;
  * };
  * @endcode

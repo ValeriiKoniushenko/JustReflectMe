@@ -1,0 +1,40 @@
+# Pass an array of the relative paths that should be ignored.
+excludedPaths:
+  - .cache
+  - .git
+  - .idea
+  - .jrm
+  - .vscode
+  - JustReflectMe
+  - build
+
+# Array of the file extensions that will be scanned through the filesystem.
+parsableFileExtensions:
+  - .h
+  - .hpp
+  - .hxx
+  - .hh
+  - .h++
+
+# Show every file path while running.
+showEveryIteratedFilePath: false
+
+# Show skipped(no need update) files while running.
+showSkippedFiles: false
+
+# If true, it will always regenerate the files, regardless of whether they were modified.
+alwaysDirtyCache: true
+
+# A string will be added to the top of the generated file
+insertCodeAtTheTop:
+
+# A string will be added to the bottom of the generated file
+insertCodeAtTheBottom:
+
+# Ignore signals that are used for serialization purposes. If true, only the mehtod on(Pre/Post)[De]Serialize will be called from the top called object. If false, every class will try to use only its own on(Pre/Post)[De]Serialize method.
+ignoreSerializationSignals: true
+
+# Put the alias(es) for R_FRIEND to be able to extend the default behavior. It will be assumed that you included this alias deeper in your system.
+rFriendAliases:
+  - R_FRIEND
+

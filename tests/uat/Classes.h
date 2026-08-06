@@ -94,7 +94,7 @@ namespace NS
         FIELD();
         int c{ 666 };
 
-        FIELD(RFieldGen::NoDefaultValue);
+        FIELD(R::NoDefaultValue);
         const unsigned _id{ ++s_globalIdCounter };
 
         FIELD();
@@ -278,4 +278,4 @@ namespace nlohmann
     }
 } // namespace nlohmann
 
-#include "header.generated.inl" // added by the code generator. Better don't move it.
+#include "Classes.generated.h" // added by the code generator. Better don't move it.

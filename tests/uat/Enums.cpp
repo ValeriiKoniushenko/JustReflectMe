@@ -22,16 +22,7 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "Enums.h"
 
-#include "JustReflectMe/Adapter.h"
-
-ENUM_CLASS();
-enum class Color
-{
-    Red,
-    Green,
-    Blue
-};
-
-#include "header.generated.inl" // added by the code generator. Better don't move it.
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"

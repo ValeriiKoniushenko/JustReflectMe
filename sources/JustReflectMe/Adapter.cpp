@@ -22,36 +22,18 @@
  * SOFTWARE.
  */
 
-#include "header.h"
+#include "Adapter.h"
 
-#include <iostream>
-
-using namespace std;
-
-#define ASSERT_EQ(a, b)                                                                            \
-    if (a != b)                                                                                    \
-    {                                                                                              \
-        std::cerr << "Expected equality, but:" << std::endl;                                       \
-        std::cerr << #a << " != " << #b << std::endl;                                              \
-        return 1;                                                                                  \
-    }
-
-int main()
+namespace RInternal
 {
-    ASSERT_EQ(R<NS::Car>::Name(), "Car");
-    ASSERT_EQ(R<NS::Car>::ParentScope(), "NS");
-
-    NS::Car car;
-    car.i = 123;
-
-    auto data = R<NS::Car>::Serialize<RJsonResourceStream>(car);
-    auto raw = data.getData().dump(4);
-    cout << raw << endl;
-
-    Human h(25, "Nikki");
-    auto rawData = R<Human>::Serialize(h); // json by default
-    auto json = rawData.getData();
-    cout << json.dump(4) << endl;
-
-    return 0;
-}
+    [[nodiscard]] std::unordered_map<std::string, RClassField> GetClassFieldsAsMap(
+        const std::vector<RClassField>& fields)
+    {
+        std::unordered_map<std::string, RClassField> map;
+        for (const auto& field : fields)
+        {
+            map[std::string(field.name)] = field;
+        }
+        return map;
+    }
+} // namespace RInternal

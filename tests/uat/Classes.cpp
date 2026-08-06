@@ -22,59 +22,44 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "Classes.h"
 
-#include "JustReflectMe/Adapter.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
-#include <array>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-
-CLASS();
-class Vehicle
+TEST(Classes, FullNames)
 {
-    R_FRIEND(Vehicle);
+    ASSERT_EQ(R<Human>::FullName(), "Human");
+    ASSERT_EQ(R<NS::Car>::FullName(), "NS::Car");
+}
 
-public:
-    [[nodiscard]] float getSpeed() const noexcept { return _speed; }
-    void setSpeed(float v) noexcept { _speed = v; }
-
-protected:
-    FIELD();
-    float _speed = 0;
-};
-
-CLASS();
-class Car : public Vehicle
+TEST(Classes, Names)
 {
-    R_FRIEND(Car, Vehicle);
+    ASSERT_EQ(R<Human>::Name(), "Human");
+    ASSERT_EQ(R<NS::Car>::Name(), "Car");
+}
 
-public:
-    [[nodiscard]] std::string getName() const noexcept { return _name; }
-    void setName(std::string_view v) noexcept { _name = v; }
-
-protected:
-    FIELD();
-    std::string _name = "None";
-};
-
-struct IRadio
+TEST(Classes, ParentScopes)
 {
-};
+    ASSERT_EQ(R<Human>::ParentScope(), "");
+    ASSERT_EQ(R<NS::Car>::ParentScope(), "NS");
+}
 
-CLASS();
-class RadioCar : public IRadio, std::vector<std::unique_ptr<char>>, public Vehicle
+TEST(Classes, FieldNumbers)
 {
-    R_FRIEND(RadioCar, Vehicle);
+    ASSERT_EQ(R<Human>::GetFieldNumbers(), 2);
+    ASSERT_EQ(R<NS::Car>::GetFieldNumbers(), 11);
+}
 
-public:
-    [[nodiscard]] std::string getRadio() const noexcept { return _radio; }
-    void setRadio(std::string_view v) noexcept { _radio = v; }
+TEST(Classes, FieldNumberss_Human)
+{
+    const auto fields = R<Human>::GetFieldsMap();
+    ASSERT_EQ(fields.size(), 2);
+    ASSERT_TRUE(fields.contains("_age"));
+    ASSERT_TRUE(fields.contains("_name"));
 
-protected:
-    FIELD();
-    std::string _radio = "0.0.0.0";
-};
-#include "header.generated.inl" // added by the code generator. Better don't move it.
+    ASSERT_EQ(fields.find("_age")->second.name, "_age");
+    ASSERT_EQ(fields.find("_age")->second.type, "int");
+    ASSERT_EQ(fields.find("_name")->second.name, "_name");
+    ASSERT_EQ(fields.find("_name")->second.type, "std::string");
+}

@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -24,28 +22,63 @@
  * SOFTWARE.
  */
 
-#include "BaseFixture.h"
+#pragma once
 
-#include <fstream>
+#include "JustReflectMe/Adapter.h"
 
-std::string BaseFixture::getFileFromResources(const std::string& filename) const
+#include <array>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+
+CLASS();
+class Vehicle
 {
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-    if (!file)
-    {
-        throw std::runtime_error("Cannot open file");
-    }
+    R_FRIEND(Vehicle);
 
-    const std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
+public:
+    [[nodiscard]] float getSpeed() const noexcept { return _speed; }
+    void setSpeed(float v) noexcept { _speed = v; }
 
-    std::string buffer;
-    buffer.resize(size);
+protected:
+    FIELD();
+    float _speed = 0;
+};
 
-    if (!file.read(buffer.data(), size))
-    {
-        throw std::runtime_error("Error reading file");
-    }
+CLASS();
+class Car : public Vehicle
+{
+    R_FRIEND(Car, Vehicle);
 
-    return buffer;
-}
+public:
+    [[nodiscard]] std::string getName() const noexcept { return _name; }
+    void setName(std::string_view v) noexcept { _name = v; }
+
+protected:
+    FIELD();
+    std::string _name = "None";
+};
+
+struct IRadio
+{
+};
+
+CLASS();
+class RadioCar : public IRadio, std::vector<std::unique_ptr<char>>, public Vehicle
+{
+    R_FRIEND(RadioCar, Vehicle);
+
+public:
+    [[nodiscard]] std::string getRadio() const noexcept { return _radio; }
+    void setRadio(std::string_view v) noexcept { _radio = v; }
+
+protected:
+    // FIELD(A = 1);
+    int _connectionFrequency = 50;
+
+    FIELD();
+    std::string _radio = "0.0.0.0";
+};
+
+#include "MltClasses.generated.h" // added by the code generator. Better don't move it.

@@ -22,33 +22,31 @@
  * SOFTWARE.
  */
 
-#include "header.h"
+#pragma once
 
-#include <iostream>
-#include <vector>
-using namespace std;
+#include "JustReflectMe/Adapter.h"
 
-#define ASSERT_EQ(a, b)                                                                            \
-    if (a != b)                                                                                    \
-    {                                                                                              \
-        std::cerr << "Expected equality, but:" << std::endl;                                       \
-        std::cerr << #a << " != " << #b << std::endl;                                              \
-        return 1;                                                                                  \
-    }
-
-int main()
+ENUM_CLASS();
+enum class Color
 {
-    Car car;
-    car.setName("BMW");
-    car.setSpeed(160.f);
+    Red,
+    Green,
+    Blue
+};
 
-    auto data = R<Car>::Serialize(car);
-
-    cout << data.getData().dump(4) << endl;
-    data.getData()["_name"] = "Audi";
-    data.getData()["_speed"] = 240.f;
-
-    R<Car>::Deserialize(data, car);
-
-    return 0;
+const char* ToString(Color color)
+{
+    switch (color)
+    {
+        case Color::Red:
+            return "Red";
+        case Color::Green:
+            return "Green";
+        case Color::Blue:
+            return "Blue";
+        default:
+            return "Unknown";
+    }
 }
+
+#include "Enums.generated.h" // added by the code generator. Better don't move it.

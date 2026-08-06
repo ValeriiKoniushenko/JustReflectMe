@@ -22,19 +22,7 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "MltClasses.h"
 
-#include <string>
-
-class BaseFixture
-{
-public:
-    BaseFixture() = default;
-    BaseFixture(const BaseFixture&) = default;
-    BaseFixture& operator=(const BaseFixture&) = default;
-    BaseFixture(BaseFixture&&) noexcept = default;
-    BaseFixture& operator=(BaseFixture&&) noexcept = default;
-    virtual ~BaseFixture() = default;
-
-    [[nodiscard]] std::string getFileFromResources(const std::string& filename) const;
-};
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"

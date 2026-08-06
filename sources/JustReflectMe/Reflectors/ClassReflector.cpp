@@ -399,9 +399,9 @@ namespace JRM
                     const auto type = FileNavigator::ReadAsTypename(it, offset);
                     it += std::max(offset, 1);
 
-                    if (type.name == "RFieldGen::NoDefaultValue")
+                    if (type.name == "R::NoDefaultValue")
                     {
-                        meta.genFlags |= static_cast<int>(RFieldGen::NoDefaultValue);
+                        meta.genFlags |= static_cast<int>(RPoint::NoDefaultValue);
                     }
                     else if (type.name == "RFlag_NonRequired")
                     {
@@ -418,7 +418,15 @@ namespace JRM
                     else
                     {
                         warnMessage(content, it - content, fileData.getPath(),
-                                    "The FIELD's parameter is not recognized: '" + type.name + "'");
+                                    "The FIELD's parameter or expression is not recognized: '"
+                                        + type.name + "'");
+
+                        // Skipping one token
+                        it = std::strpbrk(it, ",);");
+                        if (!it || it >= fieldClose)
+                        {
+                            it = fieldClose;
+                        }
                     }
                 }
 
@@ -475,8 +483,7 @@ namespace JRM
 
             p = SkipAllBlanks(p);
             const char* const nameEnd = p;
-            if (*p != ';'
-                && (fieldMeta.genFlags & static_cast<int>(RFieldGen::NoDefaultValue)) == 0)
+            if (*p != ';' && (fieldMeta.genFlags & static_cast<int>(RPoint::NoDefaultValue)) == 0)
             {
                 if (*p == '=')
                 {
@@ -578,6 +585,11 @@ namespace JRM
     @@FUNC_PREF_constexpr std::vector<RClassField> GetFields() {
         @@F_GET_FIELDS_
     }
+    @@FUNC_PREF_constexpr std::unordered_map<std::string, RClassField> GetFieldsMap()
+    {
+        return RInternal::GetClassFieldsAsMap(GetFields());
+    }
+
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)

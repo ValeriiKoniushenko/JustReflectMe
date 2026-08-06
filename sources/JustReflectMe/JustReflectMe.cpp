@@ -325,7 +325,7 @@ namespace JRM
                   << " | updated: " << processedTotal
                   << " | warnings/errors: " << processedWithErrors + processedWithWarnings << "]\n";
 
-        return processedWithErrors + processedWithWarnings;
+        return processedWithErrors;
     }
 
     void JustReflectMe::printHelp()
