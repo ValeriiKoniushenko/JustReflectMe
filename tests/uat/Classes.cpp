@@ -134,3 +134,40 @@ TEST(Classes, FieldMetadata_Animal)
     ASSERT_EQ(fields.find("_name")->second.type, "std::string");
     ASSERT_EQ(fields.find("_age")->second.type, "int");
 }
+
+TEST(Classes, Serialize_Animal)
+{
+    Animal animal;
+    animal._age = 12;
+    animal._name = "Bob";
+    animal._type = AnimalType::Cat;
+
+    const auto json = R<Animal>::Serialize(animal).getData();
+
+    ASSERT_TRUE(json.is_object());
+
+    ASSERT_EQ(json.size(), 3);
+
+    ASSERT_TRUE(json.contains("_age"));
+    ASSERT_TRUE(json.contains("_name"));
+    ASSERT_TRUE(json.contains("_type"));
+
+    EXPECT_EQ(json["_age"], 12);
+    EXPECT_EQ(json["_name"], "Bob");
+    EXPECT_EQ(json["_type"], static_cast<int>(AnimalType::Cat));
+}
+
+TEST(Classes, Deserialize_Animal)
+{
+    nlohmann::json json
+        = { { "_age", 12 }, { "_name", "Bob" }, { "_type", static_cast<int>(AnimalType::Cat) } };
+
+    Animal animal;
+
+    RResourceStream<RJsonResourceStream> stream(json);
+    R<Animal>::Deserialize(stream, animal);
+
+    EXPECT_EQ(animal._age, 12);
+    EXPECT_EQ(animal._name, "Bob");
+    EXPECT_EQ(animal._type, AnimalType::Cat);
+}
