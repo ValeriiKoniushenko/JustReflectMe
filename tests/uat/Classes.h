@@ -32,6 +32,34 @@
 #include <string>
 #include <utility>
 
+// clang-format off
+CLASS();
+class Foo0{R_FRIEND(Foo0);};
+CLASS(); class Foo1{ R_FRIEND(Foo1); };
+CLASS();
+class Foo4{R_FRIEND(Foo4);};
+
+CLASS();
+
+
+class Foo6{R_FRIEND(Foo6);};
+
+CLASS(); class Foo5{R_FRIEND(Foo5);};
+CLASS (); class Foo2{R_FRIEND(Foo2);};
+CLASS (   ) ; class Foo3{R_FRIEND(Foo3);};
+CLASS (  /* hello */  ); class Foo7{R_FRIEND(Foo7);};
+CLASS(); template<class T> class Foo8{R_FRIEND(Foo8);};
+
+CLASS();
+class [[maybe_unused]] Foo9{R_FRIEND(Foo9);};
+
+CLASS();
+class
+    [[maybe_unused]]
+    Foo10
+    {R_FRIEND(Foo10);};
+// clang-format on
+
 CLASS();
 class Human
 {

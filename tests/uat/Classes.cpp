@@ -154,13 +154,14 @@ TEST(Classes, Serialize_Animal)
 
     EXPECT_EQ(json["_age"], 12);
     EXPECT_EQ(json["_name"], "Bob");
-    EXPECT_EQ(json["_type"], static_cast<int>(AnimalType::Cat));
+    EXPECT_EQ(json["_type"], R<AnimalType>::ToString(AnimalType::Cat));
 }
 
 TEST(Classes, Deserialize_Animal)
 {
-    nlohmann::json json
-        = { { "_age", 12 }, { "_name", "Bob" }, { "_type", static_cast<int>(AnimalType::Cat) } };
+    nlohmann::json json = { { "_age", 12 },
+                            { "_name", "Bob" },
+                            { "_type", R<AnimalType>::ToString(AnimalType::Cat) } };
 
     Animal animal;
 

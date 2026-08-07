@@ -182,11 +182,12 @@ namespace JRM
         }
 
         // We need exact '\n' check, not IsNewLine
-        while (p > start && *p != '\n')
+        // Or ';' if it's a start(end) of 'CLASS();'
+        while (p > start && (*p != '\n' && *p != ';'))
         {
             --p;
         }
-        while (*p && FileNavigator::IsSpace(*p))
+        while (*p && (FileNavigator::IsSpace(*p) || *p == ';'))
         {
             ++p;
         }
