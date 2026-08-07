@@ -179,6 +179,7 @@ namespace JRM
 
                 p = end + 2;
             }
+            p = SkipAllBlanks(p);
 
             data.name = ReadAsIdentifier(p);
             if (data.name.empty())

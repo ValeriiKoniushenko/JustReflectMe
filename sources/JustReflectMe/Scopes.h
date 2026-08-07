@@ -62,7 +62,7 @@ namespace JRM
         const char* end = nullptr;
         Scope* parent = nullptr;
         Type type = Type::Undefined;
-        Attr attribute = Attr_None;
+        int attribute = Attr_None;
     };
 
     class Scopes

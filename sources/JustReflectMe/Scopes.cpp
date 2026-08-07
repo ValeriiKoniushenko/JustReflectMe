@@ -174,6 +174,9 @@ namespace JRM
             return;
         }
 
+        scope.identifierStart = nullptr;
+        scope.type = Scope::Type::Undefined;
+
         --p;
 
         while (p > start && FileNavigator::IsSpace(*p))
@@ -196,6 +199,32 @@ namespace JRM
         static constexpr std::string_view enumClassKeyword = "enum class";
         static constexpr std::string_view classKeyword = "class";
         static constexpr std::string_view structKeyword = "struct";
+        static constexpr std::string_view templateKeyword = "template";
+
+        if (strncmp(p, templateKeyword.data(), templateKeyword.size()) == 0)
+        {
+            p += templateKeyword.size();
+            p = FileNavigator::SkipAllBlanks(p);
+
+            if (*p != '<')
+            {
+                throw std::runtime_error(
+                    "Can't determine the template header syntax. It contains errors, or syntax is "
+                    "overloaded.");
+            }
+
+            p = FileNavigator::FindScopeEnd(p);
+            if (!p || *p != '>')
+            {
+                throw std::runtime_error(
+                    "Can't determine the template header syntax, the '>' isn't found. It contains "
+                    "errors, or syntax is "
+                    "overloaded.");
+            }
+            p = FileNavigator::SkipAllBlanks(++p);
+
+            scope.attribute |= Scope::Attr_Template;
+        }
 
         if (strncmp(p, namespaceKeyword.data(), namespaceKeyword.size()) == 0)
         {
@@ -216,8 +245,6 @@ namespace JRM
                 const auto* end = strstr(scope.identifierStart, "]]");
                 if (!end)
                 {
-                    scope.identifierStart = nullptr;
-                    scope.type = Scope::Type::Undefined;
                     throw std::runtime_error(
                         "Can't scan a class scope. The content contains attributes that can't be "
                         "parsed.");
@@ -229,11 +256,6 @@ namespace JRM
         {
             scope.type = Scope::Type::Struct;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + structKeyword.size());
-        }
-        else
-        {
-            scope.identifierStart = nullptr;
-            scope.type = Scope::Type::Undefined;
         }
     }
 
@@ -262,7 +284,7 @@ namespace JRM
                 begin = SkipAllBlanks(begin);
                 if (strncmp(begin, templateKeyword.data(), templateKeyword.size()) == 0)
                 {
-                    scope.attribute = Scope::Attr_Template;
+                    scope.attribute |= Scope::Attr_Template;
                     break;
                 }
 
