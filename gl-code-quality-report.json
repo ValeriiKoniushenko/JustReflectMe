@@ -1,0 +1,302 @@
+[
+  {
+    "description": "[misc-use-internal-linkage] function 'GetClassFieldsAsMap' can be made static or moved into an anonymous namespace to enforce internal linkage",
+    "check_name": "misc-use-internal-linkage",
+    "fingerprint": "683528a9775a4d2a71efe94fe65c8590",
+    "severity": "major",
+    "location": {
+      "path": "sources/JustReflectMe/Adapter.cpp",
+      "lines": {
+        "begin": 29
+      }
+    }
+  },
+  {
+    "description": "[clang-diagnostic-error] 'NlohmannJson.h' file not found",
+    "check_name": "clang-diagnostic-error",
+    "fingerprint": "e53db11983fe864a813c7bbc96f4ea4d",
+    "severity": "critical",
+    "location": {
+      "path": "sources/JustReflectMe/Adapter.cpp",
+      "lines": {
+        "begin": 27
+      }
+    }
+  },
+  {
+    "description": "[cppcoreguidelines-pro-type-member-init] constructor does not initialize these fields: gmock11_onPreGenerateContent_41, gmock11_onPostGenerateHeaderContent_43",
+    "check_name": "cppcoreguidelines-pro-type-member-init",
+    "fingerprint": "a92dcccbbf22dde43d97be62a7ebfcfa",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 37
+      }
+    }
+  },
+  {
+    "description": "[cppcoreguidelines-special-member-functions] class 'FileProcessorTests' defines a default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator",
+    "check_name": "cppcoreguidelines-special-member-functions",
+    "fingerprint": "ab45d2eb345bea4adbc09cca25cb507c",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 46
+      }
+    }
+  },
+  {
+    "description": "[cppcoreguidelines-special-member-functions] class 'RAIIFile' defines a non-default destructor but does not define a copy constructor, a copy assignment operator, a move constructor or a move assignment operator",
+    "check_name": "cppcoreguidelines-special-member-functions",
+    "fingerprint": "075574bb414c16ce912f075b95eb403d",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 49
+      }
+    }
+  },
+  {
+    "description": "[cppcoreguidelines-prefer-member-initializer] 'filename' should be initialized in a member initializer of the constructor",
+    "check_name": "cppcoreguidelines-prefer-member-initializer",
+    "fingerprint": "5b289f8340d4e1e1cdf9371911cdc9a8",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 53
+      }
+    }
+  },
+  {
+    "description": "[misc-const-correctness] variable 'out' of type 'std::ofstream' (aka 'int') can be declared 'const'",
+    "check_name": "misc-const-correctness",
+    "fingerprint": "04f6683b8cd60ab6e8ec097c7cb4b71a",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 55
+      }
+    }
+  },
+  {
+    "description": "[misc-override-with-different-visibility] visibility of function 'SetUp' is changed from protected in class 'Test' to public",
+    "check_name": "misc-override-with-different-visibility",
+    "fingerprint": "620107175eefaf6408f1d1a31b8af11f",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 84
+      }
+    }
+  },
+  {
+    "description": "[misc-override-with-different-visibility] visibility of function 'TearDown' is changed from protected in class 'Test' to public",
+    "check_name": "misc-override-with-different-visibility",
+    "fingerprint": "0f49d471afb1369962edd13ac9c48fe0",
+    "severity": "major",
+    "location": {
+      "path": "tests/FileProcessorTests.cpp",
+      "lines": {
+        "begin": 85
+      }
+    }
+  },
+  {
+    "description": "[misc-const-correctness] variable 'animal' of type 'Animal' can be declared 'const'",
+    "check_name": "misc-const-correctness",
+    "fingerprint": "9452e027e855ecea21f5fff6280d63ce",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.cpp",
+      "lines": {
+        "begin": 166
+      }
+    }
+  },
+  {
+    "description": "[clang-diagnostic-error] 'JustReflectMe/Adapter.h' file not found",
+    "check_name": "clang-diagnostic-error",
+    "fingerprint": "fb38025664bcdf77734ece62bebfecd0",
+    "severity": "critical",
+    "location": {
+      "path": "tests/uat/Classes.cpp",
+      "lines": {
+        "begin": 27
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "5585e4f6481d4317c22286c534a73470",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 38
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "3c8eba92d10293a809a60d85182f7c1c",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 39
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "dc0c70c848916aa5afac62f9ae416cb2",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 42
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "c24c2ed11fc79741dc1254cfd0e3cd23",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 47
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "9100a9e6bb37be04dbc5546a0b6d55f5",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 48
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "0d81c048eedbfd67e230cc36238f7632",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 49
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "669bc657a855d12f33f6cb6cd3524781",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 50
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "c6a8270116315cf359d41c3287957e2a",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 51
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "ff377b36fb406395cdf245580a1efc16",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 53
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "042fc3a7a52d9c760e470a3834c64cdf",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 56
+      }
+    }
+  },
+  {
+    "description": "[readability-redundant-declaration] redundant 'CLASS' declaration",
+    "check_name": "readability-redundant-declaration",
+    "fingerprint": "4380e34f438f8d781da8050c745745e7",
+    "severity": "major",
+    "location": {
+      "path": "tests/uat/Classes.h",
+      "lines": {
+        "begin": 318
+      }
+    }
+  },
+  {
+    "description": "[clang-diagnostic-error] 'JustReflectMe/Adapter.h' file not found",
+    "check_name": "clang-diagnostic-error",
+    "fingerprint": "864697b1df0e4e11383a6b612c5ec2e6",
+    "severity": "critical",
+    "location": {
+      "path": "tests/uat/Enums.cpp",
+      "lines": {
+        "begin": 27
+      }
+    }
+  },
+  {
+    "description": "[clang-diagnostic-error] 'JustReflectMe/Adapter.h' file not found",
+    "check_name": "clang-diagnostic-error",
+    "fingerprint": "697876c70fe9401f5e1b8de77cf1c40e",
+    "severity": "critical",
+    "location": {
+      "path": "tests/uat/Enums.h",
+      "lines": {
+        "begin": 27
+      }
+    }
+  },
+  {
+    "description": "[clang-diagnostic-error] 'JustReflectMe/Adapter.h' file not found",
+    "check_name": "clang-diagnostic-error",
+    "fingerprint": "39950ac11e15d4d5ef8d75e70e1a69af",
+    "severity": "critical",
+    "location": {
+      "path": "tests/uat/MltClasses.cpp",
+      "lines": {
+        "begin": 27
+      }
+    }
+  }
+]
