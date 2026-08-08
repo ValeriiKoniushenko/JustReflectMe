@@ -130,14 +130,38 @@ namespace JRM
                 p = prevP;
                 const char* startPtr = p;
 
-                p = GoToNextLine(p);
-                if (!p)
+                p = SkipAllBlanks(p);
+                if (strncmp(p, triggeredKeyword.data(), triggeredKeyword.size()) != 0) [[unlikely]]
                 {
                     errorMessage(content.c_str(), startPtr - content.c_str(), fileData.getPath(),
-                                 std::string(getTriggerKeyword())
-                                     + " keyword found, but 'class' wasn't found after it.");
+                                 "Internal error. Can't find a 'CLASS'");
                     continue;
                 }
+                p += triggeredKeyword.size();
+                p = SkipAllBlanks(p);
+                if (!p || *p == '\0' || *p != '(')
+                {
+                    errorMessage(
+                        content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                        "Can't find a '(' after the 'CLASS' keyword. Expected: 'CLASS( ... )'.");
+                    continue;
+                }
+
+                p = FindScopeEnd(p);
+                if (!p) [[unlikely]]
+                {
+                    errorMessage(
+                        content.c_str(), startPtr - content.c_str(), fileData.getPath(),
+                        "Can't find a ')' after the 'CLASS' keyword. Expected: 'CLASS( ... )'.");
+                    continue;
+                }
+
+                p = SkipAllBlanks(++p);
+                if (*p == ';')
+                {
+                    ++p;
+                }
+                p = SkipAllBlanks(p);
 
                 prevP = p;
                 p = FindWordOnThisLine(p, "class");
