@@ -23,7 +23,7 @@ showEveryIteratedFilePath: false
 showSkippedFiles: false
 
 # If true, it will always regenerate the files, regardless of whether they were modified.
-alwaysDirtyCache: false
+alwaysDirtyCache: true
 
 # A string will be added to the top of the generated file
 insertCodeAtTheTop:

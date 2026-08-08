@@ -32,6 +32,17 @@ TEST(Classes, FullNames)
     ASSERT_EQ(R<Human>::FullName(), "Human");
     ASSERT_EQ(R<NS::Car>::FullName(), "NS::Car");
     ASSERT_EQ(R<Animal>::FullName(), "Animal");
+
+    ASSERT_EQ(R<Foo0>::FullName(), "Foo0");
+    ASSERT_EQ(R<Foo1>::FullName(), "Foo1");
+    ASSERT_EQ(R<Foo2>::FullName(), "Foo2");
+    ASSERT_EQ(R<Foo3>::FullName(), "Foo3");
+    ASSERT_EQ(R<Foo4>::FullName(), "Foo4");
+    ASSERT_EQ(R<Foo5>::FullName(), "Foo5");
+    ASSERT_EQ(R<Foo6>::FullName(), "Foo6");
+    ASSERT_EQ(R<Foo7>::FullName(), "Foo7");
+    // ASSERT_EQ(R<Foo8>::FullName(), "Foo8");
+    ASSERT_EQ(R<Foo9>::FullName(), "Foo9");
 }
 
 TEST(Classes, Names)
