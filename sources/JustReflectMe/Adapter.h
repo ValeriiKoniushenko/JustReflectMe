@@ -187,13 +187,13 @@ public:
     RResourceStream(const typename RImpl::DataType& out) { impl.data() = out; }
 
     template<class T>
-    void write(std::string_view fieldName, T& value)
+    void write(std::string_view fieldName, const T& value)
     {
         impl.template write<T>(fieldName, value);
     }
 
     template<class T>
-    void write(T& value)
+    void write(const T& value)
     {
         impl.template write<T>(value);
     }

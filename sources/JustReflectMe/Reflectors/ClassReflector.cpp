@@ -647,18 +647,18 @@ namespace JRM
         return RInternal::GetClassFieldsAsMap(GetFields());
     }
 
-
-    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)
-    {
-        RResourceStream<RImpl> s;@@F_SERIALIZE_
-        return s;
-    }
-
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     @@FUNC_PREF_void Serialize(const @@NAME_& obj, RResourceStream<RImpl>& s, bool noSignals = false)
     {
         @@F_SERIALIZE_
+    }
+
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)
+    {
+        RResourceStream<RImpl> s;
+        Serialize(obj, s, noSignals);
+        return s;
     }
 
 
@@ -701,7 +701,16 @@ namespace JRM
 
             for (const auto& field : data.fields)
             {
-                out += "\n\t\ts.write(\"" + field.name + "\", obj." + field.name + ");";
+                out += "\n\t\ts.write(\"" + field.name + "\", ";
+                if (field.isKnownTypename)
+                {
+                    out += "obj." + field.name;
+                }
+                else
+                {
+                    out += "obj." + field.name;
+                }
+                out += ");";
             }
 
             out += R"(
