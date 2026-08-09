@@ -31,6 +31,8 @@
 #include <filesystem>
 #include <fstream>
 
+namespace fs = std::filesystem;
+
 namespace
 {
 
@@ -62,13 +64,35 @@ namespace
             }
             ~RAIIFile() { release(); }
 
-            void release() { std::filesystem::remove(filename.c_str()); }
+            void release()
+            {
+                std::error_code ec;
+                fs::remove(filename.c_str(), ec);
+
+                auto path = fs::path(filename);
+                auto originalExt = path.extension().generic_string();
+                if (originalExt == ".cpp" || originalExt == ".h")
+                {
+                    path.replace_extension(".*");
+                    removeMatching("./", path.stem().generic_string());
+                }
+            }
 
             [[nodiscard]] const std::string& getFilename() const { return filename; }
             [[nodiscard]] operator const std::string&() const { return filename; }
-            [[nodiscard]] operator std::filesystem::path() const
+            [[nodiscard]] operator fs::path() const { return fs::path(filename); }
+
+        private:
+            void removeMatching(const fs::path& dir, const std::string& stem)
             {
-                return std::filesystem::path(filename);
+                std::error_code ec;
+                for (const auto& entry : fs::directory_iterator(dir, ec))
+                {
+                    if (entry.path().stem() == stem)
+                    { // matches "test" in "test.txt", "test.cpp", etc.
+                        fs::remove(entry.path(), ec);
+                    }
+                }
             }
 
         private:
