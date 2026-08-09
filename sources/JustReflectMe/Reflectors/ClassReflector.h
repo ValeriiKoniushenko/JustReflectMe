@@ -46,6 +46,9 @@ namespace JRM
         {
             return "CLASS";
         }
+        [[nodiscard]] bool isKnownTypename(const std::string& fullPath) const override;
+        void postScanCrossLinksResolving() override;
+
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
     protected:
@@ -55,6 +58,7 @@ namespace JRM
             std::string name;
             std::string defaultValue;
             int flags = 0;
+            bool isKnownTypename = false;
         };
 
         struct TokenData : public BaseTokenData

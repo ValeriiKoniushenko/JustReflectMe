@@ -51,6 +51,31 @@ namespace JRM
         return out;
     }
 
+    bool EnumClassReflector::isKnownTypename(const std::string& fullPath) const
+    {
+        int counter = 0;
+        for (const auto& data : _data | std::views::values)
+        {
+            if (data.fullNamePath() == fullPath)
+            {
+                ++counter;
+            }
+        }
+
+        if (counter > 1)
+        {
+            std::cout
+                << "[JustReflectMe] EnumClassReflector | Warning: found more than one typename '"
+                << fullPath << std::endl;
+        }
+
+        return counter == 1;
+    }
+
+    void EnumClassReflector::postScanCrossLinksResolving()
+    {
+    }
+
     std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData) const
     {
         std::string result;

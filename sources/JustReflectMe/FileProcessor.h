@@ -90,6 +90,8 @@ namespace JRM
 
         [[nodiscard]] const std::string& getHeaderFilename() const;
         [[nodiscard]] std::string getSourceFilename() const;
+        [[nodiscard]] bool isKnownTypename(const std::string& fullPath) const;
+
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
 
     protected:
@@ -106,10 +108,10 @@ namespace JRM
          *  @throw std::system_error  on I/O failure
          *  @throw std::runtime_error on a bad path
          */
-        void WriteIfDifferent(const std::string& text, const std::filesystem::path& path);
+        void writeIfDifferent(const std::string& text, const std::filesystem::path& path);
 
     private:
-        void scanContent(FileData& data) const;
+        void processContent(FileData& data) const;
         [[nodiscard]] static PostProcessedFile getFileContent(const std::string& filename);
         [[nodiscard]] std::pair<std::string, std::string> generateFilenames(bool onlyFileNames
                                                                             = false) const;

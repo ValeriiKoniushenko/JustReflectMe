@@ -289,7 +289,7 @@ namespace JRM
         return out;
     }
 
-    void FileProcessor::WriteIfDifferent(const std::string& text, const std::filesystem::path& path)
+    void FileProcessor::writeIfDifferent(const std::string& text, const std::filesystem::path& path)
     {
         if (const auto parent = path.parent_path(); !parent.empty())
         {
@@ -316,11 +316,36 @@ namespace JRM
         WriteContent(path, text);
     }
 
-    void FileProcessor::scanContent(FileData& data) const
+    bool FileProcessor::isKnownTypename(const std::string& fullPath) const
     {
-        for (std::size_t i = 0; i < _reflectors.size(); ++i)
+        int counter = 0;
+        for (const auto& reflector : _reflectors)
         {
-            _reflectors[i]->scanContent(data);
+            if (reflector->isKnownTypename(fullPath))
+            {
+                ++counter;
+            }
+        }
+
+        if (counter > 1)
+        {
+            std::cout << "[JustReflectMe] FileProcessor | Warning: found more than one typename '"
+                      << fullPath << std::endl;
+        }
+
+        return counter == 1;
+    }
+
+    void FileProcessor::processContent(FileData& data) const
+    {
+        for (auto& reflector : _reflectors)
+        {
+            reflector->scanContent(data);
+        }
+
+        for (auto& reflector : _reflectors)
+        {
+            reflector->postScanCrossLinksResolving();
         }
     }
 
@@ -692,7 +717,7 @@ namespace JRM
             return false;
         }
 
-        WriteIfDifferent(result, generateFilenames().first);
+        writeIfDifferent(result, generateFilenames().first);
         return !errors;
     }
 
@@ -740,7 +765,7 @@ namespace JRM
             src += '\n';
         }
 
-        WriteIfDifferent(src, cppPath);
+        writeIfDifferent(src, cppPath);
         return !errors;
     }
 
@@ -930,6 +955,7 @@ namespace JRM
         {
             reflector->setHasImplTranslationUnit(!_pathImpl.empty());
             reflector->setConfig(config);
+            reflector->setParentFileProcessor(this);
         }
 
         FileData data;
@@ -940,7 +966,8 @@ namespace JRM
 
             onPreGenerateContent(data.getContent());
 
-            scanContent(data);
+            processContent(data);
+
             isOk = generateNewContent(data);
         }
         catch (const JRM::SyntaxException& e)

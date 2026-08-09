@@ -42,6 +42,38 @@ using namespace std::string_literals;
 namespace JRM
 {
 
+    bool ClassReflector::isKnownTypename(const std::string& fullPath) const
+    {
+        int counter = 0;
+        for (const auto& data : _data | std::views::values)
+        {
+            if (data.fullNamePath() == fullPath)
+            {
+                ++counter;
+            }
+        }
+
+        if (counter > 1)
+        {
+            std::cout << "[JustReflectMe] ClassReflector | Warning: found more than one typename '"
+                      << fullPath << std::endl;
+        }
+
+        return counter == 1;
+    }
+
+    void ClassReflector::postScanCrossLinksResolving()
+    {
+        // Fields resolution between all registered types
+        for (auto& token : _data | std::views::values)
+        {
+            for (auto& field : token.fields)
+            {
+                field.isKnownTypename = isKnownGloballyTypename(field.type.name);
+            }
+        }
+    }
+
     std::set<std::string> ClassReflector::getIncludes() const
     {
         auto out = BaseReflector::getIncludes();

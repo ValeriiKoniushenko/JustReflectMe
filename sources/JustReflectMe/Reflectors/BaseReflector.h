@@ -36,6 +36,7 @@
 
 namespace JRM
 {
+    class FileProcessor;
     struct Config;
     struct Scope;
     class FileData;
@@ -86,6 +87,9 @@ namespace JRM
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual constexpr std::string_view getTriggerKeyword() const noexcept = 0;
+        [[nodiscard]] virtual bool isKnownTypename(const std::string& fullPath) const = 0;
+        [[nodiscard]] bool isKnownGloballyTypename(const std::string& fullPath) const;
+
         [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
                                                      FileData& data) const;
@@ -95,6 +99,7 @@ namespace JRM
         void setHasImplTranslationUnit(bool val) noexcept;
         [[nodiscard]] bool hasImplTranslationUnit() const noexcept;
         [[nodiscard]] bool isSupportImplTranslationUnit() const noexcept;
+        void setParentFileProcessor(FileProcessor* parent) noexcept;
 
         [[nodiscard]] bool hasWarnings() const;
         [[nodiscard]] bool hasErrors() const;
@@ -103,6 +108,8 @@ namespace JRM
         [[nodiscard]] int numberOfSeverity(Severity severity) const;
 
         void setConfig(const Config& config) noexcept;
+
+        virtual void postScanCrossLinksResolving() = 0;
 
     protected:
         /**
@@ -195,7 +202,7 @@ namespace JRM
 
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data) const = 0;
         [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data) const { return {}; }
-        
+
         virtual void onScan(const FileData& content) = 0;
 
         [[nodiscard]] static std::size_t findTriggerKeyword(const std::string& content,
@@ -211,6 +218,7 @@ namespace JRM
         bool _isSupportImplTranslationUnit = false;
         bool _hasImplTranslationUnit = false;
         const Config* _config = nullptr;
+        FileProcessor* _parentFileProcessor = nullptr;
 
     private:
         std::unordered_map<Severity, int> _severityTraces;

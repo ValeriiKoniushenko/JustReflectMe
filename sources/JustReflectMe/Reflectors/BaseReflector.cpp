@@ -26,6 +26,7 @@
 
 #include "../Config.h"
 #include "../FileData.h"
+#include "../FileProcessor.h"
 #include "../Scopes.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
@@ -99,6 +100,11 @@ namespace JRM
         onScan(data);
     }
 
+    bool BaseReflector::isKnownGloballyTypename(const std::string& fullPath) const
+    {
+        return _parentFileProcessor->isKnownTypename(fullPath);
+    }
+
     std::string BaseReflector::generateHeaderFile(FileData& data) const
     {
         std::string result;
@@ -151,6 +157,11 @@ namespace JRM
     bool BaseReflector::isSupportImplTranslationUnit() const noexcept
     {
         return _isSupportImplTranslationUnit;
+    }
+
+    void BaseReflector::setParentFileProcessor(FileProcessor* parent) noexcept
+    {
+        _parentFileProcessor = parent;
     }
 
     bool BaseReflector::hasWarnings() const
