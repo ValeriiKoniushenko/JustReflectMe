@@ -26,6 +26,8 @@
 
 #include "JustReflectMe/Adapter.h"
 
+#define TEST_VALUE_FOR_ENUM_CLASS_TEST 123
+
 ENUM_CLASS();
 enum class Color
 {
@@ -34,19 +36,14 @@ enum class Color
     Blue
 };
 
-const char* ToString(Color color)
+namespace Foo
 {
-    switch (color)
+    ENUM_CLASS();
+    enum class TestEnum
     {
-        case Color::Red:
-            return "Red";
-        case Color::Green:
-            return "Green";
-        case Color::Blue:
-            return "Blue";
-        default:
-            return "Unknown";
-    }
-}
+        Hello = 1 << 5,
+        World = TEST_VALUE_FOR_ENUM_CLASS_TEST
+    };
+} // namespace Foo
 
 #include "Enums.generated.h" // added by the code generator. Better don't move it.

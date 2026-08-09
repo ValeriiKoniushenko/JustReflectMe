@@ -252,6 +252,7 @@ namespace JRM
     {
         std::string finalString = R"(
     @@FUNC_PREF_constexpr std::string_view Name() { return "@@ONLY_NAME_"; }
+    @@FUNC_PREF_constexpr std::string_view FullName() { return "@@NAME_"; }
     @@FUNC_PREF_constexpr std::size_t Size() { return @@COUNT_; }
     @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
 
@@ -276,6 +277,24 @@ namespace JRM
             return it->second;
         }
         return std::nullopt;
+    }
+
+    @@FUNC_PREF_std::string Serialize(::@@NAME_ value)
+    {
+        auto tmp = ToString(value);
+        return std::string(tmp.data(), tmp.size());
+    }
+
+    @@FUNC_PREF_void Serialize(std::string& out, ::@@NAME_ value)
+    {
+        out = ToString(value);
+    }
+
+    @@FUNC_PREF_void Deserialize(const std::string& input, ::@@NAME_& value)
+    {
+        auto tmp = FromString(input);
+        if (tmp.has_value())
+            value = tmp.value();
     }
 
     @@FUNC_PREF_constexpr const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
