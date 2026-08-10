@@ -704,7 +704,7 @@ namespace JRM
                 out += "\n\t\ts.write(\"" + field.name + "\", ";
                 if (field.isKnownTypename)
                 {
-                    out += "obj." + field.name;
+                    out += "R<" + field.type.name + ">::Serialize(obj." + field.name + ")";
                 }
                 else
                 {
@@ -742,7 +742,17 @@ namespace JRM
 
             for (const auto& field : data.fields)
             {
-                out += "\n\t\ts.read(\"" + field.name + "\", obj." + field.name;
+                out += "\n\t\ts.read(\"" + field.name + "\", ";
+
+                if (field.isKnownTypename)
+                {
+                    out += "obj." + field.name;
+                }
+                else
+                {
+                    out += "obj." + field.name;
+                }
+
                 if (!field.defaultValue.empty())
                 {
                     out += ", " + field.defaultValue;
