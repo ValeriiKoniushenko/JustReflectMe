@@ -90,7 +90,7 @@ namespace JRM
 
         [[nodiscard]] const std::string& getHeaderFilename() const;
         [[nodiscard]] std::string getSourceFilename() const;
-        [[nodiscard]] bool isKnownTypename(const std::string& fullPath) const;
+        [[nodiscard]] std::optional<TypeMeta> findKnownTypeMeta(const std::string& fullPath) const;
 
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
 

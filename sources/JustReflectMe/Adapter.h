@@ -361,3 +361,25 @@ public:
  * @endcode
  */
 #define FIELD(...) static_assert(true, "")
+
+namespace RInternal
+{
+
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream, class T, class... Args>
+    [[nodiscard]] T Deserialize(const RResourceStream<RImpl>& s, bool noSignals = false,
+                                Args&&... args)
+    {
+        T out(std::forward<Args>(args)...);
+        Deserialize<RImpl>(s, out, noSignals);
+        return out;
+    }
+
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream, class T>
+    [[nodiscard]] RResourceStream<RImpl> Serialize(const T& obj, bool noSignals = false)
+    {
+        RResourceStream<RImpl> s;
+        R<T>::template Serialize<RImpl>(obj, s, noSignals);
+        return s;
+    }
+
+} // namespace RInternal

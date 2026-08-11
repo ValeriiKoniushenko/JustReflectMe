@@ -23,6 +23,9 @@
  */
 
 #pragma once
+
+#include "Enums.h"
+
 #include <limits>
 #include <memory>
 #include <string>
@@ -32,17 +35,6 @@ namespace JRM
 {
     struct Scope
     {
-        enum class Type
-        {
-            Undefined,
-            File,
-            Namespace,
-            EnumClass,
-            Class,
-            Struct
-        };
-        static std::string ToString(Type type);
-
         enum Attr
         {
             Attr_None = 0,
@@ -61,7 +53,7 @@ namespace JRM
         const char* start = nullptr;
         const char* end = nullptr;
         Scope* parent = nullptr;
-        Type type = Type::Undefined;
+        ContextType type = ContextType::Undefined;
         int attribute = Attr_None;
     };
 

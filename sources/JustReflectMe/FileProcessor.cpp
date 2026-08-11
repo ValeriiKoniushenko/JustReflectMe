@@ -316,13 +316,15 @@ namespace JRM
         WriteContent(path, text);
     }
 
-    bool FileProcessor::isKnownTypename(const std::string& fullPath) const
+    std::optional<TypeMeta> FileProcessor::findKnownTypeMeta(const std::string& fullPath) const
     {
         int counter = 0;
+        std::optional<TypeMeta> out;
         for (const auto& reflector : _reflectors)
         {
-            if (reflector->isKnownTypename(fullPath))
+            if (const auto tmp = reflector->findKnownTypeMeta(fullPath))
             {
+                out = tmp;
                 ++counter;
             }
         }
@@ -333,7 +335,7 @@ namespace JRM
                       << fullPath << std::endl;
         }
 
-        return counter == 1;
+        return counter == 1 ? out : std::nullopt;
     }
 
     void FileProcessor::processContent(FileData& data) const

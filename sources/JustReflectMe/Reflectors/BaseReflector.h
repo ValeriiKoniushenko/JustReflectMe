@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "JustReflectMe/Enums.h"
+
 #include <concepts>
 #include <limits>
 #include <optional>
@@ -40,6 +42,11 @@ namespace JRM
     struct Config;
     struct Scope;
     class FileData;
+
+    struct TypeMeta
+    {
+        ContextType type = ContextType::Undefined;
+    };
 
     class SyntaxException : public std::runtime_error
     {
@@ -87,8 +94,10 @@ namespace JRM
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual constexpr std::string_view getTriggerKeyword() const noexcept = 0;
-        [[nodiscard]] virtual bool isKnownTypename(const std::string& fullPath) const = 0;
-        [[nodiscard]] bool isKnownGloballyTypename(const std::string& fullPath) const;
+        [[nodiscard]] virtual std::optional<TypeMeta> findKnownTypeMeta(
+            const std::string& fullPath) const = 0;
+        [[nodiscard]] std::optional<TypeMeta> findGloballyKnownTypeMeta(
+            const std::string& fullPath) const;
 
         [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,

@@ -49,7 +49,8 @@ namespace JRM
         {
             return "ENUM_CLASS";
         }
-        [[nodiscard]] bool isKnownTypename(const std::string& fullPath) const override;
+        [[nodiscard]] std::optional<TypeMeta> findKnownTypeMeta(
+            const std::string& fullPath) const override;
         void postScanCrossLinksResolving() override;
 
     protected:

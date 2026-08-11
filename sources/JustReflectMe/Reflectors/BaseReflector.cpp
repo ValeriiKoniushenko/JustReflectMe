@@ -100,9 +100,10 @@ namespace JRM
         onScan(data);
     }
 
-    bool BaseReflector::isKnownGloballyTypename(const std::string& fullPath) const
+    std::optional<TypeMeta> BaseReflector::findGloballyKnownTypeMeta(
+        const std::string& fullPath) const
     {
-        return _parentFileProcessor->isKnownTypename(fullPath);
+        return _parentFileProcessor->findKnownTypeMeta(fullPath);
     }
 
     std::string BaseReflector::generateHeaderFile(FileData& data) const
@@ -253,7 +254,7 @@ namespace JRM
     {
         std::string out;
 
-        out += Scope::ToString(scope->type);
+        out += JRM::ToString(scope->type);
         out += " ";
         out += PrettyPrintScope(scope);
 

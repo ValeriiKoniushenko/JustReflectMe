@@ -42,13 +42,17 @@ using namespace std::string_literals;
 namespace JRM
 {
 
-    bool ClassReflector::isKnownTypename(const std::string& fullPath) const
+    std::optional<TypeMeta> ClassReflector::findKnownTypeMeta(const std::string& fullPath) const
     {
+        std::optional<TypeMeta> out;
         int counter = 0;
         for (const auto& data : _data | std::views::values)
         {
             if (data.fullNamePath() == fullPath)
             {
+                out = TypeMeta{};
+                out->type = ContextType::Class;
+
                 ++counter;
             }
         }
@@ -59,7 +63,7 @@ namespace JRM
                       << fullPath << std::endl;
         }
 
-        return counter == 1;
+        return counter == 1 ? out : std::nullopt;
     }
 
     void ClassReflector::postScanCrossLinksResolving()
@@ -69,7 +73,7 @@ namespace JRM
         {
             for (auto& field : token.fields)
             {
-                field.isKnownTypename = isKnownGloballyTypename(field.type.name);
+                field.typeMeta = findGloballyKnownTypeMeta(field.type.name);
             }
         }
     }
@@ -312,8 +316,8 @@ namespace JRM
 
             const Scope* classScope = fileData.getScopes().getScopeAt(p);
             if (!classScope || !classScope->isValid()
-                || (classScope->type != Scope::Type::Class
-                    && classScope->type != Scope::Type::Struct)) [[unlikely]]
+                || (classScope->type != ContextType::Class
+                    && classScope->type != ContextType::Struct)) [[unlikely]]
             {
                 errorMessage(content.c_str(), p - content.c_str(), fileData.getPath(),
                              "Can't parse scopes of the class: '"s + data.name
@@ -654,16 +658,7 @@ namespace JRM
     }
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    [[nodiscard]] @@FUNC_PREF_RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)
-    {
-        RResourceStream<RImpl> s;
-        Serialize(obj, s, noSignals);
-        return s;
-    }
-
-
-    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
-    static void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
+    @@FUNC_PREF_void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
     {
         @@F_DESERIALIZE_
     })";
@@ -702,7 +697,7 @@ namespace JRM
             for (const auto& field : data.fields)
             {
                 out += "\n\t\ts.write(\"" + field.name + "\", ";
-                if (field.isKnownTypename)
+                if (field.typeMeta)
                 {
                     out += "R<" + field.type.name + ">::Serialize(obj." + field.name
                            + ").getData()";
@@ -743,26 +738,52 @@ namespace JRM
 
             for (const auto& field : data.fields)
             {
-                out += "\n\t\ts.read(\"" + field.name + "\", ";
-
-                if (field.isKnownTypename)
+                if (field.typeMeta && field.typeMeta->type == ContextType::EnumClass)
                 {
-                    out += "obj." + field.name;
+                    out += "\n\t\t{";
+
+                    out += "\n\t\t\tstd::string _readTmp;";
+
+                    out += "\n\t\t\ts.read(\"" + field.name + "\", _readTmp";
+                    if (!field.defaultValue.empty())
+                    {
+                        out += ", R<" + field.type.name + ">::ToString(" + field.defaultValue + ")";
+                    }
+                    out += ");";
+
+                    // obj._type = R<AnimalType>::FromString(_type).value_or(AnimalType::None);
+                    out += "\n\t\t\tobj." + field.name + " = R<" + field.type.name
+                           + ">::FromString(_readTmp)";
+                    if (!field.defaultValue.empty())
+                    {
+                        out += ".value_or(" + field.defaultValue + ")";
+                    }
+                    else
+                    {
+                        out += ".value()";
+                    }
+                    out += ";";
+
+                    out += "\n\t\t}";
                 }
                 else
                 {
-                    out += "obj." + field.name;
-                }
+                    out += "\n\t\ts.read(\"" + field.name + "\", ";
 
-                if (!field.defaultValue.empty())
-                {
-                    out += ", " + field.defaultValue;
+                    if (field.typeMeta)
+                    {
+                        out += std::format("obj.{}", field.name);
+                    }
+                    else
+                    {
+                        out += "obj." + field.name;
+                    }
+
+                    out += ", ";
+                    out += !field.defaultValue.empty() ? field.defaultValue
+                                                       : std::to_string(field.flags);
+                    out += ");";
                 }
-                else
-                {
-                    out += ", " + std::to_string(field.flags);
-                }
-                out += ");";
             }
 
             out += R"(

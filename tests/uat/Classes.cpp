@@ -153,7 +153,7 @@ TEST(Classes, Serialize_Animal)
     animal._name = "Bob";
     animal._type = AnimalType::Cat;
 
-    const auto json = R<Animal>::Serialize(animal).getData();
+    const auto json = RInternal::Serialize<RJsonResourceStream, Animal>(animal).getData();
 
     ASSERT_TRUE(json.is_object());
 

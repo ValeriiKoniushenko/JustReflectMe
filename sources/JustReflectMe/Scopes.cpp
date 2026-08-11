@@ -1,5 +1,3 @@
-
-
 /*
  * MIT License
  *
@@ -35,36 +33,6 @@
 
 namespace JRM
 {
-
-    std::string Scope::ToString(Type type)
-    {
-        if (type == Type::Undefined)
-        {
-            return "undefined";
-        }
-        if (type == Type::File)
-        {
-            return "file";
-        }
-        if (type == Type::Namespace)
-        {
-            return "namespace";
-        }
-        if (type == Type::EnumClass)
-        {
-            return "enum class";
-        }
-        if (type == Type::Class)
-        {
-            return "class";
-        }
-        if (type == Type::Struct)
-        {
-            return "struct";
-        }
-
-        return "undefined";
-    }
 
     bool Scope::isValid() const noexcept
     {
@@ -122,7 +90,7 @@ namespace JRM
             throw std::runtime_error("Can't scan scopes. The content is empty.");
         }
 
-        _root.type = Scope::Type::File;
+        _root.type = ContextType::File;
         _root.start = content.c_str();
         _root.end = content.c_str() + content.size() - 1;
 
@@ -175,7 +143,7 @@ namespace JRM
         }
 
         scope.identifierStart = nullptr;
-        scope.type = Scope::Type::Undefined;
+        scope.type = ContextType::Undefined;
 
         --p;
 
@@ -228,17 +196,17 @@ namespace JRM
 
         if (strncmp(p, namespaceKeyword.data(), namespaceKeyword.size()) == 0)
         {
-            scope.type = Scope::Type::Namespace;
+            scope.type = ContextType::Namespace;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + namespaceKeyword.size());
         }
         else if (strncmp(p, enumClassKeyword.data(), enumClassKeyword.size()) == 0)
         {
-            scope.type = Scope::Type::EnumClass;
+            scope.type = ContextType::EnumClass;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + enumClassKeyword.size());
         }
         else if (strncmp(p, classKeyword.data(), classKeyword.size()) == 0)
         {
-            scope.type = Scope::Type::Class;
+            scope.type = ContextType::Class;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + classKeyword.size());
             if (FileNavigator::StartWith(scope.identifierStart, "[["))
             {
@@ -254,7 +222,7 @@ namespace JRM
         }
         else if (strncmp(p, structKeyword.data(), structKeyword.size()) == 0)
         {
-            scope.type = Scope::Type::Struct;
+            scope.type = ContextType::Struct;
             scope.identifierStart = FileNavigator::GoToNotSpace(p + structKeyword.size());
         }
     }
@@ -270,7 +238,7 @@ namespace JRM
             return;
         }
 
-        if (scope.type == Scope::Type::Class || scope.type == Scope::Type::Struct)
+        if (scope.type == ContextType::Class || scope.type == ContextType::Struct)
         {
             // 1. Find or on the current line, or go to the line above
             // 2. Skip the first spaces on the line

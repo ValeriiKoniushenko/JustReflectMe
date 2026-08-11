@@ -51,13 +51,17 @@ namespace JRM
         return out;
     }
 
-    bool EnumClassReflector::isKnownTypename(const std::string& fullPath) const
+    std::optional<TypeMeta> EnumClassReflector::findKnownTypeMeta(const std::string& fullPath) const
     {
+        std::optional<TypeMeta> out;
         int counter = 0;
         for (const auto& data : _data | std::views::values)
         {
             if (data.fullNamePath() == fullPath)
             {
+                out = TypeMeta{};
+                out->type = ContextType::EnumClass;
+
                 ++counter;
             }
         }
@@ -69,7 +73,7 @@ namespace JRM
                 << fullPath << std::endl;
         }
 
-        return counter == 1;
+        return counter == 1 ? out : std::nullopt;
     }
 
     void EnumClassReflector::postScanCrossLinksResolving()
@@ -264,7 +268,7 @@ namespace JRM
         {
             return it->second;
         }
-        static const std::string_view empty{};
+        static constexpr std::string_view empty{};
         return empty;
     }
 
@@ -289,7 +293,7 @@ namespace JRM
     @@FUNC_PREF_RResourceStream<RImpl> Serialize(::@@NAME_ value)
     {
         RResourceStream<RImpl> s;
-        Serialize(value, s);
+        Serialize<RImpl>(value, s);
         return s;
     }
 
@@ -299,6 +303,14 @@ namespace JRM
         auto tmp = FromString(s.template get<std::string>());
         if (tmp.has_value())
             value = tmp.value();
+    }
+
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    [[nodiscard]] @@FUNC_PREF_::@@NAME_ Deserialize(const RResourceStream<RImpl>& s)
+    {
+        ::@@NAME_ out;
+        Deserialize<RImpl>(s, out);
+        return out;
     }
 
     @@FUNC_PREF_constexpr const std::array<::@@NAME_, @@COUNT_>& ToArrayC()
