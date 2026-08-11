@@ -704,7 +704,8 @@ namespace JRM
                 out += "\n\t\ts.write(\"" + field.name + "\", ";
                 if (field.isKnownTypename)
                 {
-                    out += "R<" + field.type.name + ">::Serialize(obj." + field.name + ")";
+                    out += "R<" + field.type.name + ">::Serialize(obj." + field.name
+                           + ").getData()";
                 }
                 else
                 {

@@ -279,20 +279,24 @@ namespace JRM
         return std::nullopt;
     }
 
-    @@FUNC_PREF_std::string Serialize(::@@NAME_ value)
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    @@FUNC_PREF_void Serialize(::@@NAME_ value, RResourceStream<RImpl>& s)
     {
-        auto tmp = ToString(value);
-        return std::string(tmp.data(), tmp.size());
+        s.getData() = ToString(value);
     }
 
-    @@FUNC_PREF_void Serialize(std::string& out, ::@@NAME_ value)
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    @@FUNC_PREF_RResourceStream<RImpl> Serialize(::@@NAME_ value)
     {
-        out = ToString(value);
+        RResourceStream<RImpl> s;
+        Serialize(value, s);
+        return s;
     }
 
-    @@FUNC_PREF_void Deserialize(const std::string& input, ::@@NAME_& value)
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    @@FUNC_PREF_void Deserialize(const RResourceStream<RImpl>& s, ::@@NAME_& value)
     {
-        auto tmp = FromString(input);
+        auto tmp = FromString(s.template get<std::string>());
         if (tmp.has_value())
             value = tmp.value();
     }
