@@ -374,12 +374,4 @@ namespace RInternal
         return out;
     }
 
-    template<IsResourceStreamImpl RImpl = RJsonResourceStream, class T>
-    [[nodiscard]] RResourceStream<RImpl> Serialize(const T& obj, bool noSignals = false)
-    {
-        RResourceStream<RImpl> s;
-        R<T>::template Serialize<RImpl>(obj, s, noSignals);
-        return s;
-    }
-
 } // namespace RInternal

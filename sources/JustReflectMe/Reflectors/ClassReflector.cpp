@@ -658,6 +658,15 @@ namespace JRM
     }
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
+    [[nodiscard]] RResourceStream<RImpl> Serialize(const @@NAME_& obj, bool noSignals = false)
+    {
+        RResourceStream<RImpl> s;
+        R<@@NAME_>::template Serialize<RImpl>(obj, s, noSignals);
+        return s;
+    }
+
+
+    template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     @@FUNC_PREF_void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
     {
         @@F_DESERIALIZE_
