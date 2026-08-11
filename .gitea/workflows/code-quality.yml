@@ -188,4 +188,4 @@ jobs:
         run: cmake --build build -j$(nproc)
 
       - name: Run tests
-        run: ./build/clang/debug/bin/JRMTests
+        run: ./build/bin/JRMTests
