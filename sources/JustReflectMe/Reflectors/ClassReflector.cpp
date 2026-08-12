@@ -674,7 +674,13 @@ namespace JRM
     template<class T>
     bool SetValueToField(@@NAME_& obj, const char* fieldName, T&& newValue)
     {
-        @@F_SET_VALUE_TO_FIELD_
+@@F_SET_VALUE_TO_FIELD_
+    }
+
+    template<class T>
+    bool GetValueFromField(@@NAME_& obj, const char* fieldName, T& out)
+    {
+@@F_GET_VALUE_TO_FIELD_
     })";
 
         // Class-specific find & replace
@@ -808,24 +814,42 @@ namespace JRM
             FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
         }
 
-        using namespace std::string_literals;
-
+        // =================== F_SET_VALUE_TO_FIELD_ =========================
         {
             std::string out;
             for (const auto& field : data.fields)
             {
                 // clang-format off
-                out += std::format(R"(
-        if (std::strcmp(fieldName, "{}") == 0)
+                out += std::format(R"(        if (std::strcmp(fieldName, "{}") == 0)
         {{
             obj.{} = std::forward<T>(newValue);
             return true;
-        }})", field.name, field.name);
+        }}
+)", field.name, field.name);
                 // clang-format on
             }
 
             out += "\n\t\treturn false;";
             FindAndReplaceAll(finalString, "@@F_SET_VALUE_TO_FIELD_", out);
+        }
+
+        // =================== F_GET_VALUE_TO_FIELD_ =========================
+        {
+            std::string out;
+            for (const auto& field : data.fields)
+            {
+                // clang-format off
+                out += std::format(R"(        if (std::strcmp(fieldName, "{}") == 0)
+        {{
+            out = obj.{};
+            return true;
+        }}
+)", field.name, field.name);
+                // clang-format on
+            }
+
+            out += "\n\t\treturn false;";
+            FindAndReplaceAll(finalString, "@@F_GET_VALUE_TO_FIELD_", out);
         }
 
         // Default find & replace
