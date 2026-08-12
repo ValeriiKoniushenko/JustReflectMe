@@ -669,6 +669,12 @@ namespace JRM
     @@FUNC_PREF_void Deserialize(const RResourceStream<RImpl>& s, @@NAME_& obj, bool noSignals = false)
     {
         @@F_DESERIALIZE_
+    }
+
+    template<class T>
+    bool SetValueToField(@@NAME_& obj, const char* fieldName, T&& newValue)
+    {
+        @@F_SET_VALUE_TO_FIELD_
     })";
 
         // Class-specific find & replace
@@ -800,14 +806,34 @@ namespace JRM
             _RTryCallPostDeserialize<@@NAME_>(obj, s.logs());
         })";
             FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
-
-            // Default find & replace
-            FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
-            FindAndReplaceAll(finalString, onlyNameMark, data.name);
-            FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
-            FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
-            FindAndReplaceAll(finalString, funcPrefMark, "static ");
         }
+
+        using namespace std::string_literals;
+
+        {
+            std::string out;
+            for (const auto& field : data.fields)
+            {
+                // clang-format off
+                out += std::format(R"(
+        if (std::strcmp(fieldName, "{}") == 0)
+        {{
+            obj.{} = std::forward<T>(newValue);
+            return true;
+        }})", field.name, field.name);
+                // clang-format on
+            }
+
+            out += "\n\t\treturn false;";
+            FindAndReplaceAll(finalString, "@@F_SET_VALUE_TO_FIELD_", out);
+        }
+
+        // Default find & replace
+        FindAndReplaceAll(finalString, nameMark, data.fullNamePath());
+        FindAndReplaceAll(finalString, onlyNameMark, data.name);
+        FindAndReplaceAll(finalString, parentsMark, data.parentSpace);
+        FindAndReplaceAll(finalString, namespaceMark, BaseReflector::namespaceName.data());
+        FindAndReplaceAll(finalString, funcPrefMark, "static ");
 
         return finalString;
     }
