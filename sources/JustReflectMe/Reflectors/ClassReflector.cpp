@@ -427,7 +427,8 @@ namespace JRM
         {
             const char* p = nullptr;
             int genFlags = 0;
-            int flags = RFlag_Default;
+            int flags = RPoint::Default;
+            std::vector<std::string> attribs;
         };
         std::vector<FieldMeta> fields;
 
@@ -457,6 +458,11 @@ namespace JRM
                 while (it < fieldClose)
                 {
                     int offset = 0;
+                    while (it < fieldClose && (*it == ',' || std::isspace(*it)))
+                    {
+                        ++it;
+                    }
+
                     const auto type = FileNavigator::ReadAsTypename(it, offset);
                     it += std::max(offset, 1);
 
@@ -464,17 +470,55 @@ namespace JRM
                     {
                         meta.genFlags |= static_cast<int>(RPoint::NoDefaultValue);
                     }
-                    else if (type.name == "RFlag_NonRequired")
+                    else if (type.name == "R::NonRequired")
                     {
-                        meta.flags |= RFlag_NonRequired;
+                        meta.flags |= RPoint::NonRequired;
                     }
-                    else if (type.name == "RFlag_Required")
+                    else if (type.name == "R::Required")
                     {
-                        meta.flags |= RFlag_Required;
+                        meta.flags |= RPoint::Required;
                     }
-                    else if (type.name == "RFlag_Default")
+                    else if (type.name == "R::Default")
                     {
-                        meta.flags |= RFlag_Default;
+                        meta.flags |= RPoint::Default;
+                    }
+                    else if (type.name == "R::Attr")
+                    {
+                        meta.flags |= RPoint::Attr;
+
+                        // expecting: = SomeValue
+                        it = SkipAllBlanks(it);
+                        if (it >= fieldClose || *it != '=')
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute.");
+                            continue;
+                        }
+
+                        ++it;
+
+                        if (it >= fieldClose || *it == '=')
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute. (2)");
+                            continue;
+                        }
+
+                        it = SkipAllBlanks(it);
+                        auto attr = ReadAsIdentifier(it);
+                        if (attr.empty())
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute value.");
+                            continue;
+                        }
+
+                        it += attr.size();
+
+                        meta.attribs.push_back(std::move(attr));
                     }
                     else
                     {
@@ -632,6 +676,8 @@ namespace JRM
                 }
             }
 
+            field.attributes = std::move(fieldMeta.attribs);
+
             data.fields.emplace_back(std::move(field));
         }
     }
@@ -686,8 +732,18 @@ namespace JRM
             out += "return {\n";
             for (const auto& field : data.fields)
             {
-                out += "\t\t\t{ \"" + field.type.getNameWithCV() + "\", \"" + field.name
-                       + "\" },\n";
+                std::string attribOut;
+                for (auto&& attrib : field.attributes)
+                {
+                    if (!attribOut.empty())
+                    {
+                        attribOut += ", ";
+                    }
+                    attribOut += "\"" + attrib + "\"";
+                }
+
+                out += "\t\t\t{ \"" + field.type.getNameWithCV() + "\", \"" + field.name + "\", {"
+                       + attribOut + "} },\n";
             }
             out += "\t\t};";
             FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);

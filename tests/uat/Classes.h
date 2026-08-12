@@ -67,7 +67,7 @@ public:
     }
 
 private:
-    FIELD();
+    FIELD(R::Attr = World, R::NoDefaultValue, R::Attr = XYZ);
     int _age = 0;
 
     FIELD();
@@ -315,10 +315,10 @@ class Animal
     R_FRIEND(Animal);
 
 public:
-    FIELD();
+    FIELD(R::Attr = Hello);
     AnimalType _type = AnimalType::None;
 
-    FIELD();
+    FIELD(R::Attr = World, R::NoDefaultValue, R::Attr = XYZ);
     std::string _name;
 
     FIELD();

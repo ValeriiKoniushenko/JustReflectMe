@@ -76,6 +76,10 @@ TEST(Classes, FieldMetadata_Human)
 
     ASSERT_EQ(fields.find("_age")->second.name, "_age");
     ASSERT_EQ(fields.find("_age")->second.type, "int");
+    ASSERT_EQ(fields.find("_age")->second.attribs.size(), 2);
+    ASSERT_EQ(fields.find("_age")->second.attribs[0], "World");
+    ASSERT_EQ(fields.find("_age")->second.attribs[1], "XYZ");
+
     ASSERT_EQ(fields.find("_name")->second.name, "_name");
     ASSERT_EQ(fields.find("_name")->second.type, "std::string");
 }

@@ -55,6 +55,7 @@ namespace JRM
     protected:
         struct FieldData
         {
+            std::vector<std::string> attributes;
             FileNavigator::Typename type;
             std::string name;
             std::string defaultValue;

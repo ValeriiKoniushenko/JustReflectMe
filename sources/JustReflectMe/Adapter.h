@@ -40,6 +40,7 @@ struct RClassField
 {
     std::string_view type;
     std::string_view name;
+    std::vector<std::string_view> attribs;
 };
 
 namespace RInternal
@@ -51,18 +52,27 @@ namespace RInternal
 template<class T = void>
 struct R
 {
-    constexpr static uint64_t Default = 1 << 0;
-    constexpr static uint64_t Min = 1 << 1;
+    // Setting the custom attribute that can be fetched by getting the class' field[s].
+    constexpr static uint64_t Attr = 1 << 1;
+
+    // The default value will be ignored by Reflection system. It's useful in the case of on-init
+    // actions.
     constexpr static uint64_t NoDefaultValue = 1 << 2;
+
+    // If de/serialization miss the marked field - it will put RStatus::NotFound
+    constexpr static uint64_t Required = 1 << 3;
+
+    // If de/serialization miss the marked field - anyway it will put RStatus::Ok
+    constexpr static uint64_t NonRequired = 1 << 4;
+
+    // Default behavior based on NonRequired logic.
+    constexpr static uint64_t Default = R::NonRequired;
 };
 
 using RPoint = R<void>;
 
 enum RFlag
 {
-    RFlag_Required = 1 << 1,
-    RFlag_NonRequired = 1 << 2,
-    RFlag_Default = RFlag_NonRequired, // Default behavior
 };
 
 enum class RStatus
@@ -166,7 +176,7 @@ concept DerivedFromAnyRBaseResourceStreamImpl
 template<class T>
 concept IsResourceStreamImpl = requires(T t, int v) {
     requires DerivedFromAnyRBaseResourceStreamImpl<T>;
-    { t.template read<int>("foo", v, RFlag_Default) } -> std::same_as<void>;
+    { t.template read<int>("foo", v, RPoint::Default) } -> std::same_as<void>;
     { t.template read<int>("foo", v, 100) } -> std::same_as<void>;
     { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
@@ -251,12 +261,12 @@ public:
 
     template<class T>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out, int flag = RFlag_Default) const
+    void read(std::string_view field, T& out, int flag = RPoint::Default) const
     {
         if (!_data.contains(field))
         {
             _logs.emplace_back(field.data(), RStatus::NotFound);
-            if (flag & RFlag_Required)
+            if (flag & RPoint::Required)
             {
                 throw std::runtime_error("Required field not found: '" + std::string(field) + "'");
             }
@@ -350,7 +360,7 @@ public:
  * };
  * @endcode
  *
- * The default behavior of 'FIELD' can be changed with enum class RFieldGen. Just put the necessary
+ * The default behavior of 'FIELD' can be changed with enum class RPoint. Just put the necessary
  * extra parameters using comma separator to change the current behavior.
  * @code
  * CLASS();
