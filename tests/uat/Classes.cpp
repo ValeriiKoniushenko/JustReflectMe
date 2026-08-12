@@ -183,3 +183,13 @@ TEST(Classes, Deserialize_Animal)
     EXPECT_EQ(animal._name, "Bob");
     EXPECT_EQ(animal._type, AnimalType::Cat);
 }
+
+TEST(Classes, GetField_Animal)
+{
+    Animal animal;
+
+    R<Animal>::GetField(animal, "_age",
+                        [](void* value, auto) { *reinterpret_cast<int*>(value) = 12; });
+
+    EXPECT_EQ(animal._age, 12);
+}

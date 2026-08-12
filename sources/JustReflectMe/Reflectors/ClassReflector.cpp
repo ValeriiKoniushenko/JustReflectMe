@@ -671,16 +671,10 @@ namespace JRM
         @@F_DESERIALIZE_
     }
 
-    template<class T>
-    bool SetValueToField(@@NAME_& obj, const char* fieldName, T&& newValue)
+    @@FUNC_PREF_bool GetField(@@NAME_& obj, const char* fieldName, const std::function<void(void*, const char*)>& onFound)
     {
-@@F_SET_VALUE_TO_FIELD_
-    }
-
-    template<class T>
-    bool GetValueFromField(@@NAME_& obj, const char* fieldName, T& out)
-    {
-@@F_GET_VALUE_TO_FIELD_
+        if (!onFound) return false;
+@@F_GET_FIELD_
     })";
 
         // Class-specific find & replace
@@ -814,42 +808,31 @@ namespace JRM
             FindAndReplaceAll(finalString, "@@F_DESERIALIZE_", out);
         }
 
-        // =================== F_SET_VALUE_TO_FIELD_ =========================
+        // =================== F_GET_FIELD_ =========================
         {
             std::string out;
             for (const auto& field : data.fields)
             {
+                std::string constCastStr;
+                if (field.type.isConst)
+                {
+                    constCastStr = "const_cast<";
+                    constCastStr += field.type.name;
+                    constCastStr += "*>";
+                }
+
                 // clang-format off
                 out += std::format(R"(        if (std::strcmp(fieldName, "{}") == 0)
         {{
-            obj.{} = std::forward<T>(newValue);
+            onFound({}(&obj.{}), "{}");
             return true;
         }}
-)", field.name, field.name);
+)",  field.name, constCastStr, field.name, field.type.getNameWithCV());
                 // clang-format on
             }
 
             out += "\n\t\treturn false;";
-            FindAndReplaceAll(finalString, "@@F_SET_VALUE_TO_FIELD_", out);
-        }
-
-        // =================== F_GET_VALUE_TO_FIELD_ =========================
-        {
-            std::string out;
-            for (const auto& field : data.fields)
-            {
-                // clang-format off
-                out += std::format(R"(        if (std::strcmp(fieldName, "{}") == 0)
-        {{
-            out = obj.{};
-            return true;
-        }}
-)", field.name, field.name);
-                // clang-format on
-            }
-
-            out += "\n\t\treturn false;";
-            FindAndReplaceAll(finalString, "@@F_GET_VALUE_TO_FIELD_", out);
+            FindAndReplaceAll(finalString, "@@F_GET_FIELD_", out);
         }
 
         // Default find & replace
