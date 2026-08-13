@@ -215,7 +215,8 @@ public:
     }
 
     template<class T, class T2>
-    void read(std::string_view fieldName, T& value, T2&& defaultValue) const
+    void read(std::string_view fieldName, T& value, T2&& defaultValue,
+              int flag = RPoint::Default) const
     {
         impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
     }
@@ -259,34 +260,24 @@ public:
     RJsonResourceStream() = default;
     ~RJsonResourceStream() override = default;
 
-    template<class T>
-        requires(JsonReadable<T>)
-    void read(std::string_view field, T& out, int flag = RPoint::Default) const
-    {
-        if (!_data.contains(field))
-        {
-            _logs.emplace_back(field.data(), RStatus::NotFound);
-            if (flag & RPoint::Required)
-            {
-                throw std::runtime_error("Required field not found: '" + std::string(field) + "'");
-            }
-            return;
-        }
-        out = _data.at(field).get<T>();
-    }
-
     template<class T, class T2>
         requires(JsonReadable<T>)
-    void read(std::string_view field, T& out, T2&& defaultValue) const
+    void read(std::string_view field, T& out, T2&& defaultValue, int flag = RPoint::Default) const
     {
+        using namespace std::string_literals;
+
         if (!_data.contains(field))
         {
             _logs.emplace_back(field.data(), RStatus::NotFound);
             out = defaultValue;
+            if (flag & RPoint::Required)
+            {
+                throw std::runtime_error("Required field not found: '"s + field.data() + "'");
+            }
         }
         else
         {
-            read(field, out);
+            out = _data.at(field).get<T>();
         }
     }
 

@@ -851,7 +851,9 @@ namespace JRM
 
                     out += ", ";
                     out += !field.defaultValue.empty() ? field.defaultValue
-                                                       : std::to_string(field.flags);
+                                                       : field.type.name + "{}";
+                    out += ", ";
+                    out += std::to_string(field.flags);
                     out += ");";
                 }
             }
