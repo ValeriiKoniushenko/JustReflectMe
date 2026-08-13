@@ -8,3 +8,8 @@ scripts/__pycache__
 *.output
 
 tests/**/*.generated*
+
+/gl-code-*
+
+__pycache__/
+*.pyc
