@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "NlohmannJson.h"
+#include "nlohmann/json.hpp"
 
 #include <string>
 #include <string_view>

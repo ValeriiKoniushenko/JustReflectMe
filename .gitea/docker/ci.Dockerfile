@@ -27,7 +27,7 @@ ENV PATH="/usr/lib/ccache/bin:$PATH"
 
 RUN mkdir -p /cache/ccache && cat > /etc/ccache.conf <<'EOF'
 hash_dir = false
-sloppiness = include_file_mtime,include_file_ctime,time_macros,locale
+sloppiness = include_file_mtime,include_file_ctime,time_macros,locale,pch_defines
 depend_mode = true
 compression = true
 max_size = 20G

@@ -7,7 +7,6 @@ if (NOT JRM_DISABLE_TESTS)
     add_executable(JRMTests ${SOURCES} ${HEADERS})
     target_link_libraries(JRMTests PUBLIC gtest gmock JustReflectMe::Core)
     target_compile_features(JRMTests PUBLIC ${CXX_STANDARD})
-
     add_custom_target(JRMTests_CodeReflector
         COMMAND jrm ${CMAKE_CURRENT_SOURCE_DIR}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
