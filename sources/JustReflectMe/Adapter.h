@@ -269,7 +269,7 @@ public:
         if (!_data.contains(field))
         {
             _logs.emplace_back(field.data(), RStatus::NotFound);
-            out = defaultValue;
+            out = std::forward<T2>(defaultValue);
             if (flag & RPoint::Required)
             {
                 throw std::runtime_error("Required field not found: '"s + field.data() + "'");
