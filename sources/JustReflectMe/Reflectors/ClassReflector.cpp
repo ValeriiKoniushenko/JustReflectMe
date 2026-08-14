@@ -862,8 +862,6 @@ namespace JRM
                     out += ", ";
                     out += std::to_string(field.flags);
                     out += ");";
-
-                    int* sdf = NULL;
                 }
             }
 
