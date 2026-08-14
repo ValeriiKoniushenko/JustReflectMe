@@ -850,8 +850,15 @@ namespace JRM
                     }
 
                     out += ", ";
-                    out += !field.defaultValue.empty() ? field.defaultValue
-                                                       : field.type.name + "{}";
+                    if (!field.defaultValue.empty())
+                    {
+                        out += field.defaultValue;
+                    }
+                    else
+                    {
+                        out += "decltype(obj." + field.name + "){}";
+                    }
+
                     out += ", ";
                     out += std::to_string(field.flags);
                     out += ");";
