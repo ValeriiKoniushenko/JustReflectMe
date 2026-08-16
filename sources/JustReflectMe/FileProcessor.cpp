@@ -630,6 +630,8 @@ namespace JRM
         std::string headerPath = _path.substr(0, extIndex);
         headerPath += newFileExtension;
         std::string sourcePath;
+
+#if 0 // uncomment it when reflection will be not only inside .h files
         if (!_pathImpl.empty())
         {
             sourcePath = headerPath;
@@ -640,6 +642,11 @@ namespace JRM
         {
             headerPath += ".inl";
         }
+#else
+        sourcePath = headerPath;
+        headerPath += ".h";
+        sourcePath += ".cpp.inl";
+#endif
 
         if (onlyFileNames)
         {
