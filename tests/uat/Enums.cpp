@@ -122,25 +122,32 @@ TEST(Enums, FromString)
 
 TEST(Enums, Serialize)
 {
-    RResourceStream<RJsonResourceStream> s;
+    {
+        RResourceStream<RJsonResourceStream> s;
+        R<Color>::Serialize(Color::Blue, s);
+        ASSERT_EQ("Blue", s.getData().get<std::string>());
+    }
 
-    R<Color>::Serialize(Color::Blue, s);
-    ASSERT_EQ("Blue", s.getData().get<std::string>());
-
-    R<Foo::TestEnum>::Serialize(Foo::TestEnum::Hello, s);
-    ASSERT_EQ("Hello", s.getData().get<std::string>());
+    {
+        RResourceStream<RJsonResourceStream> s;
+        R<Foo::TestEnum>::Serialize(Foo::TestEnum::Hello, s);
+        ASSERT_EQ("Hello", s.getData().get<std::string>());
+    }
 }
 
 TEST(Enums, Deserialize)
 {
-    nlohmann::json json = { "Blue" };
-    RResourceStream<RJsonResourceStream> s;
+    {
+        RResourceStream<RJsonResourceStream> s(nlohmann::json::string_t{ "Blue" });
+        Color out;
+        R<Color>::Deserialize(s, out);
+        ASSERT_EQ(Color::Blue, out);
+    }
 
-    // Color out;
-    // R<Color>::Deserialize("Red", out);
-    // ASSERT_EQ(Color::Red, out);
-    //
-    // Foo::TestEnum out2;
-    // R<Foo::TestEnum>::Deserialize("Hello", out2);
-    // ASSERT_EQ(Foo::TestEnum::Hello, out2);
+    {
+        RResourceStream<RJsonResourceStream> s(nlohmann::json::string_t{ "Hello" });
+        Foo::TestEnum out2;
+        R<Foo::TestEnum>::Deserialize(s, out2);
+        ASSERT_EQ(Foo::TestEnum::Hello, out2);
+    }
 }

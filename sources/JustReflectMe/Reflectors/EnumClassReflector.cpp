@@ -300,7 +300,7 @@ namespace JRM
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
     @@FUNC_PREF_void Deserialize(const RResourceStream<RImpl>& s, ::@@NAME_& value)
     {
-        auto tmp = FromString(s.template get<std::string>());
+        auto tmp = FromString(s.getData().template get<std::string>());
         if (tmp.has_value())
             value = tmp.value();
     }

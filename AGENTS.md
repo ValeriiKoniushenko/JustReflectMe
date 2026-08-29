@@ -46,6 +46,11 @@ JustReflectMe (jrm) — a code reflector library for C++ sources.
 - In general, it was planned to generate the `.h` & `.cpp` files. But it was decided to generate only the `.h` files, in
   the format of `.inl` files. It means that the generated content must be included inside the target `.h` file by means
   of the `#include` directive at the end of the target `.h` file.
+- At the start of development, the possible Serialization/Deserialization format was designed to be format-agnostic. But
+  by the development it's stuck to the JSON format. So, now for serialization/deserialization we must use
+  `class RJsonResourceStream` as a format adapter. The final thing that executes data pushing/pulling from the object
+  looks like this: `RResourceStream<RJsonResourceStream>`. You can find the smallets example of it in the unit tests:
+  `TEST(Enums, Serialize)`
 
 ## Build
 
