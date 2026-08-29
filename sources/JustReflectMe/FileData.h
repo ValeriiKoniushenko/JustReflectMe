@@ -59,6 +59,7 @@ namespace JRM
     protected:
         PostProcessedFile _content;
         Scopes _scopes;
+        bool _isDirtyScopes = true;
         std::string _path;
     };
 

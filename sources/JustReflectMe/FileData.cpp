@@ -32,6 +32,7 @@ namespace JRM
     void FileData::setContent(PostProcessedFile&& content)
     {
         _content = std::move(content);
+        _isDirtyScopes = true;
     }
 
     const std::string& FileData::getContent() const noexcept
@@ -47,6 +48,7 @@ namespace JRM
     void FileData::setScope(Scopes&& scope)
     {
         _scopes = std::move(scope);
+        _isDirtyScopes = true;
     }
 
     const std::string& FileData::getPath() const noexcept
@@ -61,7 +63,11 @@ namespace JRM
 
     void FileData::scanScopes()
     {
-        _scopes.scan(_content.content);
+        if (_isDirtyScopes)
+        {
+            _scopes.scan(_content.content);
+            _isDirtyScopes = false;
+        }
     }
 
     std::string FileData::getRealStringFromPlaceholderPos(std::size_t pos) const
