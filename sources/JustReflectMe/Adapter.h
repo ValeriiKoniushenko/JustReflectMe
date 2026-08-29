@@ -30,11 +30,9 @@
 #include <string_view>
 #include <vector>
 
-//
-//  ┏┳┓╻┏━┓┏━╸
-//  ┃┃┃┃┗━┓┃
-//  ╹ ╹╹┗━┛┗━╸
-//
+// ==================================================
+//                     MISC
+// ==================================================
 
 struct RClassField
 {
@@ -42,12 +40,6 @@ struct RClassField
     std::string_view name;
     std::vector<std::string_view> attribs;
 };
-
-namespace RInternal
-{
-    [[nodiscard]] std::unordered_map<std::string, RClassField> GetClassFieldsAsMap(
-        const std::vector<RClassField>& fields);
-} // namespace RInternal
 
 template<class T = void>
 struct R
@@ -70,10 +62,6 @@ struct R
 };
 
 using RPoint = R<void>;
-
-enum RFlag
-{
-};
 
 enum class RStatus
 {
@@ -143,12 +131,9 @@ void _RTryCallPostDeserialize(T& obj, const RLogsCollector& logs)
     }
 }
 
-//
-//  ┏━┓┏┓ ┏━┓┏━┓┏━╸┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓╻┏┳┓┏━┓╻
-//  ┣┳┛┣┻┓┣━┫┗━┓┣╸ ┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃┃┃┃┃┣━┛┃
-//  ╹┗╸┗━┛╹ ╹┗━┛┗━╸╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹╹╹ ╹╹  ┗━╸
-//
-
+// ==================================================
+//              RBaseResourceStreamImpl
+// ==================================================
 template<class DataT>
 class RBaseResourceStreamImpl
 {
@@ -181,12 +166,9 @@ concept IsResourceStreamImpl = requires(T t, int v) {
     { t.template write<int>("foo", 12345) } -> std::same_as<void>;
 };
 
-//
-//  ┏━┓┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓
-//  ┣┳┛┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃
-//  ╹┗╸╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹
-//
-
+// ==============================================
+//              RResourceStream
+// ==============================================
 template<IsResourceStreamImpl RImpl>
 struct RResourceStream
 {
@@ -231,20 +213,9 @@ protected:
     RImpl impl;
 };
 
-// ------------------------------------------------------------------- //
-//                                                                     //
-//  ╺┳┓┏━╸┏━╸┏━┓╻ ╻╻  ╺┳╸   ╻┏┳┓┏━┓╻  ┏━╸┏┳┓┏━╸┏┓╻╺┳╸┏━┓╺┳╸╻┏━┓┏┓╻┏━┓  //
-//   ┃┃┣╸ ┣╸ ┣━┫┃ ┃┃   ┃    ┃┃┃┃┣━┛┃  ┣╸ ┃┃┃┣╸ ┃┗┫ ┃ ┣━┫ ┃ ┃┃ ┃┃┗┫┗━┓  //
-//  ╺┻┛┗━╸╹  ╹ ╹┗━┛┗━╸ ╹    ╹╹ ╹╹  ┗━╸┗━╸╹ ╹┗━╸╹ ╹ ╹ ╹ ╹ ╹ ╹┗━┛╹ ╹┗━┛  //
-//                                                                     //
-// ------------------------------------------------------------------- //
-
-//
-//  ┏━┓ ┏┓┏━┓┏━┓┏┓╻┏━┓┏━╸┏━┓┏━┓╻ ╻┏━┓┏━╸┏━╸┏━┓╺┳╸┏━┓┏━╸┏━┓┏┳┓
-//  ┣┳┛  ┃┗━┓┃ ┃┃┗┫┣┳┛┣╸ ┗━┓┃ ┃┃ ┃┣┳┛┃  ┣╸ ┗━┓ ┃ ┣┳┛┣╸ ┣━┫┃┃┃
-//  ╹┗╸┗━┛┗━┛┗━┛╹ ╹╹┗╸┗━╸┗━┛┗━┛┗━┛╹┗╸┗━╸┗━╸┗━┛ ╹ ╹┗╸┗━╸╹ ╹╹ ╹
-//
-
+// ================================================
+//              RJsonResourceStream
+// ================================================
 class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
 {
 private:
@@ -299,11 +270,9 @@ public:
     }
 };
 
-//
-//  ┏┳┓┏━┓┏━┓╻┏ ┏━┓
-//  ┃┃┃┣━┫┣┳┛┣┻┓┗━┓
-//  ╹ ╹╹ ╹╹┗╸╹ ╹┗━┛
-//
+// ==================================================
+//                 CODE MARKS
+// ==================================================
 
 /**
  * Use this macro for registration of your T.
@@ -374,5 +343,8 @@ namespace RInternal
         Deserialize<RImpl>(s, out, noSignals);
         return out;
     }
+
+    [[nodiscard]] std::unordered_map<std::string, RClassField> GetClassFieldsAsMap(
+        const std::vector<RClassField>& fields);
 
 } // namespace RInternal

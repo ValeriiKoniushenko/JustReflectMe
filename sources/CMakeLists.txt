@@ -7,6 +7,7 @@ target_compile_features(_JustReflectMe_Adapter PUBLIC ${CXX_STANDARD})
 target_link_libraries(_JustReflectMe_Adapter PUBLIC NlohmannJson)
 target_include_directories(_JustReflectMe_Adapter PUBLIC .)
 
+
 file(GLOB_RECURSE CPP_SOURCES "JustReflectMe/*.cpp")
 list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/Adapter\\.cpp$")
 
@@ -31,6 +32,7 @@ if (NOT JRM_DISABLE_TESTS)
 endif ()
 
 JRFCoreAddCompileOptionsTo(_JustReflectMe_Core)
+
 
 add_executable(jrm main.cpp)
 target_link_directories(jrm PUBLIC .)
