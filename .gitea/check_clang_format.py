@@ -23,11 +23,11 @@ from utils import ChangedFile, get_changed_files, get_target_branch
 
 
 def publish_inline_review(
-    client: GiteaClient,
-    issues: list[dict],
-    *,
-    dry_run: bool,
-    verbose: bool,
+        client: GiteaClient,
+        issues: list[dict],
+        *,
+        dry_run: bool,
+        verbose: bool,
 ) -> None:
     marker = review_marker("clang-format")
     pr_number = GiteaClient.resolve_pr_number()
