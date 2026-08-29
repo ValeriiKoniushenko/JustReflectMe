@@ -200,7 +200,8 @@ public:
     void read(std::string_view fieldName, T& value, T2&& defaultValue,
               int flag = RPoint::Default) const
     {
-        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue));
+        impl.template read<T>(fieldName, value, std::forward<decltype(defaultValue)>(defaultValue),
+                              flag);
     }
 
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }

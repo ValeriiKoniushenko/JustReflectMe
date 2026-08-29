@@ -77,5 +77,4 @@ JustReflectMe (jrm) — a code reflector library for C++ sources.
 
 - After implementing a change, verify it before considering it done:
     1. **Build** — use the `build` skill to compile and confirm there are no build errors/warnings introduced.
-    2. **Run** — use the `verification-run` skill to run the result and confirm it behaves as expected.
 - Don't treat a change as complete on "looks correct" alone — actually build and run it via these skills first.

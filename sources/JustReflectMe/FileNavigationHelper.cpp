@@ -36,11 +36,11 @@ namespace FileNavigator
             return nullptr;
         }
 
-        while (p > begin && !IsNewLine(*p))
+        while (p > begin && !IsNewLine(*(p - 1)))
         {
             --p;
         }
-        return ++p;
+        return p;
     }
 
     const char* GoToPrevLine(const char* p, const char* begin)
@@ -51,11 +51,12 @@ namespace FileNavigator
         }
 
         p = GoToLineStart(p, begin);
-        if (p - 1 > begin)
+        if (p <= begin)
         {
-            p = GoToLineStart(p - 1, begin);
+            return begin;
         }
-        return ++p;
+
+        return GoToLineStart(p - 1, begin);
     }
 
     const char* GoToNextLine(const char* p)
@@ -100,13 +101,8 @@ namespace FileNavigator
     const char* FindOnThisLine(const char* source, const char* keyword)
     {
         const auto* endLine = strpbrk(source, "\n\x1D"); // \x1D is newLinePlaceholder
-        if (!endLine)
-        {
-            return nullptr;
-        }
-
         const auto* out = strstr(source, keyword);
-        return out && out < endLine ? out : nullptr;
+        return out && (!endLine || out < endLine) ? out : nullptr;
     }
 
     const char* FindWordOnThisLine(std::string_view content, std::string_view word)
@@ -295,17 +291,19 @@ namespace FileNavigator
         std::size_t count = 0;
 
         std::size_t iter = 0;
+        std::size_t lineStart = 0;
         while (iter < i && source[iter] != '\0')
         {
             if (IsNewLine(source[iter]))
             {
                 ++count;
+                lineStart = iter + 1;
             }
 
             ++iter;
         }
 
-        return { count + 1, i - iter + 1 };
+        return { count + 1, i - lineStart + 1 };
     }
 
     const char* FindScopeEnd(const char* source)
@@ -395,12 +393,14 @@ namespace FileNavigator
 
     bool LeadToNewLine(const char* content) noexcept
     {
-        while (std::isspace(*content))
+        while (content && std::isspace(*content))
         {
             if (*content == '\n')
             {
                 return true;
             }
+
+            ++content;
         }
 
         return false;

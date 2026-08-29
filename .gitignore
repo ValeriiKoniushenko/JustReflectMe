@@ -12,3 +12,4 @@ tests/**/*.generated*
 /gl-code-*
 
 *.pyc
+vg.log
