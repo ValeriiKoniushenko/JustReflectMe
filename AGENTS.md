@@ -50,7 +50,8 @@ JustReflectMe (jrm) — a code reflector library for C++ sources.
   by the development it's stuck to the JSON format. So, now for serialization/deserialization we must use
   `class RJsonResourceStream` as a format adapter. The final thing that executes data pushing/pulling from the object
   looks like this: `RResourceStream<RJsonResourceStream>`. You can find the smallets example of it in the unit tests:
-  `TEST(Enums, Serialize)`
+  `TEST(Enums, Serialize)`, `TEST(Enums, Deserialize)`; for classes: `TEST(Classes, Serialize_Animal)`,
+  `TEST(Classes, Deserialize_Animal)`.
 
 ## Build
 
