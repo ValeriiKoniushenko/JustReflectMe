@@ -2,14 +2,13 @@
 .vscode
 .idea
 cmake-build-*/
-build
+/build
 out
-scripts/__pycache__
+__pycache__
 *.output
 
 tests/**/*.generated*
 
 /gl-code-*
 
-__pycache__/
 *.pyc
