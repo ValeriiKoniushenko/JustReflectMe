@@ -5,24 +5,55 @@ import subprocess
 import re
 from dataclasses import dataclass
 
-# Paths are relative to the repository root.
-EXCLUDED_PATHS = (
-    "dependencies/",
-    "docs/",
-    "cmake/",
-    "data/",
-)
 HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
+CPP_HEADER_SUFFIXES = {".h", ".hpp"}
+CPP_SOURCE_SUFFIXES = (".cpp", ".cc")
 
 @dataclass
 class ChangedFile:
     path: str
     ranges: list[tuple[int, int]]
 
-def is_excluded(path: str) -> bool:
+def normalize_repo_path(path: str) -> str:
+    """Return a stable repository-relative path when possible."""
+    absolute = os.path.abspath(path)
+    repo_root = os.path.abspath(os.getcwd())
+    try:
+        if os.path.commonpath((repo_root, absolute)) == repo_root:
+            return os.path.relpath(absolute, repo_root).replace("\\", "/")
+    except ValueError:
+        pass
+    return os.path.normpath(path).replace("\\", "/")
+
+
+def is_cpp_header(path: str) -> bool:
+    return os.path.splitext(path)[1].lower() in CPP_HEADER_SUFFIXES
+
+
+def get_cpp_analysis_targets(changed: list[ChangedFile]) -> list[str]:
+    """Choose translation units, using a sibling source for changed headers."""
+    targets: list[str] = []
+    seen: set[str] = set()
+    for changed_file in changed:
+        target = changed_file.path
+        if is_cpp_header(target):
+            root, _ = os.path.splitext(target)
+            for suffix in CPP_SOURCE_SUFFIXES:
+                sibling = root + suffix
+                if os.path.isfile(sibling):
+                    target = sibling
+                    break
+        target = normalize_repo_path(target)
+        if target not in seen:
+            seen.add(target)
+            targets.append(target)
+    return targets
+
+
+def is_excluded(path: str, excluded_paths: tuple[str, ...]) -> bool:
     """Returns True if the file should be skipped."""
     normalized = path.replace("\\", "/")
-    return any(normalized.startswith(prefix) for prefix in EXCLUDED_PATHS)
+    return any(normalized.startswith(prefix) for prefix in excluded_paths)
 
 
 def get_target_branch(cli_base: str | None) -> str:
@@ -52,7 +83,13 @@ def is_changed_line(file: ChangedFile, line: int) -> bool:
             return True
     return False
 
-def get_changed_files(base_ref: str, explicit_files: list[str] | None, verbose: bool) -> list[ChangedFile]:
+def get_changed_files(
+        base_ref: str,
+        explicit_files: list[str] | None,
+        verbose: bool,
+        *,
+        excluded_paths: tuple[str, ...] = (),
+) -> list[ChangedFile]:
     if explicit_files:
         return [ChangedFile(f, []) for f in explicit_files]
 
@@ -96,7 +133,7 @@ def get_changed_files(base_ref: str, explicit_files: list[str] | None, verbose: 
         if line.startswith("+++ b/"):
             path = line[6:]
 
-            if is_excluded(path):
+            if is_excluded(path, excluded_paths):
                 current = None
                 continue
 
@@ -126,4 +163,3 @@ def get_changed_files(base_ref: str, explicit_files: list[str] | None, verbose: 
             print(f"  {f.path}: {f.ranges}")
 
     return files
-
