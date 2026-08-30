@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish a replaceable PR review with code-coverage totals and report link."""
+"""Publish a replaceable PR review with coverage totals and source links."""
 
 from __future__ import annotations
 
@@ -40,11 +40,53 @@ def metric(summary: dict[str, object], name: str) -> str:
     return f"{rendered_percent} ({covered}/{total})"
 
 
-def review_body(summary: dict[str, object], report_url: str | None) -> str:
-    report = (
-        f"[Open the interactive coverage report]({report_url})"
-        if report_url
-        else "Interactive report upload was unavailable."
+def file_coverage(summary: dict[str, object], source_base_url: str) -> list[str]:
+    files = summary.get("files")
+    if not isinstance(files, list):
+        return []
+
+    rows = []
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        path = item.get("filename")
+        if not isinstance(path, str):
+            continue
+        percent = item.get("line_percent")
+        rendered_percent = "n/a" if percent is None else f"{float(percent):.1f}%"
+        rows.append((path, rendered_percent, int(item.get("line_covered", 0)), int(item.get("line_total", 0))))
+
+    rows.sort(key=lambda row: row[0])
+    return [
+        f"| [{path}]({source_base_url}/{path}) | {percent} ({covered}/{total}) |"
+        for path, percent, covered, total in rows
+    ]
+
+
+def review_body(
+        summary: dict[str, object],
+        summary_url: str | None,
+        source_base_url: str,
+) -> str:
+    artifact = (
+        f"[Download the machine-readable coverage summary]({summary_url})"
+        if summary_url
+        else "Coverage-summary attachment upload was unavailable."
+    )
+    file_rows = file_coverage(summary, source_base_url)
+    details = (
+        "\n".join((
+            "<details>",
+            "<summary>Per-file line coverage</summary>",
+            "",
+            "| File | Coverage |",
+            "| --- | ---: |",
+            *file_rows,
+            "",
+            "</details>",
+        ))
+        if file_rows
+        else ""
     )
     return "\n".join((
         "## Code coverage",
@@ -55,13 +97,15 @@ def review_body(summary: dict[str, object], report_url: str | None) -> str:
         f"| Functions | {metric(summary, 'function')} |",
         f"| Branches | {metric(summary, 'branch')} |",
         "",
-        report,
+        artifact,
+        "",
+        details,
         "",
         "This report was generated from the pull request's latest CI commit.",
     ))
 
 
-def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
+def publish(summary: dict[str, object], summary_path: Path, *, dry_run: bool) -> None:
     client = GiteaClient.from_env()
     if client is None:
         print("[gitea] client not configured - skipping review publication")
@@ -87,20 +131,21 @@ def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
         client.delete_issue_attachments(pr_number, name_prefix=ATTACHMENT_PREFIX)
         attachment = client.upload_issue_attachment(
             pr_number,
-            str(report),
-            name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.html",
+            str(summary_path),
+            name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.json",
         )
-        report_url = attachment["browser_download_url"]
+        summary_url = attachment["browser_download_url"]
+        source_base_url = f"{client.server}/{client.owner}/{client.repo}/src/commit/{sha}"
         client.create_review(
             pr_number,
-            body=review_body(summary, report_url),
+            body=review_body(summary, summary_url, source_base_url),
             event="COMMENT",
             commit_id=sha,
             marker=marker,
         )
         if sha:
             client.publish_check(
-                sha, "success", CHECK_CONTEXT, description, target_url=report_url
+                sha, "success", CHECK_CONTEXT, description, target_url=summary_url
             )
     except Exception as error:
         if sha:
@@ -114,19 +159,15 @@ def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--summary", type=Path, required=True, help="gcovr JSON summary")
-    parser.add_argument("--report", type=Path, required=True, help="self-contained HTML report")
     parser.add_argument("--dry-run", action="store_true", help="validate inputs without API changes")
     parser.add_argument("--no-gitea", action="store_true", help="print totals without API changes")
     args = parser.parse_args()
 
     summary = read_summary(args.summary)
-    if not args.report.is_file():
-        parser.error(f"coverage report does not exist: {args.report}")
-
     print(f"Code coverage: lines {metric(summary, 'line')}; "
           f"functions {metric(summary, 'function')}; branches {metric(summary, 'branch')}")
     if not args.no_gitea:
-        publish(summary, args.report, dry_run=args.dry_run)
+        publish(summary, args.summary, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

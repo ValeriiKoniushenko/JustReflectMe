@@ -8,7 +8,6 @@ import mimetypes
 import os
 import sys
 import urllib.error
-import urllib.parse
 import urllib.request
 import uuid
 from typing import Any
@@ -544,10 +543,9 @@ class GiteaClient:
         if not os.path.isfile(file_path):
             raise FileNotFoundError(f"attachment does not exist: {file_path}")
 
-        encoded_name = urllib.parse.quote(name, safe="")
         result = self._multipart_request(
             "POST",
-            f"/repos/{self.owner}/{self.repo}/issues/{issue_number}/assets?name={encoded_name}",
+            f"/repos/{self.owner}/{self.repo}/issues/{issue_number}/assets",
             field_name="attachment",
             file_path=file_path,
             file_name=name,
