@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.30.0..)
 
 project(JustReflectMe VERSION 1.2.0 LANGUAGES CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 cmake_policy(SET CMP0141 NEW)
 set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
     "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
