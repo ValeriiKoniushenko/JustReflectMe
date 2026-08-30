@@ -339,4 +339,5 @@ jobs:
           GITEATOKEN: ${{ secrets.GITEATOKEN }}
         run: |
           python3 .gitea/publish_code_coverage.py \
-            --summary build/coverage/summary.json
+            --summary build/coverage/summary.json \
+            --report build/coverage/index.html

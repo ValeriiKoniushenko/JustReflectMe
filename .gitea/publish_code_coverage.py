@@ -33,11 +33,18 @@ def read_summary(path: Path) -> dict[str, object]:
 
 
 def metric(summary: dict[str, object], name: str) -> str:
+    return f"{metric_percent(summary, name)} ({metric_ratio(summary, name)})"
+
+
+def metric_percent(summary: dict[str, object], name: str) -> str:
+    percent = summary[f"{name}_percent"]
+    return "n/a" if percent is None else f"{float(percent):.1f}%"
+
+
+def metric_ratio(summary: dict[str, object], name: str) -> str:
     covered = int(summary[f"{name}_covered"])
     total = int(summary[f"{name}_total"])
-    percent = summary[f"{name}_percent"]
-    rendered_percent = "n/a" if percent is None else f"{float(percent):.1f}%"
-    return f"{rendered_percent} ({covered}/{total})"
+    return f"{covered}/{total}"
 
 
 def file_coverage(summary: dict[str, object], source_base_url: str) -> list[str]:
@@ -52,35 +59,42 @@ def file_coverage(summary: dict[str, object], source_base_url: str) -> list[str]
         path = item.get("filename")
         if not isinstance(path, str):
             continue
-        percent = item.get("line_percent")
-        rendered_percent = "n/a" if percent is None else f"{float(percent):.1f}%"
-        rows.append((path, rendered_percent, int(item.get("line_covered", 0)), int(item.get("line_total", 0))))
+        line_percent = item.get("line_percent")
+        branch_percent = item.get("branch_percent")
+        rows.append((
+            path,
+            "n/a" if line_percent is None else f"{float(line_percent):.1f}%",
+            f"{int(item.get('line_covered', 0))}/{int(item.get('line_total', 0))}",
+            "n/a" if branch_percent is None else f"{float(branch_percent):.1f}%",
+            f"{int(item.get('branch_covered', 0))}/{int(item.get('branch_total', 0))}",
+        ))
 
     rows.sort(key=lambda row: row[0])
     return [
-        f"| [{path}]({source_base_url}/{path}) | {percent} ({covered}/{total}) |"
-        for path, percent, covered, total in rows
+        f"| [{path}]({source_base_url}/{path}) | {line_percent} | {line_ratio} | "
+        f"{branch_percent} | {branch_ratio} |"
+        for path, line_percent, line_ratio, branch_percent, branch_ratio in rows
     ]
 
 
 def review_body(
         summary: dict[str, object],
-        summary_url: str | None,
+        report_url: str | None,
         source_base_url: str,
 ) -> str:
-    artifact = (
-        f"[Download the machine-readable coverage summary]({summary_url})"
-        if summary_url
-        else "Coverage-summary attachment upload was unavailable."
+    report = (
+        f"[Open the generated HTML coverage report]({report_url})"
+        if report_url
+        else ""
     )
     file_rows = file_coverage(summary, source_base_url)
     details = (
         "\n".join((
             "<details>",
-            "<summary>Per-file line coverage</summary>",
+            "<summary>Per-file coverage</summary>",
             "",
-            "| File | Coverage |",
-            "| --- | ---: |",
+            "| File | Lines | Covered / total | Branches | Covered / total |",
+            "| --- | :--- | ---: | :--- | ---: |",
             *file_rows,
             "",
             "</details>",
@@ -91,13 +105,13 @@ def review_body(
     return "\n".join((
         "## Code coverage",
         "",
-        "| Metric | Coverage |",
-        "| --- | ---: |",
-        f"| Lines | {metric(summary, 'line')} |",
-        f"| Functions | {metric(summary, 'function')} |",
-        f"| Branches | {metric(summary, 'branch')} |",
+        "| Metric | Coverage | Covered / total |",
+        "| --- | :--- | ---: |",
+        f"| Lines | {metric_percent(summary, 'line')} | {metric_ratio(summary, 'line')} |",
+        f"| Functions | {metric_percent(summary, 'function')} | {metric_ratio(summary, 'function')} |",
+        f"| Branches | {metric_percent(summary, 'branch')} | {metric_ratio(summary, 'branch')} |",
         "",
-        artifact,
+        report,
         "",
         details,
         "",
@@ -105,7 +119,7 @@ def review_body(
     ))
 
 
-def publish(summary: dict[str, object], summary_path: Path, *, dry_run: bool) -> None:
+def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
     client = GiteaClient.from_env()
     if client is None:
         print("[gitea] client not configured - skipping review publication")
@@ -129,23 +143,27 @@ def publish(summary: dict[str, object], summary_path: Path, *, dry_run: bool) ->
     try:
         client.dismiss_previous_reviews(pr_number, marker=marker)
         client.delete_issue_attachments(pr_number, name_prefix=ATTACHMENT_PREFIX)
-        attachment = client.upload_issue_attachment(
-            pr_number,
-            str(summary_path),
-            name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.json",
-        )
-        summary_url = attachment["browser_download_url"]
+        report_url = None
+        try:
+            attachment = client.upload_issue_attachment(
+                pr_number,
+                str(report),
+                name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.html",
+            )
+            report_url = attachment["browser_download_url"]
+        except Exception as error:
+            print(f"[gitea] HTML coverage attachment was rejected: {error}", file=sys.stderr)
         source_base_url = f"{client.server}/{client.owner}/{client.repo}/src/commit/{sha}"
         client.create_review(
             pr_number,
-            body=review_body(summary, summary_url, source_base_url),
+            body=review_body(summary, report_url, source_base_url),
             event="COMMENT",
             commit_id=sha,
             marker=marker,
         )
-        if sha:
+        if sha and report_url:
             client.publish_check(
-                sha, "success", CHECK_CONTEXT, description, target_url=summary_url
+                sha, "success", CHECK_CONTEXT, description, target_url=report_url
             )
     except Exception as error:
         if sha:
@@ -159,15 +177,18 @@ def publish(summary: dict[str, object], summary_path: Path, *, dry_run: bool) ->
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--summary", type=Path, required=True, help="gcovr JSON summary")
+    parser.add_argument("--report", type=Path, required=True, help="single-file HTML coverage report")
     parser.add_argument("--dry-run", action="store_true", help="validate inputs without API changes")
     parser.add_argument("--no-gitea", action="store_true", help="print totals without API changes")
     args = parser.parse_args()
 
     summary = read_summary(args.summary)
+    if not args.report.is_file():
+        parser.error(f"coverage report does not exist: {args.report}")
     print(f"Code coverage: lines {metric(summary, 'line')}; "
           f"functions {metric(summary, 'function')}; branches {metric(summary, 'branch')}")
     if not args.no_gitea:
-        publish(summary, args.summary, dry_run=args.dry_run)
+        publish(summary, args.report, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
