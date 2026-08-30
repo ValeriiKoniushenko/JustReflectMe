@@ -33,8 +33,16 @@ option(JRM_ENABLE_CODE_COVERAGE "Instrument project targets for code coverage co
 option(JRM_GENERATE_CODE_COVERAGE_HTML
        "Add the JRMCodeCoverageHtml target that runs tests and writes an HTML report."
        OFF)
+option(JRM_ENABLE_BENCHMARKS "Build Google Benchmark performance benchmarks." OFF)
 set(JRM_CODE_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage" CACHE PATH
     "Directory for the JRM code coverage HTML report.")
+
+if (JRM_ENABLE_BENCHMARKS AND JRM_ENABLE_CODE_COVERAGE)
+    message(FATAL_ERROR
+        "JRM_ENABLE_BENCHMARKS and JRM_ENABLE_CODE_COVERAGE cannot both be enabled. "
+        "Benchmark results must be collected without coverage instrumentation.")
+endif ()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
 set(CXX_STANDARD)
@@ -55,5 +63,9 @@ if (NOT JRM_DISABLE_TESTS)
 endif ()
 
 add_subdirectory(sources)
+
+if (JRM_ENABLE_BENCHMARKS)
+    add_subdirectory(benchmarks)
+endif ()
 
 JRMConfigureCodeCoverage()

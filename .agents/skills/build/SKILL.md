@@ -9,15 +9,7 @@ Standard build — reuses ccache/build cache, only rebuilds changed files.
 
 ## Command
 
-### Linux / macOS
-
-```bash
-cmake --build build -j$(nproc)
 ```
-
-### Windows
-
-```powershell
 cmake --build build --parallel
 ```
 
