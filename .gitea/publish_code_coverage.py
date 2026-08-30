@@ -104,7 +104,7 @@ def review_body(
     details = (
         "\n".join((
             "<details>",
-            "<summary>Per-file coverage</summary>",
+            "<summary>Quick preview of per-file coverage</summary>",
             "",
             "| File | Lines | Covered / total | Branches | Covered / total |",
             "| --- | :--- | ---: | :--- | ---: |",
