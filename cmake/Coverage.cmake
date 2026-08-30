@@ -114,7 +114,10 @@ function(JRMConfigureCodeCoverage)
             --gcov-executable "${JRM_GCOV_EXECUTABLE}"
             --exclude-throw-branches
             --exclude-unreachable-branches
+            --json-summary "${JRM_CODE_COVERAGE_OUTPUT_DIRECTORY}/summary.json"
             --html-details "${JRM_CODE_COVERAGE_OUTPUT_DIRECTORY}/index.html"
+            --html-single-page
+            --html-self-contained
             --print-summary
             DEPENDS JRMTests
             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"

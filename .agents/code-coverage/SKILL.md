@@ -24,19 +24,19 @@ Coverage flags affect compilation. Prefer a dedicated coverage build directory, 
 First inspect the selected build directory when its configuration is unknown:
 
 ```sh
-cmake -N -L build/gcc/debug | rg 'JRM_(ENABLE_CODE_COVERAGE|GENERATE_CODE_COVERAGE_HTML|DISABLE_TESTS|CODE_COVERAGE_OUTPUT_DIRECTORY)'
+cmake -N -L build | rg 'JRM_(ENABLE_CODE_COVERAGE|GENERATE_CODE_COVERAGE_HTML|DISABLE_TESTS|CODE_COVERAGE_OUTPUT_DIRECTORY)'
 ```
 
 For the repository's active GCC Debug configuration, generate the report directly:
 
 ```sh
-cmake --build build/gcc/debug --target JRMCodeCoverageHtml -j16
+cmake --build build --target JRMCodeCoverageHtml -j16
 ```
 
-The default report is `build/gcc/debug/coverage/index.html`. Confirm it was produced before reporting success:
+The default report is `build/coverage/index.html`. Confirm it was produced before reporting success:
 
 ```sh
-test -f build/gcc/debug/coverage/index.html
+test -f build/coverage/index.html
 ```
 
 `JRMCodeCoverageHtml` recreates its configured coverage output directory on every run. Do not run it concurrently against the same build directory.
@@ -46,12 +46,12 @@ test -f build/gcc/debug/coverage/index.html
 When coverage is not enabled, configure or reconfigure the intended build directory before invoking the target:
 
 ```sh
-cmake -S . -B build/gcc/debug -G Ninja \
+cmake -S . -B build -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug \
   -DJRM_DISABLE_TESTS=OFF \
   -DJRM_ENABLE_CODE_COVERAGE=ON \
   -DJRM_GENERATE_CODE_COVERAGE_HTML=ON
-cmake --build build/gcc/debug --target JRMCodeCoverageHtml -j16
+cmake --build build --target JRMCodeCoverageHtml -j16
 ```
 
 The report output directory defaults to `<build-dir>/coverage`. It may be customized with `JRM_CODE_COVERAGE_OUTPUT_DIRECTORY`, but it must remain a child of the CMake binary directory.

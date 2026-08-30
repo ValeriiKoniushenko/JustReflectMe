@@ -275,3 +275,69 @@ jobs:
           echo "::group::JRMTests"
           build/bin/JRMTests
           echo "::endgroup::"
+
+  code-coverage:
+    name: "[coverage] gcc"
+    needs: build-gcc
+    runs-on: linux
+    container:
+      image: cpp-ci:latest
+      volumes:
+        - /srv/ci-cache/ccache:/ccache
+        - /srv/ci-cache/git-repo:/repo-cache
+    env:
+      CCACHE_DIR: /ccache
+      CC: gcc
+      CXX: g++
+    timeout-minutes: 30
+    steps:
+      - name: Sync repo cache
+        env:
+          GITEATOKEN: ${{ secrets.GITEATOKEN }}
+        run: |
+          REPO_URL="https://oauth2:${GITEATOKEN}@gitea.vakon.dev/${GITHUB_REPOSITORY}.git"
+
+          if [ -d /repo-cache/.git ]; then
+            echo "Using existing repo cache"
+            cd /repo-cache
+            git remote set-url origin "$REPO_URL"
+            git fetch origin "$GITHUB_SHA" develop
+            git checkout -f "$GITHUB_SHA"
+            git submodule sync --recursive
+            git submodule update --init --recursive --depth=1
+          else
+            echo "No cache found, cloning fresh"
+            git clone --recurse-submodules --shallow-submodules "$REPO_URL" /repo-cache
+            cd /repo-cache
+            git fetch --depth=1 origin "$GITHUB_SHA"
+            git checkout -f "$GITHUB_SHA"
+          fi
+
+          mkdir -p "$GITHUB_WORKSPACE"
+          cp -a /repo-cache/. "$GITHUB_WORKSPACE"/
+
+      - name: Configure coverage build
+        run: |
+          echo "::group::CMake configure"
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DJRM_DISABLE_TESTS=OFF \
+            -DJRM_ENABLE_CODE_COVERAGE=ON \
+            -DJRM_GENERATE_CODE_COVERAGE_HTML=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          echo "::endgroup::"
+
+      - name: Generate coverage report
+        run: |
+          echo "::group::JRMCodeCoverageHtml"
+          cmake --build build --target JRMCodeCoverageHtml -j$(nproc)
+          echo "::endgroup::"
+
+      - name: Publish coverage to Gitea
+        env:
+          GITEATOKEN: ${{ secrets.GITEATOKEN }}
+        run: |
+          python3 .gitea/publish_code_coverage.py \
+            --summary build/coverage/summary.json \
+            --report build/coverage/index.html

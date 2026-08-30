@@ -5,7 +5,7 @@
             "name": "Debug jrm (GCC)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/gcc/debug/bin/jrm",
+            "program": "${workspaceFolder}/build/bin/jrm",
             "args": [
                 "${workspaceFolder}/tests"
             ],
@@ -26,7 +26,7 @@
             "name": "Debug JRMTests (GCC)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/gcc/debug/bin/JRMTests",
+            "program": "${workspaceFolder}/build/bin/JRMTests",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -45,7 +45,7 @@
             "name": "Run jrm (GCC Release)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/gcc/release/bin/jrm",
+            "program": "${workspaceFolder}/build/bin/jrm",
             "args": [
                 "${workspaceFolder}/tests"
             ],
@@ -59,7 +59,7 @@
             "name": "Run JRMTests (GCC Release)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/gcc/release/bin/JRMTests",
+            "program": "${workspaceFolder}/build/bin/JRMTests",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -71,7 +71,7 @@
             "name": "Debug jrm (Clang)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/clang/debug/bin/jrm",
+            "program": "${workspaceFolder}/build/bin/jrm",
             "args": [
                 "${workspaceFolder}/tests"
             ],
@@ -92,7 +92,7 @@
             "name": "Debug JRMTests (Clang)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/clang/debug/bin/JRMTests",
+            "program": "${workspaceFolder}/build/bin/JRMTests",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -111,7 +111,7 @@
             "name": "Run jrm (Clang Release)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/clang/release/bin/jrm",
+            "program": "${workspaceFolder}/build/bin/jrm",
             "args": [
                 "${workspaceFolder}/tests"
             ],
@@ -125,7 +125,7 @@
             "name": "Run JRMTests (Clang Release)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/clang/release/bin/JRMTests",
+            "program": "${workspaceFolder}/build/bin/JRMTests",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
