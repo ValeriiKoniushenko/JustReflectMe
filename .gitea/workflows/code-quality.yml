@@ -13,8 +13,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  clear-previous-ci-reviews:
+    name: "[cleanup] previous CI reviews"
+    runs-on: linux
+    container:
+      image: cpp-ci:latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove previous CI reviews
+        env:
+          GITEATOKEN: ${{ secrets.GITEATOKEN }}
+        run: python3 .gitea/clear_ci_reviews.py
+
   clang-format:
     name: "[fmt] clang-format"
+    needs: clear-previous-ci-reviews
     runs-on: linux
     container:
       image: cpp-ci:latest
@@ -33,6 +49,7 @@ jobs:
 
   build:
     name: "[build] clang (linux)"
+    needs: clear-previous-ci-reviews
     runs-on: linux
     container:
       image: cpp-ci:latest
@@ -96,6 +113,7 @@ jobs:
 
   build-gcc:
     name: "[build] gcc (linux)"
+    needs: clear-previous-ci-reviews
     runs-on: linux
     container:
       image: cpp-ci:latest

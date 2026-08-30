@@ -8,6 +8,7 @@ import html
 import json
 import os
 import sys
+import zipfile
 from pathlib import Path
 
 from gitea_client import GiteaClient, review_marker
@@ -78,6 +79,14 @@ def file_coverage(summary: dict[str, object], source_base_url: str) -> list[str]
     ]
 
 
+def archive_report(report: Path) -> Path:
+    """Create a portable single-file archive for Gitea attachment downloads."""
+    archive = report.with_name("code-coverage-report.zip")
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as output:
+        output.write(report, arcname=report.name)
+    return archive
+
+
 def review_body(
         summary: dict[str, object],
         report_url: str | None,
@@ -87,7 +96,7 @@ def review_body(
     report = (
         f'<a href="{html.escape(report_url, quote=True)}" '
         f'download="{html.escape(report_name, quote=True)}">'
-        "Download the generated HTML coverage report</a>"
+        "Download the generated coverage report</a>"
         if report_url
         else ""
     )
@@ -149,22 +158,23 @@ def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
         client.delete_issue_attachments(pr_number, name_prefix=ATTACHMENT_PREFIX)
         report_url = None
         try:
+            archive = archive_report(report)
             attachment = client.upload_issue_attachment(
                 pr_number,
-                str(report),
-                name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.html",
-                content_type="application/octet-stream",
+                str(archive),
+                name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.zip",
+                content_type="application/zip",
             )
             report_url = attachment["browser_download_url"]
         except Exception as error:
-            print(f"[gitea] HTML coverage attachment was rejected: {error}", file=sys.stderr)
+            print(f"[gitea] coverage ZIP attachment was rejected: {error}", file=sys.stderr)
         source_base_url = f"{client.server}/{client.owner}/{client.repo}/src/commit/{sha}"
         client.create_review(
             pr_number,
             body=review_body(
                 summary,
                 report_url,
-                f"code-coverage-{sha[:12] or 'latest'}.html",
+                f"code-coverage-{sha[:12] or 'latest'}.zip",
                 source_base_url,
             ),
             event="COMMENT",
