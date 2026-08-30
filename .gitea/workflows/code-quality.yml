@@ -6,12 +6,19 @@ on:
     branches:
       - develop
 
+# Build caches are shared by self-hosted runners. Serialize runs so concurrent
+# workflows cannot overwrite the same cache directories.
+concurrency:
+  group: jrm-ci-shared-cache
+  cancel-in-progress: false
+
 jobs:
   clang-format:
-    name: clang-format
+    name: "[fmt] clang-format"
     runs-on: linux
     container:
       image: cpp-ci:latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,8 +32,7 @@ jobs:
           python3 .gitea/check_clang_format.py --base develop
 
   build:
-    name: "Build: Linux | Clang 22.1.8"
-    needs: clang-format
+    name: "[build] clang (linux)"
     runs-on: linux
     container:
       image: cpp-ci:latest
@@ -38,6 +44,7 @@ jobs:
       CCACHE_DIR: /ccache
       CC: clang
       CXX: clang++
+    timeout-minutes: 30
     steps:
       - name: Sync repo cache
         env:
@@ -66,21 +73,29 @@ jobs:
 
       - name: Configure
         run: |
+          echo "::group::CMake configure"
           cmake -S . -B build \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DNEXIUM_DISABLE_TESTS=ON \
+            -DJRM_DISABLE_TESTS=ON \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          echo "::endgroup::"
 
       - name: Build
-        run: cmake --build build -j$(nproc)
+        run: |
+          echo "::group::Build"
+          cmake --build build -j$(nproc)
+          echo "::endgroup::"
+          {
+            echo "## Build: clang"
+            echo "Build succeeded."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save build cache
         run: rsync -a --delete build/ /build-cache/
 
   build-gcc:
-    name: "Build: Linux | GCC 16.1.1"
-    needs: clang-format
+    name: "[build] gcc (linux)"
     runs-on: linux
     container:
       image: cpp-ci:latest
@@ -92,6 +107,7 @@ jobs:
       CCACHE_DIR: /ccache
       CC: gcc
       CXX: g++
+    timeout-minutes: 30
     steps:
       - name: Sync repo cache
         env:
@@ -119,16 +135,23 @@ jobs:
         run: |
           cmake -S . -B build \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DNEXIUM_DISABLE_TESTS=ON \
+            -DJRM_DISABLE_TESTS=ON \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
       - name: Build
-        run: cmake --build build -j$(nproc)
+        run: |
+          echo "::group::Build"
+          cmake --build build -j$(nproc)
+          echo "::endgroup::"
+          {
+            echo "## Build: gcc"
+            echo "Build succeeded."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Save build cache
         run: rsync -a --delete build/ /build-cache/
 
   clang-tidy:
-    name: clang-tidy
+    name: "[lint] clang-tidy"
     needs: build
     runs-on: linux
     container:
@@ -136,6 +159,7 @@ jobs:
       volumes:
         - /srv/ci-cache/git-repo:/repo-cache
         - /srv/ci-cache/build-cache:/build-cache
+    timeout-minutes: 20
     steps:
       - name: Sync repo cache
         env:
@@ -164,8 +188,17 @@ jobs:
 
       - name: Fetch develop for diffing
         run: |
-          git fetch --unshallow origin || true
+          echo "::group::Ensuring full history for diff"
+          if ! git fetch --unshallow origin 2> /tmp/unshallow.log; then
+            if grep -q "already a complete repository" /tmp/unshallow.log; then
+              echo "Repository already has full history"
+            else
+              cat /tmp/unshallow.log
+              exit 1
+            fi
+          fi
           git fetch origin develop:refs/remotes/origin/develop
+          echo "::endgroup::"
 
       - name: Restore build output
         run: |
@@ -180,14 +213,14 @@ jobs:
           python3 .gitea/check_clang_tidy.py --base develop --build-dir build
           exit_code=$?
           set -e
-          if [ $exit_code -eq 1 ]; then
+          if [ "$exit_code" -eq 1 ]; then
             echo "clang-tidy found issues, but continuing (non-blocking mode)"
             exit 0
           fi
           exit $exit_code
   
   unit-tests:
-    name: Unit Tests
+    name: "[test] unit tests (clang)"
     needs: build
     runs-on: linux
     container:
@@ -199,6 +232,7 @@ jobs:
       CCACHE_DIR: /ccache
       CC: clang
       CXX: clang++
+    timeout-minutes: 15
     steps:
       - name: Sync repo cache
         env:
@@ -229,7 +263,7 @@ jobs:
         run: |
           cmake -S . -B build \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DNEXIUM_DISABLE_TESTS=OFF \
+            -DJRM_DISABLE_TESTS=OFF \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
@@ -237,4 +271,7 @@ jobs:
         run: cmake --build build -j$(nproc)
 
       - name: Run tests
-        run: ./build/bin/JRMTests
+        run: |
+          echo "::group::JRMTests"
+          build/bin/JRMTests
+          echo "::endgroup::"
