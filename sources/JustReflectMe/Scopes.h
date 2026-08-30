@@ -31,6 +31,10 @@
 #include <string>
 #include <vector>
 
+#if defined(JRM_ENABLE_TESTS)
+    #include "gtest/gtest_prod.h"
+#endif
+
 namespace JRM
 {
     struct Scope
@@ -74,6 +78,10 @@ namespace JRM
     private:
         static void tryToDetermineScopeType(Scope& scope, const char* p, const char* start);
         static void tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start);
+
+#if defined(JRM_ENABLE_TESTS)
+        FRIEND_TEST(ScopesTests, IgnoresNonOpeningScopeStarts);
+#endif
 
     protected:
         Scope _root;
