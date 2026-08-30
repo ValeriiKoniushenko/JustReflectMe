@@ -43,6 +43,24 @@ if (JRM_ENABLE_BENCHMARKS AND JRM_ENABLE_CODE_COVERAGE)
         "Benchmark results must be collected without coverage instrumentation.")
 endif ()
 
+if (JRM_DISABLE_TESTS)
+    message(STATUS "JRM unit tests: disabled")
+else ()
+    message(STATUS "JRM unit tests: enabled")
+endif ()
+
+if (JRM_ENABLE_BENCHMARKS)
+    message(STATUS "JRM benchmarks: enabled")
+else ()
+    message(STATUS "JRM benchmarks: disabled")
+endif ()
+
+if (JRM_ENABLE_CODE_COVERAGE)
+    message(STATUS "JRM code coverage: enabled")
+else ()
+    message(STATUS "JRM code coverage: disabled")
+endif ()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
 set(CXX_STANDARD)
