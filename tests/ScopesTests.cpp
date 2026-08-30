@@ -70,6 +70,7 @@ TEST(ScopesTests, ScopeValueOperationsAndTreeTraversalHandleAllBoundaries)
 
     JRM::Scope differentStart = scope;
     ++differentStart.start;
+    int* i = new int(1);
     EXPECT_NE(scope, differentStart);
 
     JRM::Scope differentEnd = scope;
