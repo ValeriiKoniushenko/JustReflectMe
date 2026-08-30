@@ -70,6 +70,25 @@ function(JRMConfigureCodeCoverage)
                 "JRM_GENERATE_CODE_COVERAGE_HTML requires gcovr when using GCC.")
         endif ()
 
+        execute_process(
+            COMMAND "${JRM_GCOVR_EXECUTABLE}" --help
+            RESULT_VARIABLE JRM_GCOVR_HELP_RESULT
+            OUTPUT_VARIABLE JRM_GCOVR_HELP_OUTPUT
+            ERROR_VARIABLE JRM_GCOVR_HELP_ERROR
+        )
+        if (NOT JRM_GCOVR_HELP_RESULT EQUAL 0)
+            message(FATAL_ERROR
+                "Failed to inspect gcovr capabilities. Details: ${JRM_GCOVR_HELP_ERROR}")
+        endif ()
+
+        string(FIND "${JRM_GCOVR_HELP_OUTPUT}" "--exclude-throw-branches"
+               JRM_GCOVR_EXCLUDE_THROW_BRANCHES_POSITION)
+        if (JRM_GCOVR_EXCLUDE_THROW_BRANCHES_POSITION EQUAL -1)
+            message(FATAL_ERROR
+                "JRM_GENERATE_CODE_COVERAGE_HTML requires a gcovr version that supports "
+                "--exclude-throw-branches.")
+        endif ()
+
         find_program(JRM_GCOV_EXECUTABLE NAMES gcov)
         if (NOT JRM_GCOV_EXECUTABLE)
             message(FATAL_ERROR
@@ -85,6 +104,7 @@ function(JRMConfigureCodeCoverage)
             --filter "${PROJECT_SOURCE_DIR}/sources"
             --exclude "${CMAKE_BINARY_DIR}"
             --gcov-executable "${JRM_GCOV_EXECUTABLE}"
+            --exclude-throw-branches
             --html-details "${JRM_CODE_COVERAGE_OUTPUT_DIRECTORY}/index.html"
             --print-summary
             DEPENDS JRMTests
