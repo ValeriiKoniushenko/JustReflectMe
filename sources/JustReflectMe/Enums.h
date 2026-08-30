@@ -29,6 +29,9 @@
 namespace JRM
 {
 
+    /**
+     * @brief Identifies the C++ context represented by a scanned scope.
+     */
     enum class ContextType
     {
         Undefined,
@@ -39,6 +42,11 @@ namespace JRM
         Struct
     };
 
+    /**
+     * @brief Converts a context type to its human-readable name.
+     * @param type The context type to convert.
+     * @return The lower-case display name, or `"undefined"` for an unknown value.
+     */
     [[nodiscard]] std::string ToString(ContextType type);
 
 } // namespace JRM

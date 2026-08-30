@@ -34,6 +34,9 @@
 //                     MISC
 // ==================================================
 
+/**
+ * @brief Metadata for one reflected class field.
+ */
 struct RClassField
 {
     std::string_view type;
@@ -41,34 +44,46 @@ struct RClassField
     std::vector<std::string_view> attribs;
 };
 
+/**
+ * @brief Reflection flags and customization point for a reflected type.
+ * @tparam T Reflected type associated with the generated `R<T>` specialization.
+ */
 template<class T = void>
 struct R
 {
-    // Setting the custom attribute that can be fetched by getting the class' field[s].
+    /** @brief Marks a field attribute supplied to the reflection metadata. */
     constexpr static uint64_t Attr = 1 << 1;
 
-    // The default value will be ignored by Reflection system. It's useful in the case of on-init
-    // actions.
+    /** @brief Prevents the generated deserializer from assigning a field's C++ default value. */
     constexpr static uint64_t NoDefaultValue = 1 << 2;
 
-    // If de/serialization miss the marked field - it will put RStatus::NotFound
+    /** @brief Marks a field as required; a missing value is logged and causes deserialization to
+     * throw. */
     constexpr static uint64_t Required = 1 << 3;
 
-    // If de/serialization miss the marked field - anyway it will put RStatus::Ok
+    /** @brief Treats a missing serialized field as non-fatal. */
     constexpr static uint64_t NonRequired = 1 << 4;
 
-    // Default behavior based on NonRequired logic.
+    /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
     constexpr static uint64_t Default = R::NonRequired;
 };
 
 using RPoint = R<void>;
 
+/**
+ * @brief Status recorded while reading serialized fields.
+ */
 enum class RStatus
 {
     Ok,
     NotFound
 };
 
+/**
+ * @brief Converts a serialization status to text.
+ * @param status Status to convert.
+ * @return `"Ok"`, `"NotFound"`, or `"Unknown"`.
+ */
 inline const char* RStatusToString(RStatus status)
 {
     // clang-format off
@@ -134,6 +149,10 @@ void _RTryCallPostDeserialize(T& obj, const RLogsCollector& logs)
 // ==================================================
 //              RBaseResourceStreamImpl
 // ==================================================
+/**
+ * @brief Stores format-specific data and serialization diagnostics.
+ * @tparam DataT Underlying representation used by the resource stream.
+ */
 template<class DataT>
 class RBaseResourceStreamImpl
 {
@@ -141,12 +160,30 @@ public:
     using DataType = DataT;
 
     RBaseResourceStreamImpl() = default;
+    RBaseResourceStreamImpl(const RBaseResourceStreamImpl&) = default;
+    RBaseResourceStreamImpl& operator=(const RBaseResourceStreamImpl&) = default;
+    RBaseResourceStreamImpl(RBaseResourceStreamImpl&&) noexcept = default;
+    RBaseResourceStreamImpl& operator=(RBaseResourceStreamImpl&&) noexcept = default;
     virtual ~RBaseResourceStreamImpl() = default;
 
+    /**
+     * @brief Returns the mutable underlying representation.
+     */
     [[nodiscard]] DataT& data() noexcept { return _data; }
+
+    /**
+     * @brief Returns the read-only underlying representation.
+     */
     [[nodiscard]] const DataT& data() const noexcept { return _data; }
 
+    /**
+     * @brief Returns diagnostics collected while reading fields.
+     */
     [[nodiscard]] const RLogsCollector& logs() const noexcept { return _logs; }
+
+    /**
+     * @brief Returns the mutable diagnostic collection.
+     */
     [[nodiscard]] RLogsCollector& logs() noexcept { return _logs; }
 
 protected:
@@ -169,33 +206,66 @@ concept IsResourceStreamImpl = requires(T t, int v) {
 // ==============================================
 //              RResourceStream
 // ==============================================
+/**
+ * @brief Format-independent facade for reading and writing reflected values.
+ * @tparam RImpl Resource-stream implementation that supplies the underlying data format.
+ */
 template<IsResourceStreamImpl RImpl>
 struct RResourceStream
 {
 public:
     RResourceStream() = default;
+    RResourceStream(const RResourceStream&) = default;
+    RResourceStream& operator=(const RResourceStream&) = default;
+    RResourceStream(RResourceStream&&) noexcept = default;
+    RResourceStream& operator=(RResourceStream&&) noexcept = default;
     virtual ~RResourceStream() = default;
 
+    /**
+     * @brief Initializes a stream with an existing serialized representation.
+     * @param out Data to copy into the stream implementation.
+     */
     RResourceStream(const typename RImpl::DataType& out) { impl.data() = out; }
 
+    /**
+     * @brief Writes a value under a named field.
+     * @param fieldName Serialized field name.
+     * @param value Value to serialize.
+     */
     template<class T>
     void write(std::string_view fieldName, const T& value)
     {
         impl.template write<T>(fieldName, value);
     }
 
+    /**
+     * @brief Writes a value using the implementation's whole-object operation.
+     * @param value Value to serialize.
+     */
     template<class T>
     void write(const T& value)
     {
         impl.template write<T>(value);
     }
 
+    /**
+     * @brief Reads a required field from the serialized representation.
+     * @param fieldName Serialized field name.
+     * @param value Destination for the deserialized value.
+     */
     template<class T>
     void read(std::string_view fieldName, T& value) const
     {
         impl.template read<T>(fieldName, value);
     }
 
+    /**
+     * @brief Reads a field and supplies a fallback when it is absent.
+     * @param fieldName Serialized field name.
+     * @param value Destination for the deserialized value.
+     * @param defaultValue Value assigned when the field is absent.
+     * @param flag Missing-field behavior flags from `R`.
+     */
     template<class T, class T2>
     void read(std::string_view fieldName, T& value, T2&& defaultValue,
               int flag = RPoint::Default) const
@@ -204,10 +274,23 @@ public:
                               flag);
     }
 
+    /**
+     * @brief Returns the serialized representation.
+     */
     [[nodiscard]] const auto& getData() const noexcept { return impl.data(); }
+    /**
+     * @brief Returns the mutable serialized representation.
+     */
     [[nodiscard]] auto& getData() noexcept { return impl.data(); }
 
+    /**
+     * @brief Returns diagnostics collected during deserialization.
+     */
     [[nodiscard]] const RLogsCollector& logs() const noexcept { return impl.logs(); }
+
+    /**
+     * @brief Returns the mutable deserialization diagnostics.
+     */
     [[nodiscard]] RLogsCollector& logs() noexcept { return impl.logs(); }
 
 protected:
@@ -217,6 +300,15 @@ protected:
 // ================================================
 //              RJsonResourceStream
 // ================================================
+/**
+ * @brief JSON implementation of the reflection resource stream.
+ *
+ * Missing fields receive the supplied default value and are recorded in `logs()`. A read marked
+ * with `RPoint::Required` additionally throws when its field is absent.
+ * The set of types that can be serialized and deserialized follows nlohmann::json's conversion
+ * support. It can be extended for user-defined types by providing global `to_json(BasicJsonType&,
+ * const T&)` and `from_json(const BasicJsonType&, T&)` functions visible to nlohmann::json.
+ */
 class RJsonResourceStream : public RBaseResourceStreamImpl<nlohmann::json>
 {
 private:
@@ -230,8 +322,20 @@ private:
 
 public:
     RJsonResourceStream() = default;
+    RJsonResourceStream(const RJsonResourceStream&) = default;
+    RJsonResourceStream& operator=(const RJsonResourceStream&) = default;
+    RJsonResourceStream(RJsonResourceStream&&) noexcept = default;
+    RJsonResourceStream& operator=(RJsonResourceStream&&) noexcept = default;
     ~RJsonResourceStream() override = default;
 
+    /**
+     * @brief Reads a JSON field or assigns a default value when it is absent.
+     * @param field JSON object key.
+     * @param out Destination for the decoded value.
+     * @param defaultValue Fallback value for a missing key.
+     * @param flag Missing-field behavior flags from `R`.
+     * @throw std::runtime_error When the field is absent and `RPoint::Required` is set.
+     */
     template<class T, class T2>
         requires(JsonReadable<T>)
     void read(std::string_view field, T& out, T2&& defaultValue, int flag = RPoint::Default) const
@@ -253,6 +357,11 @@ public:
         }
     }
 
+    /**
+     * @brief Writes a value to a named JSON field.
+     * @param field JSON object key.
+     * @param value Value to encode.
+     */
     template<class T>
         requires(JsonWritable<T>)
     void write(std::string_view field, const T& value)
@@ -260,6 +369,10 @@ public:
         _data[field] = value;
     }
 
+    /**
+     * @brief Merges the fields of a JSON-compatible object into the stream.
+     * @param value Object whose fields should be copied into the JSON representation.
+     */
     template<class T>
         requires(JsonWritable<T>)
     void write(const T& value)

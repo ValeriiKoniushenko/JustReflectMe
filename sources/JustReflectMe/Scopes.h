@@ -37,6 +37,12 @@
 
 namespace JRM
 {
+    /**
+     * @brief Describes one lexical scope in a source file.
+     *
+     * Scope boundaries point into the string passed to `Scopes::scan`. Child scopes form a tree,
+     * and `type` identifies recognized namespaces, classes, structs, and enum classes.
+     */
     struct Scope
     {
         enum Attr
@@ -71,8 +77,18 @@ namespace JRM
         Scopes& operator=(Scopes&&) noexcept = default;
         virtual ~Scopes() = default;
 
+        /**
+         * @brief Builds a scope tree for preprocessed C++ source text.
+         * @param content Source text whose braces and declarations should be scanned.
+         * @throw std::runtime_error If the content is empty or has malformed/unbalanced scopes.
+         */
         void scan(const std::string& content);
 
+        /**
+         * @brief Finds the deepest scope containing a character position.
+         * @param p Position inside the text previously passed to `scan`.
+         * @return The deepest containing scope, or `nullptr` when no scope contains `p`.
+         */
         [[nodiscard]] const Scope* getScopeAt(const char* p) const;
 
     private:

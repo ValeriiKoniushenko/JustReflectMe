@@ -37,13 +37,23 @@ namespace JRM
 {
     class BaseConfigParam;
 
+    /**
+     * @brief Base type for a collection of named configuration parameters.
+     */
     class BaseConfig
     {
     public:
+        BaseConfig(const BaseConfig&) = default;
+        BaseConfig& operator=(const BaseConfig&) = default;
+        BaseConfig(BaseConfig&&) noexcept = default;
+        BaseConfig& operator=(BaseConfig&&) noexcept = default;
+        virtual ~BaseConfig() = default;
+        /**
+         * @brief Returns the parameters owned by this configuration.
+         * @return The configuration parameter list.
+         */
         [[nodiscard]] const std::vector<std::shared_ptr<BaseConfigParam>>& getParams()
             const noexcept;
-
-        virtual ~BaseConfig() = default;
 
     protected:
         BaseConfig() = default;
@@ -51,6 +61,9 @@ namespace JRM
         std::vector<std::shared_ptr<BaseConfigParam>> _params;
     };
 
+    /**
+     * @brief Describes a configuration parameter independently of its value type.
+     */
     class BaseConfigParam
     {
     public:
@@ -66,6 +79,10 @@ namespace JRM
         std::string_view description;
     };
 
+    /**
+     * @brief Stores a typed configuration value together with its name and description.
+     * @tparam ValueT The type of the configuration value.
+     */
     template<class ValueT>
     struct Param : public BaseConfigParam
     {
@@ -88,13 +105,31 @@ namespace JRM
 #define PARAM(type, name, description, ...)                                                        \
     Param<type>::Ptr name = std::make_shared<Param<type>>(#name, description, type{ __VA_ARGS__ })
 
+    /**
+     * @brief Configuration options used by the JustReflectMe file scanner and generator.
+     *
+     * The parameter members expose both the option metadata and the mutable value through their
+     * `value` member. Defaults are also used when `Config::jrmFolder/Config::jrmConfig` is
+     * created automatically.
+     */
     struct Config : public BaseConfig
     {
-        constexpr static std::string_view jrmFolder = ".jrm";
-        constexpr static std::string_view jrmConfig = "config.yaml";
-
         Config();
+        Config(const Config&) = default;
+        Config& operator=(const Config&) = default;
+        Config(Config&&) noexcept = default;
+        Config& operator=(Config&&) noexcept = default;
         ~Config() override = default;
+
+        /**
+         * @brief Directory below the project root containing JustReflectMe state.
+         */
+        constexpr static std::string_view jrmFolder = ".jrm";
+
+        /**
+         * @brief Configuration filename inside `Config::jrmFolder`.
+         */
+        constexpr static std::string_view jrmConfig = "config.yaml";
 
         PARAM(std::set<std::filesystem::path>, excludedPaths,
               "Pass an array of the relative paths that should be ignored.",
@@ -130,9 +165,20 @@ namespace JRM
     class ConfigManager final
     {
     public:
+        /**
+         * @brief Loads a project's configuration, creating a default file when needed.
+         * @param projectDir Project root containing the optional
+         * `Config::jrmFolder/Config::jrmConfig` file.
+         * @param hasError Set to `true` when the configuration file cannot be parsed.
+         * @return The loaded configuration, including defaults for omitted options.
+         */
         [[nodiscard]] Config initializeProjectAndLoadConfig(const std::filesystem::path& projectDir,
                                                             bool& hasError);
 
+        /**
+         * @brief Builds the default YAML configuration text.
+         * @return A YAML document containing the default configuration and parameter comments.
+         */
         [[nodiscard]] static std::string spawnFallbackConfigAsString();
 
     private:

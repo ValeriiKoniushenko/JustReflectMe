@@ -73,27 +73,23 @@ namespace
                 auto originalExt = path.extension().generic_string();
                 if (originalExt == ".cpp" || originalExt == ".h")
                 {
-                    path.replace_extension(".*");
-                    removeMatching("./", path.stem().generic_string());
+                    const auto originalPath = path;
+                    path.replace_extension(".generated.h");
+                    fs::remove(path, ec);
+
+                    path = originalPath;
+                    path.replace_extension(".generated.inl");
+                    fs::remove(path, ec);
+
+                    path = originalPath;
+                    path.replace_extension(".generated.cpp");
+                    fs::remove(path, ec);
                 }
             }
 
             [[nodiscard]] const std::string& getFilename() const { return filename; }
             [[nodiscard]] operator const std::string&() const { return filename; }
             [[nodiscard]] operator fs::path() const { return fs::path(filename); }
-
-        private:
-            void removeMatching(const fs::path& dir, const std::string& stem)
-            {
-                std::error_code ec;
-                for (const auto& entry : fs::directory_iterator(dir, ec))
-                {
-                    if (entry.path().stem() == stem)
-                    { // matches "test" in "test.txt", "test.cpp", etc.
-                        fs::remove(entry.path(), ec);
-                    }
-                }
-            }
 
         private:
             std::string filename;

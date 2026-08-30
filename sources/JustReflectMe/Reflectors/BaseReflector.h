@@ -43,16 +43,32 @@ namespace JRM
     struct Scope;
     class FileData;
 
+    /**
+     * @brief Metadata describing a reflected type.
+     */
     struct TypeMeta
     {
         ContextType type = ContextType::Undefined;
     };
 
+    /**
+     * @brief Reports a syntax error together with its position in a source file.
+     */
     class SyntaxException : public std::runtime_error
     {
     public:
+        /**
+         * @param message Error description.
+         * @param indexInFile Zero-based character position of the error.
+         */
         SyntaxException(const std::string& message, std::size_t indexInFile);
 
+        /**
+         * @brief Formats the error with source path, line, and column information.
+         * @param content Source content containing the error.
+         * @param pathToFile Path displayed in the formatted message.
+         * @return A diagnostic in `path:line:column: error: message` form.
+         */
         [[nodiscard]] std::string getFullMessage(const std::string& content,
                                                  const std::string& pathToFile) const;
 
@@ -60,6 +76,9 @@ namespace JRM
         std::size_t _indexInFile = std::numeric_limits<std::size_t>::max();
     };
 
+    /**
+     * @brief Reports an error while generating reflection code.
+     */
     class GenerationException : public std::runtime_error
     {
     public:
@@ -69,6 +88,13 @@ namespace JRM
         }
     };
 
+    /**
+     * @brief Common interface and workflow for a reflection marker processor.
+     *
+     * A reflector recognizes a trigger keyword, scans the corresponding file tokens, and emits
+     * generated header/source fragments. Concrete reflectors implement the language-specific scan
+     * and generation steps.
+     */
     class BaseReflector
     {
     public:
@@ -79,6 +105,12 @@ namespace JRM
             Warning,
             Error
         };
+
+        /**
+         * @brief Converts a diagnostic severity to its display name.
+         * @param severity Severity to convert.
+         * @return `"warning"`, `"error"`, or `"unknown"`.
+         */
         [[nodiscard]] static std::string SeverityToString(Severity severity);
 
     public:
@@ -89,8 +121,22 @@ namespace JRM
         BaseReflector& operator=(BaseReflector&&) noexcept = default;
         virtual ~BaseReflector() = default;
 
+        /**
+         * @brief Checks whether the content contains this reflector's trigger keyword.
+         * @param content Preprocessed source content.
+         * @return `true` when a valid trigger occurrence is present.
+         */
         [[nodiscard]] bool canProcessContent(const std::string& content) const;
+
+        /**
+         * @brief Finds trigger tokens and invokes the concrete reflector scan.
+         * @param data File data to inspect and enrich with reflection state.
+         */
         void scanContent(FileData& data);
+
+        /**
+         * @brief Tests whether scanning found at least one trigger token.
+         */
         [[nodiscard]] bool hasTokens() const noexcept { return !_tokens.empty(); }
 
         [[nodiscard]] virtual constexpr std::string_view getTriggerKeyword() const noexcept = 0;
@@ -99,10 +145,26 @@ namespace JRM
         [[nodiscard]] std::optional<TypeMeta> findGloballyKnownTypeMeta(
             const std::string& fullPath) const;
 
+        /**
+         * @brief Generates this reflector's header fragment.
+         * @param data File data used during generation.
+         * @return Generated C++ header text.
+         */
         [[nodiscard]] std::string generateHeaderFile(FileData& data) const;
+
+        /**
+         * @brief Generates this reflector's source fragment.
+         * @param newHeaderPath Relative path to the generated header.
+         * @param data File data used during generation.
+         * @return Generated C++ source text.
+         */
         [[nodiscard]] std::string generateSourceFile(const std::string& newHeaderPath,
                                                      FileData& data) const;
 
+        /**
+         * @brief Returns additional standard-library headers required by generated code.
+         * @return An empty set by default.
+         */
         [[nodiscard]] virtual std::set<std::string> getIncludes() const;
 
         void setHasImplTranslationUnit(bool val) noexcept;
@@ -114,6 +176,11 @@ namespace JRM
         [[nodiscard]] bool hasErrors() const;
         [[nodiscard]] int numberOfWarnings() const;
         [[nodiscard]] int numberOfErrors() const;
+        /**
+         * @brief Returns the number of diagnostics recorded for a severity.
+         * @param severity Severity to count.
+         * @return Number of matching diagnostics.
+         */
         [[nodiscard]] int numberOfSeverity(Severity severity) const;
 
         void setConfig(const Config& config) noexcept;

@@ -46,6 +46,12 @@ namespace JRM
     class FileData;
     struct Config;
 
+    /**
+     * @brief Preprocessed source text and the literals removed from it.
+     *
+     * Comments are removed and string/character literals are replaced with placeholders before
+     * reflection. The maps allow reflectors to recover the original literals by position.
+     */
     struct PostProcessedFile
     {
         constexpr static char stringPlaceholder = 31;
@@ -57,9 +63,20 @@ namespace JRM
         std::unordered_map<std::size_t, std::string> charTokens;
     };
 
+    /**
+     * @brief Coordinates preprocessing, reflection, code generation, and include integration for
+     * one header/source pair.
+     *
+     * Reflectors must be registered before calling `run`. Generated headers use the
+     * `FileProcessor::newFileExtension` suffix followed by `.h` (currently `.generated.h`) and
+     * are included from the original header when at least one reflector finds a token.
+     */
     class FileProcessor
     {
     public:
+        /**
+         * @brief Comment placed at the top of generated files.
+         */
         static constexpr const char* warningCommentAtFileTop = R"(/*
  * This code was generated automatically with
  * https://github.com/ValeriiKoniushenko/JustReflectMe
@@ -68,6 +85,9 @@ namespace JRM
  * Your changes will be replaced next time
  */)";
 
+        /**
+         * @brief Extension suffix used to form generated filenames.
+         */
         inline static const char* newFileExtension = ".generated";
 
         FileProcessor() = default;
@@ -77,21 +97,64 @@ namespace JRM
         FileProcessor& operator=(FileProcessor&&) noexcept = delete;
         virtual ~FileProcessor() = default;
 
+        /**
+         * @brief Generates reflection output for already processed file data.
+         * @param data Preprocessed source data associated with the current file.
+         * @return `true` when generation completes without reflector errors.
+         */
         [[nodiscard]] bool generateNewContent(FileData& data);
+
+        /**
+         * @brief Processes a source file and generates its reflection output.
+         * @param path Header path to process.
+         * @param config Configuration used for generation and preprocessing.
+         * @return `true` when processing and generation succeed.
+         * @throw std::runtime_error If the input file does not exist.
+         */
         [[nodiscard]] bool run(const std::filesystem::path& path, const Config& config);
 
+        /**
+         * @brief Registers one reflector type with this processor.
+         * @tparam T A type derived from `BaseReflector`.
+         */
         template<IsBaseReflector T>
         void registerReflector();
 
+        /**
+         * @brief Tests whether a reflector type has already been registered.
+         * @tparam T A type derived from `BaseReflector`.
+         * @return `true` when an instance of `T` is registered.
+         */
         template<IsBaseReflector T>
         [[nodiscard]] bool hasReflector();
 
+        /**
+         * @brief Returns the registered reflectors in registration order.
+         */
         [[nodiscard]] const std::vector<std::unique_ptr<BaseReflector>>& getReflectors() const;
 
+        /**
+         * @brief Returns the header currently being processed.
+         */
         [[nodiscard]] const std::string& getHeaderFilename() const;
+
+        /**
+         * @brief Returns the `.cpp` path corresponding to the current header path.
+         */
         [[nodiscard]] std::string getSourceFilename() const;
+
+        /**
+         * @brief Finds a type known by exactly one registered reflector.
+         * @param fullPath Fully qualified type name to find.
+         * @return Type metadata when exactly one reflector recognizes the name.
+         */
         [[nodiscard]] std::optional<TypeMeta> findKnownTypeMeta(const std::string& fullPath) const;
 
+        /**
+         * @brief Tests whether a filename follows the generated-file naming convention.
+         * @param filename Filename or path to inspect.
+         * @return `true` for names formed with `newFileExtension`, such as `Source.generated.h`.
+         */
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
 
     protected:

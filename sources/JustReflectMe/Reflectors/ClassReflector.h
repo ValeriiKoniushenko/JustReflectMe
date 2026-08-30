@@ -32,6 +32,12 @@
 namespace JRM
 {
 
+    /**
+     * @brief Reflects `CLASS()`-marked classes and structs into `R<T>` specializations.
+     *
+     * Class reflection includes marked fields and supports generated serialization helpers and
+     * field metadata accessors.
+     */
     class ClassReflector : public BaseReflector
     {
     public:
@@ -42,6 +48,10 @@ namespace JRM
         ClassReflector& operator=(ClassReflector&&) noexcept = default;
         ~ClassReflector() override = default;
 
+        /**
+         * @brief Returns the marker recognized by this reflector.
+         * @return The `CLASS` trigger keyword.
+         */
         [[nodiscard]] constexpr std::string_view getTriggerKeyword() const noexcept override
         {
             return "CLASS";

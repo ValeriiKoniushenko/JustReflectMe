@@ -67,6 +67,9 @@ namespace FileNavigator
         return std::isspace(ch) || IsNewLine(ch);
     }
 
+    /**
+     * @brief Parsed type name together with selected declaration attributes.
+     */
     struct Typename
     {
         enum class Attribute

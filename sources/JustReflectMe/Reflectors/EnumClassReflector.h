@@ -33,6 +33,12 @@
 namespace JRM
 {
 
+    /**
+     * @brief Reflects `ENUM_CLASS()`-marked scoped enumerations into `R<T>` specializations.
+     *
+     * Generated enum metadata provides conversion and enumeration helpers for the reflected
+     * constants.
+     */
     class EnumClassReflector : public BaseReflector
     {
     public:
@@ -45,6 +51,10 @@ namespace JRM
 
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
+        /**
+         * @brief Returns the marker recognized by this reflector.
+         * @return The `ENUM_CLASS` trigger keyword.
+         */
         [[nodiscard]] constexpr std::string_view getTriggerKeyword() const noexcept override
         {
             return "ENUM_CLASS";

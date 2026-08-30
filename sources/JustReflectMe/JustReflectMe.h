@@ -33,6 +33,13 @@
 namespace JRM
 {
 
+    /**
+     * @brief Command-line entry point for scanning and generating a project.
+     *
+     * The expected invocation is `jrm <path-to-project>`. The project configuration is read from
+     * `Config::jrmFolder/Config::jrmConfig`, and eligible source files are processed with the
+     * built-in reflectors.
+     */
     class JustReflectMe final
     {
     public:
@@ -43,6 +50,13 @@ namespace JRM
         JustReflectMe& operator=(JustReflectMe&&) noexcept = delete;
         ~JustReflectMe() = default;
 
+        /**
+         * @brief Runs JustReflectMe with command-line arguments.
+         * @param argc Number of command-line arguments.
+         * @param argv Command-line argument values.
+         * @return `0` after a successful run and a non-zero value when argument parsing or file
+         * processing fails.
+         */
         [[nodiscard]] int run(int argc, char** argv);
 
     private:
