@@ -228,7 +228,10 @@ jobs:
           GITEATOKEN: ${{ secrets.GITEATOKEN }}
         run: |
           set +e
-          python3 .gitea/check_clang_tidy.py --base develop --build-dir build
+          python3 .gitea/check_clang_tidy.py \
+            --base develop \
+            --build-dir build \
+            --fail-on error
           exit_code=$?
           set -e
           if [ "$exit_code" -eq 1 ]; then
