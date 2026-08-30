@@ -280,10 +280,9 @@ def main(*, excluded_paths: tuple[str, ...] = ()) -> None:
             if changed_file is None or not is_changed_line(changed_file, line_no):
                 continue
 
+            check = m.group("check") or "clang-tidy"
             if check == "clang-diagnostic-error":
                 continue
-
-            check = m.group("check") or "clang-tidy"
 
             fp_src = f"{diagnostic_path}:{line_no}:{m.group('col')}:{check}"
             fp = hashlib.md5(fp_src.encode()).hexdigest()
