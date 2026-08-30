@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import sys
@@ -80,10 +81,13 @@ def file_coverage(summary: dict[str, object], source_base_url: str) -> list[str]
 def review_body(
         summary: dict[str, object],
         report_url: str | None,
+        report_name: str,
         source_base_url: str,
 ) -> str:
     report = (
-        f"[Open the generated HTML coverage report]({report_url})"
+        f'<a href="{html.escape(report_url, quote=True)}" '
+        f'download="{html.escape(report_name, quote=True)}">'
+        "Download the generated HTML coverage report</a>"
         if report_url
         else ""
     )
@@ -156,7 +160,12 @@ def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
         source_base_url = f"{client.server}/{client.owner}/{client.repo}/src/commit/{sha}"
         client.create_review(
             pr_number,
-            body=review_body(summary, report_url, source_base_url),
+            body=review_body(
+                summary,
+                report_url,
+                f"code-coverage-{sha[:12] or 'latest'}.html",
+                source_base_url,
+            ),
             event="COMMENT",
             commit_id=sha,
             marker=marker,
