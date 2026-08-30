@@ -153,6 +153,7 @@ def publish(summary: dict[str, object], report: Path, *, dry_run: bool) -> None:
                 pr_number,
                 str(report),
                 name=f"{ATTACHMENT_PREFIX}-{sha[:12] or 'latest'}.html",
+                content_type="application/octet-stream",
             )
             report_url = attachment["browser_download_url"]
         except Exception as error:

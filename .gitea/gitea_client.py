@@ -465,6 +465,7 @@ class GiteaClient:
             field_name: str,
             file_path: str,
             file_name: str,
+            content_type: str | None = None,
     ) -> Any:
         self._resolve_auth()
         assert self.auth_scheme
@@ -475,7 +476,11 @@ class GiteaClient:
                 field_name=field_name,
                 file_path=file_path,
                 file_name=file_name,
-                content_type=mimetypes.guess_type(file_name)[0] or "application/octet-stream",
+                content_type=(
+                    content_type
+                    or mimetypes.guess_type(file_name)[0]
+                    or "application/octet-stream"
+                ),
                 scheme=self.auth_scheme,
             )
         except urllib.error.HTTPError as e:
@@ -538,6 +543,7 @@ class GiteaClient:
             file_path: str,
             *,
             name: str,
+            content_type: str | None = None,
     ) -> dict[str, Any]:
         """Upload an attachment to an issue or pull request."""
         if not os.path.isfile(file_path):
@@ -549,6 +555,7 @@ class GiteaClient:
             field_name="attachment",
             file_path=file_path,
             file_name=name,
+            content_type=content_type,
         )
         if not isinstance(result, dict) or not result.get("browser_download_url"):
             raise RuntimeError(f"unexpected attachment response: {result!r}")
