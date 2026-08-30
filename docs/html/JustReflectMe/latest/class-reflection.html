@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Reflect classes and fields :: JustReflectMe</title>
+    <link rel="prev" href="reflection-model.html">
+    <link rel="next" href="enum-reflection.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>User guides</li>
+    <li><a href="class-reflection.html">Reflect classes and fields</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/class-reflection.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Reflect classes and fields</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>JRM reflects explicitly marked classes and structs.
+It generates identity metadata, metadata for direct fields, field lookup, and serialization helpers.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_declare_a_reflected_type"><a class="anchor" href="#_declare_a_reflected_type"></a>Declare a reflected type</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">CLASS();
+class Entity
+{
+    R_FRIEND(Entity);
+
+public:
+    FIELD(R::Required, R::Attr = Identity);
+    int id = 0;
+};
+
+CLASS();
+class Task : public Entity
+{
+    R_FRIEND(Task, Entity);
+
+public:
+    FIELD();
+    std::string title = "Untitled";
+
+    FIELD();
+    Priority priority = Priority::Normal;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The important rules are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>place <code>CLASS()</code> immediately before the definition, not a forward declaration;</p>
+</li>
+<li>
+<p>place <code>R_FRIEND(Type)</code> inside the class, using the unqualified class name;</p>
+</li>
+<li>
+<p>list serializable reflected bases after the class name in <code>R_FRIEND(Derived, Base1, Base2)</code>;</p>
+</li>
+<li>
+<p>place <code>FIELD()</code> immediately before each field that belongs to the reflection surface;</p>
+</li>
+<li>
+<p>include the generated companion after all declarations in the header.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Public, protected, and private fields can be reflected because the generated <code>R&lt;T&gt;</code> specialization is a friend.
+Methods and unmarked members are not part of class field metadata.
+Treat unusual data declarators such as bit-fields and marked static members as unsupported unless a focused generator test proves the exact form.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_inspect_metadata"><a class="anchor" href="#_inspect_metadata"></a>Inspect metadata</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    std::cout &lt;&lt; R&lt;Task&gt;::FullName() &lt;&lt; '\n';
+    for (const RClassField&amp; field : R&lt;Task&gt;::GetFields())
+    {
+        std::cout &lt;&lt; field.type &lt;&lt; ' ' &lt;&lt; field.name &lt;&lt; '\n';
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>GetFields()</code> returns <code>RClassField</code> entries containing a textual type, field name, and zero or more marker attributes.
+<code>GetFieldsMap()</code> indexes equivalent metadata by field name.
+Metadata describes fields declared directly in the type; base fields are serialized through the base specialization but are not added to the derived type&#8217;s <code>GetFields()</code> result.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_access_a_field_by_name"><a class="anchor" href="#_access_a_field_by_name"></a>Access a field by name</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    const bool found = R&lt;Task&gt;::GetField(restored, "title",
+                                         [](void* address, const char* type)
+                                         {
+                                             if (std::string_view(type) == "std::string")
+                                             {
+                                                 *static_cast&lt;std::string*&gt;(address) = "Published";
+                                             }
+                                         });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>GetField</code> calls the callback synchronously with an untyped address and textual type, and returns <code>false</code> for an unknown name or empty callback.
+The caller is responsible for checking the type string before casting.
+Because the API exposes mutable addresses and currently casts away constness for a reflected const field, reserve it for controlled infrastructure such as editors or serializers.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_defaults_requirements_and_attributes"><a class="anchor" href="#_defaults_requirements_and_attributes"></a>Defaults, requirements, and attributes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A field initializer becomes the generated deserialization fallback unless <code>R::NoDefaultValue</code> is present.
+Without a usable initializer, JRM value-initializes the field type as the fallback.</p>
+</div>
+<div class="paragraph">
+<p><code>R::Required</code> makes a missing JSON key an error; <code>R::NonRequired</code> is the default.
+<code>R::Attr = Identifier</code> records the identifier as metadata without changing serialization behavior.
+Multiple attributes are preserved in declaration order.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="markers.html" class="xref page">Marker macros and field options</a> for the complete option table.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="reflection-model.html">How reflection works</a></span>
+  <span class="next"><a href="enum-reflection.html">Reflect enum classes</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+# tag::full_config[]
+excludedPaths:
+  - .cache
+  - .git
+  - .idea
+  - .jrm
+  - .vscode
+  - JustReflectMe
+  - build
+
+parsableFileExtensions:
+  - .h
+  - .hpp
+  - .hxx
+  - .hh
+  - .h++
+
+showEveryIteratedFilePath: false
+showSkippedFiles: false
+alwaysDirtyCache: false
+insertCodeAtTheTop:
+insertCodeAtTheBottom:
+ignoreSerializationSignals: true
+
+rFriendAliases:
+  - R_FRIEND
+# end::full_config[]

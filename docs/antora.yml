@@ -1,0 +1,5 @@
+name: JustReflectMe
+title: JustReflectMe
+version: latest
+nav:
+  - modules/ROOT/nav.adoc

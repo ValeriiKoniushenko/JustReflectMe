@@ -1,0 +1,20 @@
+* xref:index.adoc[JustReflectMe]
+* Start here
+** xref:overview.adoc[Why JustReflectMe?]
+** xref:getting-started.adoc[Getting started]
+** xref:reflection-model.adoc[How reflection works]
+* User guides
+** xref:class-reflection.adoc[Reflect classes and fields]
+** xref:enum-reflection.adoc[Reflect enum classes]
+** xref:serialization.adoc[Serialize and deserialize]
+** xref:inheritance-and-signals.adoc[Inheritance and lifecycle signals]
+* Reference
+** xref:generated-api.adoc[Generated R<T> API]
+** xref:markers.adoc[Marker macros and field options]
+** xref:configuration.adoc[Configuration]
+** xref:cli.adoc[Command-line interface]
+** xref:limitations.adoc[Scope and limitations]
+* Project
+** xref:architecture.adoc[Architecture]
+** xref:development.adoc[Build, test, and benchmark]
+** xref:troubleshooting.adoc[Troubleshooting]

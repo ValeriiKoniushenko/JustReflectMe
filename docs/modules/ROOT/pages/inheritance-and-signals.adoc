@@ -1,0 +1,36 @@
+= Inheritance and lifecycle signals
+
+== Select serializable bases explicitly
+
+JRM parses C++ base declarations, but only bases listed after the class itself in `R_FRIEND` participate in generated serialization.
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=reflected_classes]
+----
+
+Here `Task` names `Entity`, so serialization first merges `R<Entity>::Serialize(...)` into the destination and then writes `Task`'s direct fields.
+Deserialization applies the base specialization before the derived fields.
+
+All listed bases must be accessible through the derived object and must have generated reflection visible where the derived specialization is compiled.
+Non-reflected bases can remain in the C++ inheritance list; omit them from `R_FRIEND`.
+
+`GetFields()`, `GetFieldsMap()`, `GetFieldNumbers()`, and `GetField()` describe only direct fields in the generated specialization.
+Call a base specialization separately when tooling needs base metadata.
+
+== Control callbacks across a hierarchy
+
+Every generated class serializer and deserializer can invoke the optional pre/post callbacks described in xref:serialization.adoc[Lifecycle signals].
+
+The `ignoreSerializationSignals` configuration option affects nested base calls:
+
+* `true` (default): only the top-level object's callbacks run; generated base calls pass `noSignals=true`;
+* `false`: base callbacks run as the hierarchy is processed.
+
+Independent direct calls to `R<Base>::Serialize` or `Deserialize` still run base callbacks unless their `noSignals` argument is explicitly `true`.
+
+== Multiple inheritance
+
+The generator can parse multiple bases and serialize any reflected bases named in `R_FRIEND`.
+Order the names to match the desired merge/deserialization order.
+If two bases write the same JSON key, later writes can replace earlier data; design field names to avoid collisions.

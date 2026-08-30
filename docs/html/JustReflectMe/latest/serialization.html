@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Serialize and deserialize :: JustReflectMe</title>
+    <link rel="prev" href="enum-reflection.html">
+    <link rel="next" href="inheritance-and-signals.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>User guides</li>
+    <li><a href="serialization.html">Serialize and deserialize</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/serialization.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Serialize and deserialize</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generated class and enum specializations serialize through <code>RResourceStream&lt;RImpl&gt;</code>.
+The facade isolates generated code from a concrete data container; <code>RJsonResourceStream</code> is the built-in implementation and uses <code>nlohmann::json</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_json_round_trip"><a class="anchor" href="#_json_round_trip"></a>JSON round trip</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    const auto stream = R&lt;Task&gt;::Serialize(task);
+    std::cout &lt;&lt; stream.getData().dump(2) &lt;&lt; '\n';
+
+    Task restored;
+    R&lt;Task&gt;::Deserialize(stream, restored);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>R&lt;T&gt;::Serialize(object)</code> returns a stream.
+Call <code>getData()</code> to read or mutate its underlying JSON value.
+The overload taking an existing stream is useful when composing output.</p>
+</div>
+<div class="paragraph">
+<p>Class serialization writes one key for each reflected field and merges fields from every reflected base named in <code>R_FRIEND</code>.
+Reflected enums are represented by their symbolic names.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_missing_fields"><a class="anchor" href="#_missing_fields"></a>Missing fields</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>During deserialization, a missing field is assigned its declared initializer when JRM could capture one; otherwise it is value-initialized.
+The stream appends <code>(field name, RStatus::NotFound)</code> to <code>logs()</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>R::Required</code> still applies the fallback and records the diagnostic, then throws <code>std::runtime_error</code>.
+The default <code>R::NonRequired</code> behavior does not throw.
+<code>R::NoDefaultValue</code> tells the generator not to copy the source initializer into generated deserialization code; it does not make a field required.</p>
+</div>
+<div class="paragraph">
+<p>These missing-field options are reliably forwarded for ordinary class-field reads.
+The current generated path for a field whose type is itself a reflected enum does not forward all <code>FIELD</code> missing-policy flags; keep an explicit enum default and validate required enum keys outside the generated call when that distinction matters.</p>
+</div>
+<div class="paragraph">
+<p>Malformed values and unsupported conversions are reported by the underlying nlohmann JSON operations.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_supported_value_types"><a class="anchor" href="#_supported_value_types"></a>Supported value types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The JSON adapter accepts types that nlohmann JSON can read and write.
+For a user-defined field type, provide compatible <code>to_json</code> and <code>from_json</code> functions, or reflect the type in the same file so JRM can link it to its generated specialization where supported.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lifecycle_signals"><a class="anchor" href="#_lifecycle_signals"></a>Lifecycle signals</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generated class serialization detects these optional member callbacks:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>onPreSerialize(const void*) const</code>;</p>
+</li>
+<li>
+<p><code>onPostSerialize(const void*, const RLogsCollector&amp;) const</code>;</p>
+</li>
+<li>
+<p><code>onPreDeserialize(void*)</code>;</p>
+</li>
+<li>
+<p><code>onPostDeserialize(void*, const RLogsCollector&amp;)</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The actual first parameter is passed as a pointer to the current object; <code>nullptr</code> in the detection expression is only used to check call compatibility.
+The boolean <code>noSignals</code> parameter on generated class operations suppresses callbacks for that invocation.</p>
+</div>
+<div class="paragraph">
+<p>For inherited serialization, <a href="configuration.html" class="xref page"><code>ignoreSerializationSignals</code></a> controls whether generated calls into reflected bases suppress the base callbacks.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_formats"><a class="anchor" href="#_custom_formats"></a>Custom formats</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A custom implementation derives from <code>RBaseResourceStreamImpl&lt;DataT&gt;</code> and supplies the named-field <code>read</code> and <code>write</code> operations required by the <code>IsResourceStreamImpl</code> concept.
+The implementation owns its data representation and diagnostic log; application code then uses <code>RResourceStream&lt;YourImplementation&gt;</code> and passes that stream implementation as the generated API&#8217;s <code>RImpl</code> template argument.</p>
+</div>
+<div class="paragraph">
+<p>The abstraction is extensible, but current enum and reflected-enum-field generation assumes JSON-like string extraction in parts of the generated implementation.
+Validate a custom adapter against every reflected shape you rely on rather than assuming complete format independence.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="enum-reflection.html">Reflect enum classes</a></span>
+  <span class="next"><a href="inheritance-and-signals.html">Inheritance and lifecycle signals</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

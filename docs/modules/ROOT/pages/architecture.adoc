@@ -1,0 +1,52 @@
+= Architecture
+
+This page is for maintainers and integrators who need to understand where behavior lives.
+
+== Major components
+
+[cols="2,4"]
+|===
+|Component |Responsibility
+
+|`JustReflectMe`
+|Owns CLI processing, configuration loading, recursive traversal, cache decisions, and per-file orchestration.
+
+|`ConfigManager`
+|Creates and parses `.jrm/config.yaml`, applies defaults, and diagnoses unknown or malformed values.
+
+|`Cache`
+|Stores per-file modification timestamps in `.jrm/cache.data` and decides whether a file needs processing.
+
+|`FileProcessor`
+|Loads and preprocesses one file, registers reflectors, constructs `FileData`, combines output, writes changed generated content, and integrates includes.
+
+|`FileData` and `Scopes`
+|Hold placeholder-protected source text and its lexical scope tree for one file.
+
+|`BaseReflector`
+|Finds trigger tokens, coordinates scanning/generation, resolves shared type metadata, and records diagnostics.
+
+|`ClassReflector`
+|Parses marked classes/structs, fields, options, friendship, and reflected bases; emits class `R<T>` specializations.
+
+|`EnumClassReflector`
+|Parses marked scoped enums and emits conversion, collection, and serialization APIs.
+
+|`Adapter`
+|Provides marker macros and the runtime API: `R<T>`, metadata records, stream concepts/facades, JSON implementation, statuses, and signal detection.
+|===
+
+== Per-file processing
+
+`JustReflectMe::goThroughFiles` constructs a new `FileProcessor` for each eligible changed file and registers enum reflection before class reflection.
+The processor removes comments and protects literals, scans scopes once into shared `FileData`, then lets every reflector scan.
+A post-scan pass resolves intersections such as a class field whose enum type is reflected in the same file.
+
+Generation asks each reflector for required includes and specialization text, combines those results into one header, and integrates the companion include into the original file.
+
+== Extension points
+
+The internal reflector design allows another `BaseReflector` subclass to register a new marker and generated output.
+That is a generator-internal extension and requires changing the executable's registration path.
+
+The supported application-level extension point is the resource-stream implementation described in xref:serialization.adoc[Custom formats].

@@ -1,0 +1,99 @@
+= Getting started
+
+This guide builds JRM, connects its runtime adapter and generator to an application, and reflects a small inheritance model.
+
+== Prerequisites
+
+The current CMake project requires:
+
+* CMake 3.30 or newer;
+* a GCC, Clang, or MSVC toolchain with the CMake `cxx_std_23` feature;
+* Git submodules for the bundled dependencies;
+* a build system supported by CMake, with Ninja used in the examples.
+
+Project policy targets C++26 as toolchains mature, but the shipped build currently requests C++23.
+
+== Build JRM itself
+
+[source,shell]
+----
+include::example$commands.sh[tag=clone_and_build]
+----
+
+The resulting generator is `build/bin/jrm`; with tests enabled, the test executable is `build/bin/JRMTests`.
+
+== Integrate it into a CMake application
+
+Add the checkout as a subdirectory and link the runtime adapter:
+
+[source,cmake]
+----
+include::example$quickstart/CMakeLists.txt[tag=dependency]
+----
+
+Then create a generator target and make the application depend on it:
+
+[source,cmake]
+----
+include::example$quickstart/CMakeLists.txt[tag=generator]
+----
+
+Use `$<TARGET_FILE:jrm>` rather than assuming the executable path; this works across single- and multi-configuration CMake generators.
+The generator must run before compilation because the reflected header includes its generated companion.
+
+[NOTE]
+====
+The checked-in example's `JRM_SOURCE_DIR` points back to this repository.
+In another project, set it to the location where JRM was cloned or vendored.
+If that directory sits below the scanned project root, add its relative path to `excludedPaths`.
+====
+
+== Declare reflected types
+
+Include the adapter, put `ENUM_CLASS()` before a scoped enum, and put `CLASS()` before a class or struct.
+Every reflected class needs `R_FRIEND`; only fields immediately marked with `FIELD()` are included.
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=reflected_enum]
+----
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=reflected_classes]
+----
+
+On the first scan, JRM appends the generated-header include to the source header:
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=generated_include]
+----
+
+Do not edit `model.generated.h`; a later scan replaces it.
+
+== Run the generator
+
+The CMake target runs automatically in this example, or you can scan a project directly:
+
+[source,shell]
+----
+include::example$commands.sh[tag=run_generator]
+----
+
+The project path must exist.
+The first run creates `.jrm/config.yaml` and `.jrm/cache.data` in that project root.
+
+== Consume the metadata
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=enum_metadata]
+----
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=class_metadata]
+----
+
+The remainder of the guide explains xref:class-reflection.adoc[class metadata], xref:enum-reflection.adoc[enum conversion], and xref:serialization.adoc[JSON round trips].

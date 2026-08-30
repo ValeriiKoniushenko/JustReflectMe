@@ -1,0 +1,59 @@
+= Serialize and deserialize
+
+Generated class and enum specializations serialize through `RResourceStream<RImpl>`.
+The facade isolates generated code from a concrete data container; `RJsonResourceStream` is the built-in implementation and uses `nlohmann::json`.
+
+== JSON round trip
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=json_round_trip]
+----
+
+`R<T>::Serialize(object)` returns a stream.
+Call `getData()` to read or mutate its underlying JSON value.
+The overload taking an existing stream is useful when composing output.
+
+Class serialization writes one key for each reflected field and merges fields from every reflected base named in `R_FRIEND`.
+Reflected enums are represented by their symbolic names.
+
+== Missing fields
+
+During deserialization, a missing field is assigned its declared initializer when JRM could capture one; otherwise it is value-initialized.
+The stream appends `(field name, RStatus::NotFound)` to `logs()`.
+
+`R::Required` still applies the fallback and records the diagnostic, then throws `std::runtime_error`.
+The default `R::NonRequired` behavior does not throw.
+`R::NoDefaultValue` tells the generator not to copy the source initializer into generated deserialization code; it does not make a field required.
+
+These missing-field options are reliably forwarded for ordinary class-field reads.
+The current generated path for a field whose type is itself a reflected enum does not forward all `FIELD` missing-policy flags; keep an explicit enum default and validate required enum keys outside the generated call when that distinction matters.
+
+Malformed values and unsupported conversions are reported by the underlying nlohmann JSON operations.
+
+== Supported value types
+
+The JSON adapter accepts types that nlohmann JSON can read and write.
+For a user-defined field type, provide compatible `to_json` and `from_json` functions, or reflect the type in the same file so JRM can link it to its generated specialization where supported.
+
+== Lifecycle signals
+
+Generated class serialization detects these optional member callbacks:
+
+* `onPreSerialize(const void*) const`;
+* `onPostSerialize(const void*, const RLogsCollector&) const`;
+* `onPreDeserialize(void*)`;
+* `onPostDeserialize(void*, const RLogsCollector&)`.
+
+The actual first parameter is passed as a pointer to the current object; `nullptr` in the detection expression is only used to check call compatibility.
+The boolean `noSignals` parameter on generated class operations suppresses callbacks for that invocation.
+
+For inherited serialization, xref:configuration.adoc[`ignoreSerializationSignals`] controls whether generated calls into reflected bases suppress the base callbacks.
+
+== Custom formats
+
+A custom implementation derives from `RBaseResourceStreamImpl<DataT>` and supplies the named-field `read` and `write` operations required by the `IsResourceStreamImpl` concept.
+The implementation owns its data representation and diagnostic log; application code then uses `RResourceStream<YourImplementation>` and passes that stream implementation as the generated API's `RImpl` template argument.
+
+The abstraction is extensible, but current enum and reflected-enum-field generation assumes JSON-like string extraction in parts of the generated implementation.
+Validate a custom adapter against every reflected shape you rely on rather than assuming complete format independence.

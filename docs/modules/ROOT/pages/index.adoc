@@ -1,0 +1,46 @@
+= JustReflectMe
+:page-aliases: home.adoc
+
+JustReflectMe (JRM) is a build-time reflection and code-generation tool for C++.
+It scans annotated headers, generates `R<T>` specializations, and gives application code a small runtime API for type metadata, field metadata, enum conversion, field access, and JSON serialization.
+
+JRM is useful when an application needs explicit, predictable reflection today and adopting compiler-specific reflection is not practical.
+It does not patch the compiler or change the object layout: the marker macros compile as harmless declarations, while the `jrm` executable produces ordinary C++ in adjacent `*.generated.h` files.
+
+== What it provides
+
+[cols="1,3"]
+|===
+|Capability |Result
+
+|Class and struct reflection
+|Names, enclosing scope, direct-field count, field type/name/attributes, runtime field lookup, and serialization helpers.
+
+|Scoped-enum reflection
+|Names, enclosing scope, value count, string conversion, arrays, maps, and serialization helpers.
+
+|Generated JSON serialization
+|A format-independent stream facade backed by `nlohmann::json` by default, including missing-field diagnostics and required-field handling.
+
+|Incremental generation
+|A project-local `.jrm/cache.data` avoids regenerating unchanged inputs; generated files are only rewritten when their content changes.
+
+|Build integration
+|CMake targets for the runtime adapter and generator, with GCC, Clang, and MSVC project support.
+|===
+
+== Start with the right page
+
+* New user: xref:getting-started.adoc[build the quickstart].
+* Evaluating the library: xref:overview.adoc[understand its fit and tradeoffs].
+* Adding annotations: xref:class-reflection.adoc[classes] and xref:enum-reflection.adoc[enum classes].
+* Configuring a scan: xref:configuration.adoc[review every option].
+* Looking up generated functions: xref:generated-api.adoc[use the `R<T>` API reference].
+
+[IMPORTANT]
+====
+JRM currently reasons about one file at a time and uses a purpose-built source scanner rather than a complete C++ compiler frontend.
+Read xref:limitations.adoc[Scope and limitations] before adopting it for template-heavy or macro-generated models.
+====
+
+JRM is licensed under the MIT License.

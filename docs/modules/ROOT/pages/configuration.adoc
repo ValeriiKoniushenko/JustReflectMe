@@ -1,0 +1,66 @@
+= Configuration
+
+JRM reads `<project-root>/.jrm/config.yaml`.
+When the file is missing, the first generator run creates a commented default configuration.
+
+[source,yaml]
+----
+include::example$config/config.yaml[tag=full_config]
+----
+
+== Options
+
+[cols="2,1,4"]
+|===
+|Key |Default |Purpose
+
+|`excludedPaths`
+|`.cache`, `.git`, `.idea`, `.jrm`, `.vscode`, `JustReflectMe`, `build`
+|Relative project paths that the recursive scanner does not enter. Entries are matched against paths relative to the scan root.
+
+|`parsableFileExtensions`
+|`.h`, `.hpp`, `.hxx`, `.hh`, `.h++`
+|Exact file extensions eligible for scanning. Generated filenames are excluded separately.
+
+|`showEveryIteratedFilePath`
+|`false`
+|Print every path encountered during traversal and the configured extension set.
+
+|`showSkippedFiles`
+|`false`
+|Print eligible files skipped because their cached timestamp is unchanged.
+
+|`alwaysDirtyCache`
+|`false`
+|Regenerate every eligible file instead of using timestamp decisions.
+
+|`insertCodeAtTheTop`
+|empty
+|Insert text near the top of generated output, after the generated-file warning.
+
+|`insertCodeAtTheBottom`
+|empty
+|Append text to generated output.
+
+|`ignoreSerializationSignals`
+|`true`
+|Suppress lifecycle callbacks in generated base-class calls while leaving the top-level callbacks enabled.
+
+|`rFriendAliases`
+|`R_FRIEND`
+|Source spellings accepted when locating the required friend declaration.
+|===
+
+Omitted keys keep their defaults.
+Unknown top-level keys produce a warning but do not by themselves fail configuration loading.
+Malformed YAML is diagnosed and marks configuration loading as errored.
+Because the current CLI can continue scanning with the default values that remain in memory, treat the diagnostic itself as authoritative instead of relying only on the final process status.
+
+== Cache behavior
+
+`.jrm/cache.data` stores timestamps for successfully reflected files using paths relative to the project root.
+Delete only this file, or set `alwaysDirtyCache: true`, when you intentionally need a full regeneration.
+The next successful run rebuilds the cache.
+
+The cache is a build acceleration mechanism, not a source of reflection metadata.
+Do not edit it manually.

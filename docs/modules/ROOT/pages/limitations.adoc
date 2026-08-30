@@ -1,0 +1,37 @@
+= Scope and limitations
+
+JRM deliberately implements a focused reflection model.
+Understanding its boundary is more useful than treating it as a full C++ parser.
+
+== Supported reflection surface
+
+The current generator recognizes explicitly marked classes, structs, scoped enums, and non-static fields.
+It understands file, namespace, class, struct, enum-class, template, and anonymous brace scopes well enough to place supported specializations and report source locations.
+
+== Current constraints
+
+* Analysis and type cross-linking are file-local. A reflector cannot build a project-wide type graph.
+* Classes and enum classes inside template scopes are rejected or skipped. Class-template reflection is not currently supported.
+* Only extensions listed in `parsableFileExtensions` are scanned; the defaults are header extensions, not `.cpp`.
+* Marker-driven parsing expects conventional declarations. Complex macro expansion, unusual declarators, multiple data declarators in one statement, and advanced template syntax may not scan correctly.
+* Prefer assignment-style field initializers when the braced form would need template argument deduction in generated deserialization code. In particular, use an assignment-style string initializer.
+* Put enum constants on separate lines. The enum scanner advances line by line.
+* Class metadata covers fields declared directly in that class. Base metadata remains in each base's `R<Base>` specialization.
+* `GetField` is an untyped mutable callback API; it does not provide type-safe dynamic invocation.
+* Serialization has no schema versioning or migration layer.
+* JSON is the production adapter, and some reflected-enum paths currently assume JSON-like string access even when a custom stream is selected.
+* Missing-field flags are not fully forwarded by the generated reflected-enum field path. Give reflected enum fields explicit defaults and validate required keys at the application boundary.
+* Generated output is a sibling `.generated.h`; source-generation for `.cpp` and `.inl` output is not part of the current end-to-end path.
+
+== C++ language level
+
+Repository policy is moving toward C++26, but the current CMake targets request `cxx_std_23`.
+Do not assume that every C++26 language or library feature is available across GCC, Clang, and MSVC.
+
+== Error model
+
+Structural syntax failures can fail a scan, while malformed configuration is diagnosed during loading.
+Unsupported marked declarations may emit a warning or error and remain without usable generated metadata.
+Treat any generator diagnostic as a build issue rather than relying only on the exit status: compilation may otherwise consume defaults or stale generated code.
+
+For common recovery steps, see xref:troubleshooting.adoc[Troubleshooting].

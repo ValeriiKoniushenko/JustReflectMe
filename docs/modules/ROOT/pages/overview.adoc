@@ -1,0 +1,55 @@
+= Why JustReflectMe?
+
+== The problem it solves
+
+Applications often need a stable description of their own C++ types for editors, persistence, inspection, diagnostics, or data-driven systems.
+Hand-written metadata and serializers work, but the declarations and their supporting code can drift apart.
+
+JRM makes the source declaration authoritative.
+You mark the types and fields that form the reflection boundary, run the generator before compilation, and consume generated `R<T>` specializations as normal C++.
+
+== A good fit
+
+Choose JRM when:
+
+* your build can run a host code-generator before compiling reflected headers;
+* your reflection model is based primarily on classes, structs, scoped enums, and fields;
+* explicit opt-in markers are preferable to reflecting every declaration;
+* JSON persistence is useful, or you are prepared to implement the resource-stream contract for another format;
+* generated code should remain inspectable and debuggable;
+* the relevant reflected types can be resolved within each individual file.
+
+Common uses include engine object metadata, save/configuration data, editor property panels, command or schema registries, and diagnostic tooling.
+
+== Consider another approach when
+
+JRM is not intended to be a general C++ AST, a compiler plugin, or a replacement for language-level reflection.
+Consider another approach when you need reflection across translation units, arbitrary template instantiations, functions and method invocation, ABI-level introspection, automatic schema migration, or full understanding of preprocessor-dependent C++.
+
+If all you need is JSON conversion for a few types, direct `nlohmann::json` adapters may be simpler.
+If your type system is defined outside C++, a schema-first generator may provide stronger compatibility guarantees.
+
+== Design tradeoffs
+
+[cols="1,2,2"]
+|===
+|Decision |Benefit |Cost
+
+|Marker-driven scanning
+|Only explicitly selected declarations become part of the reflection surface.
+|Markers and an `R_FRIEND` declaration must be maintained in source.
+
+|Generated ordinary C++
+|The output is visible, compiler-checkable, and usable without patched toolchains.
+|Generation must finish before any target compiles a reflected header.
+
+|File-local analysis
+|Scanning is lightweight and incremental.
+|Relationships that require knowledge from another file cannot currently be resolved.
+
+|JSON default adapter
+|Useful serialization works without designing a format layer first.
+|The runtime adapter depends on nlohmann JSON and serialization is not format-neutral in every generated path yet.
+|===
+
+Continue with xref:getting-started.adoc[Getting started] for a complete minimal integration.

@@ -1,0 +1,50 @@
+= Troubleshooting
+
+== A generated header is missing
+
+Confirm that the source extension is in `parsableFileExtensions`, the file is not under an `excludedPaths` entry, and the header contains a valid marker.
+Run `jrm` directly against the project root and inspect its diagnostics.
+
+Files with no valid reflection tokens intentionally do not get a generated companion.
+If the original header already includes a missing generated file, remove that stale include only after confirming the type is no longer intended to be reflected.
+
+== Compilation starts before generation
+
+Make the consuming CMake target depend on the generator target, as shown in xref:getting-started.adoc[Getting started].
+Linking `JustReflectMe::Adapter` provides runtime symbols but does not by itself schedule the generator.
+
+== A changed header is skipped
+
+Set `showSkippedFiles: true` to inspect cache decisions.
+Delete `.jrm/cache.data` or temporarily set `alwaysDirtyCache: true` to force regeneration.
+Do not delete the whole `.jrm` directory unless you also intend to recreate configuration.
+
+== A class is marked but not reflected
+
+Check that:
+
+* `CLASS()` is adjacent to a definition rather than a forward declaration;
+* the definition is not inside a template scope;
+* the class contains `R_FRIEND(TheUnqualifiedClassName)` or a configured alias;
+* each reflected field has a well-formed `FIELD()` marker and one declarator;
+* the generator printed no syntax warning or error.
+
+== An enum value is absent
+
+Put every enumerator on a separate line and regenerate.
+Conversions are case-sensitive, and `FromString` returns no value for spelling differences.
+
+== Deserialization throws for a missing key
+
+The field is probably marked `R::Required`.
+Inspect `stream.logs()` for `RStatus::NotFound`, then either supply the field, make it non-required, or handle the exception as a schema validation failure.
+
+== A reflected type in another header is treated as an ordinary field
+
+Cross-link resolution is currently per file.
+Move tightly coupled reflected declarations into the same header, provide a nlohmann JSON conversion for the field type, or serialize that relationship explicitly.
+
+== The Antora site does not start
+
+Run Antora from `docs/` with `antora-playbook.yml` only after installing the Antora CLI and site generator.
+The documentation-writing workflow intentionally does not build the generated `docs/html` output.

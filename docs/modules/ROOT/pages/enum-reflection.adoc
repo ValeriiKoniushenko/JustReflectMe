@@ -1,0 +1,39 @@
+= Reflect enum classes
+
+JRM supports scoped enumerations marked with `ENUM_CLASS()`.
+The generated specialization provides type identity, bidirectional name conversion, ordered arrays, lookup maps, and resource-stream serialization.
+
+== Declare an enum class
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=reflected_enum]
+----
+
+Place each enumerator on its own line.
+Explicit value expressions are preserved in the C++ declaration, while reflection metadata uses the enum constants themselves.
+
+== Convert and enumerate
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=enum_metadata]
+----
+
+Conversions are exact and case-sensitive.
+`FromString()` returns `std::nullopt` for an unknown name; `ToString()` returns an empty `std::string_view` for a value absent from the reflected map.
+
+The generated API also exposes:
+
+* `ToArrayC()` for constants in declaration order;
+* `ToArrayN()` for names in declaration order;
+* `ToMapCN()` for constant-to-name lookup;
+* `ToMapNC()` for name-to-constant lookup.
+
+== Serialization
+
+Enum serialization stores the reflected name rather than the underlying integer.
+Deserializing into an existing enum changes it only when the serialized name is recognized.
+
+When a reflected class field has a reflected enum type in the same file, the class generator emits the corresponding string conversion automatically.
+See xref:serialization.adoc[Serialize and deserialize] for stream behavior.

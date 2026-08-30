@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Scope and limitations :: JustReflectMe</title>
+    <link rel="prev" href="cli.html">
+    <link rel="next" href="architecture.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>Reference</li>
+    <li><a href="limitations.html">Scope and limitations</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/limitations.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Scope and limitations</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>JRM deliberately implements a focused reflection model.
+Understanding its boundary is more useful than treating it as a full C++ parser.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_supported_reflection_surface"><a class="anchor" href="#_supported_reflection_surface"></a>Supported reflection surface</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The current generator recognizes explicitly marked classes, structs, scoped enums, and non-static fields.
+It understands file, namespace, class, struct, enum-class, template, and anonymous brace scopes well enough to place supported specializations and report source locations.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_current_constraints"><a class="anchor" href="#_current_constraints"></a>Current constraints</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Analysis and type cross-linking are file-local. A reflector cannot build a project-wide type graph.</p>
+</li>
+<li>
+<p>Classes and enum classes inside template scopes are rejected or skipped. Class-template reflection is not currently supported.</p>
+</li>
+<li>
+<p>Only extensions listed in <code>parsableFileExtensions</code> are scanned; the defaults are header extensions, not <code>.cpp</code>.</p>
+</li>
+<li>
+<p>Marker-driven parsing expects conventional declarations. Complex macro expansion, unusual declarators, multiple data declarators in one statement, and advanced template syntax may not scan correctly.</p>
+</li>
+<li>
+<p>Prefer assignment-style field initializers when the braced form would need template argument deduction in generated deserialization code. In particular, use an assignment-style string initializer.</p>
+</li>
+<li>
+<p>Put enum constants on separate lines. The enum scanner advances line by line.</p>
+</li>
+<li>
+<p>Class metadata covers fields declared directly in that class. Base metadata remains in each base&#8217;s <code>R&lt;Base&gt;</code> specialization.</p>
+</li>
+<li>
+<p><code>GetField</code> is an untyped mutable callback API; it does not provide type-safe dynamic invocation.</p>
+</li>
+<li>
+<p>Serialization has no schema versioning or migration layer.</p>
+</li>
+<li>
+<p>JSON is the production adapter, and some reflected-enum paths currently assume JSON-like string access even when a custom stream is selected.</p>
+</li>
+<li>
+<p>Missing-field flags are not fully forwarded by the generated reflected-enum field path. Give reflected enum fields explicit defaults and validate required keys at the application boundary.</p>
+</li>
+<li>
+<p>Generated output is a sibling <code>.generated.h</code>; source-generation for <code>.cpp</code> and <code>.inl</code> output is not part of the current end-to-end path.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_c_language_level"><a class="anchor" href="#_c_language_level"></a>C++ language level</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Repository policy is moving toward C26, but the current CMake targets request `cxx_std_23`.
+Do not assume that every C26 language or library feature is available across GCC, Clang, and MSVC.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_error_model"><a class="anchor" href="#_error_model"></a>Error model</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Structural syntax failures can fail a scan, while malformed configuration is diagnosed during loading.
+Unsupported marked declarations may emit a warning or error and remain without usable generated metadata.
+Treat any generator diagnostic as a build issue rather than relying only on the exit status: compilation may otherwise consume defaults or stale generated code.</p>
+</div>
+<div class="paragraph">
+<p>For common recovery steps, see <a href="troubleshooting.html" class="xref page">Troubleshooting</a>.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="cli.html">Command-line interface</a></span>
+  <span class="next"><a href="architecture.html">Architecture</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

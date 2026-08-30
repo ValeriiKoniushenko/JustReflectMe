@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Build, test, and benchmark :: JustReflectMe</title>
+    <link rel="prev" href="architecture.html">
+    <link rel="next" href="troubleshooting.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>Project</li>
+    <li><a href="development.html">Build, test, and benchmark</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/development.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Build, test, and benchmark</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This page summarizes the repository workflows used to validate JRM itself.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_incremental_build_and_unit_tests"><a class="anchor" href="#_incremental_build_and_unit_tests"></a>Incremental build and unit tests</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">git clone --recurse-submodules https://github.com/ValeriiKoniushenko/JustReflectMe.git
+cd JustReflectMe
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DJRM_DISABLE_TESTS=OFF
+cmake --build build --parallel</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">build/bin/JRMTests</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The test target runs JRM over <code>tests/</code> before compiling the suite, so the user-acceptance headers exercise the generated specializations.
+Tests cover configuration and cache behavior, preprocessing and scope navigation, reflector diagnostics, generated-file integration, metadata, class and enum serialization, inheritance, and runtime adapter behavior.</p>
+</div>
+<div class="paragraph">
+<p>Prefer incremental builds.
+Use a clean build only after structural CMake or toolchain changes, or when the build cache is demonstrably stale.</p>
+</div>
+<div class="sect2">
+<h3 id="_cmake_configuration_options"><a class="anchor" href="#_cmake_configuration_options"></a>CMake configuration options</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Option</th>
+<th class="tableblock halign-left valign-top">Default</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JRM_DISABLE_TESTS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OFF</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Skip GoogleTest targets and the test-time code-generation target. Consumer projects normally set this to <code>ON</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JRM_ENABLE_BENCHMARKS</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OFF</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Build <code>JRMStringAndNavigationBenchmarks</code>. It cannot be combined with coverage instrumentation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JRM_ENABLE_CODE_COVERAGE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OFF</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instrument supported GCC or Clang targets. Tests must remain enabled.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JRM_GENERATE_CODE_COVERAGE_HTML</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OFF</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add the <code>JRMCodeCoverageHtml</code> target. Requires coverage instrumentation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>JRM_CODE_COVERAGE_OUTPUT_DIRECTORY</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;build-dir&gt;/coverage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Select the report directory. It must be a child of the active CMake binary directory and cannot equal that directory.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_c_policy_and_quality_checks"><a class="anchor" href="#_c_policy_and_quality_checks"></a>C++ policy and quality checks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The repository targets C++26 as an engineering policy while retaining a current CMake <code>cxx_std_23</code> feature requirement for available toolchains.
+MSVC debug information uses embedded <code>/Z7</code>-style data for ccache compatibility.</p>
+</div>
+<div class="paragraph">
+<p>Before committing C changes, run clang-format on changed C/C files and clang-tidy with a configured <code>compile_commands.json</code>.
+CI checks formatting, static analysis, GCC and Clang builds, unit tests, coverage, and Valgrind.</p>
+</div>
+<div class="paragraph">
+<p>For documentation example changes, the focused format check is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">clang-format --dry-run --Werror \
+  docs/modules/ROOT/examples/quickstart/main.cpp \
+  docs/modules/ROOT/examples/quickstart/model.h</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_benchmarks"><a class="anchor" href="#_benchmarks"></a>Benchmarks</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Google Benchmark target measures <code>StringHelper</code> and <code>FileNavigationHelper</code> primitives used by scanning: replacement, trimming, splitting, line navigation, bounded search, line/column calculation, type-name parsing, and scope-end discovery.
+It does not currently benchmark a complete project scan, so do not present those microbenchmarks as end-to-end generation latency.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">cmake -S . -B build/benchmark -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DJRM_DISABLE_TESTS=ON -DJRM_ENABLE_BENCHMARKS=ON
+cmake --build build/benchmark --parallel
+build/benchmark/bin/JRMStringAndNavigationBenchmarks</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use Release builds, repeat measurements on the same machine and power mode, and compare matching benchmark names and argument sets.
+Coverage instrumentation and benchmarks cannot be enabled in the same CMake configuration.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_coverage"><a class="anchor" href="#_coverage"></a>Coverage</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">cmake -S . -B build/coverage -G Ninja -DCMAKE_BUILD_TYPE=Debug \
+  -DJRM_DISABLE_TESTS=OFF \
+  -DJRM_ENABLE_CODE_COVERAGE=ON \
+  -DJRM_GENERATE_CODE_COVERAGE_HTML=ON
+cmake --build build/coverage --target JRMCodeCoverageHtml --parallel</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Coverage supports GCC and Clang and writes an HTML report below the selected build directory.
+GCC requires <code>gcov</code> and <code>gcovr</code>; Clang requires matching <code>llvm-profdata</code> and <code>llvm-cov</code> tools.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_valgrind"><a class="anchor" href="#_valgrind"></a>Valgrind</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">python3 .gitea/check_valgrind.py \
+  --executable build/bin/JRMTests \
+  --no-gitea \
+  --verbose</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Valgrind complements normal unit tests for lifetime, allocation, filesystem, and ownership-sensitive changes.
+The repository wrapper fails on memory errors and definite leaks.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_build_the_documentation_site"><a class="anchor" href="#_build_the_documentation_site"></a>Build the documentation site</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Documentation sources use the Antora component layout below <code>docs/modules/ROOT</code>.
+After changing source pages and tagged examples, build the site as a separate step from the repository root:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">cd docs
+npx antora --fetch antora-playbook.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The generated <code>docs/html</code> directory is build output and must not be edited or used as documentation source.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="architecture.html">Architecture</a></span>
+  <span class="next"><a href="troubleshooting.html">Troubleshooting</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

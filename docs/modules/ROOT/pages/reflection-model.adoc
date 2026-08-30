@@ -1,0 +1,41 @@
+= How reflection works
+
+JRM performs source-to-source code generation before the C++ compiler processes the consuming target.
+
+== End-to-end flow
+
+. The `jrm` executable receives a project-root path.
+. `ConfigManager` loads `.jrm/config.yaml`, creating the default configuration when it is absent.
+. `Cache` loads `.jrm/cache.data` and compares configured source-file timestamps.
+. The scanner walks the project tree, excluding configured paths and generated files.
+. One `FileProcessor` instance preprocesses each changed file, removing comments and protecting string and character literals with placeholders.
+. The processor builds a lexical scope tree for namespaces, classes, structs, enum classes, and template scopes.
+. `EnumClassReflector` and `ClassReflector` locate their marker tokens, scan declarations, and resolve links between reflected types known in that file.
+. The processor combines reflector output into a sibling `*.generated.h` and appends a single include to the original header.
+. The cache records successfully processed inputs.
+
+Files without reflection markers remain untouched and do not receive a generated companion.
+Generated output is written only when its contents differ, preserving timestamps for no-op runs.
+
+== Compile-time and runtime halves
+
+The generator executable and its scanning internals live in `JustReflectMe::Core`.
+Application code normally links only `JustReflectMe::Adapter`, which provides marker macros, `R<T>`, resource streams, status types, and JSON support.
+
+The generator creates explicit specializations of the otherwise minimal `R<T>` template.
+That design makes discovery simple: all user-facing reflected operations begin with `R<YourType>::`.
+
+== File-local context
+
+Cross-link resolution currently happens after all reflectors scan one file, not after scanning the whole project.
+This is enough for a class field whose reflected enum or class is declared in the same header.
+It is not enough to infer every relationship between declarations distributed across separate headers.
+
+Keep tightly coupled reflection models together when generated serialization depends on recognizing another reflected type.
+See xref:limitations.adoc[Scope and limitations] for the practical consequences.
+
+== Generated artifacts and source control
+
+The original header is modified once to include its generated companion.
+Whether generated headers are committed is a repository policy decision, but every build must guarantee that the generator runs before a compiler reads the original header.
+Never hand-edit generated files; place custom prologue or epilogue text through xref:configuration.adoc[`insertCodeAtTheTop` and `insertCodeAtTheBottom`].

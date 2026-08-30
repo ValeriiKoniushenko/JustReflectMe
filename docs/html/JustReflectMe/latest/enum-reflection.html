@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Reflect enum classes :: JustReflectMe</title>
+    <link rel="prev" href="class-reflection.html">
+    <link rel="next" href="serialization.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>User guides</li>
+    <li><a href="enum-reflection.html">Reflect enum classes</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/enum-reflection.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Reflect enum classes</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>JRM supports scoped enumerations marked with <code>ENUM_CLASS()</code>.
+The generated specialization provides type identity, bidirectional name conversion, ordered arrays, lookup maps, and resource-stream serialization.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_declare_an_enum_class"><a class="anchor" href="#_declare_an_enum_class"></a>Declare an enum class</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">ENUM_CLASS();
+enum class Priority
+{
+    Low,
+    Normal,
+    High
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Place each enumerator on its own line.
+Explicit value expressions are preserved in the C++ declaration, while reflection metadata uses the enum constants themselves.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_convert_and_enumerate"><a class="anchor" href="#_convert_and_enumerate"></a>Convert and enumerate</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    std::cout &lt;&lt; R&lt;Priority&gt;::FullName() &lt;&lt; " has " &lt;&lt; R&lt;Priority&gt;::Size() &lt;&lt; " values\n";
+    std::cout &lt;&lt; R&lt;Priority&gt;::ToString(Priority::High) &lt;&lt; '\n';
+
+    if (const auto value = R&lt;Priority&gt;::FromString("Normal"))
+    {
+        std::cout &lt;&lt; static_cast&lt;int&gt;(*value) &lt;&lt; '\n';
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Conversions are exact and case-sensitive.
+<code>FromString()</code> returns <code>std::nullopt</code> for an unknown name; <code>ToString()</code> returns an empty <code>std::string_view</code> for a value absent from the reflected map.</p>
+</div>
+<div class="paragraph">
+<p>The generated API also exposes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ToArrayC()</code> for constants in declaration order;</p>
+</li>
+<li>
+<p><code>ToArrayN()</code> for names in declaration order;</p>
+</li>
+<li>
+<p><code>ToMapCN()</code> for constant-to-name lookup;</p>
+</li>
+<li>
+<p><code>ToMapNC()</code> for name-to-constant lookup.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_serialization"><a class="anchor" href="#_serialization"></a>Serialization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enum serialization stores the reflected name rather than the underlying integer.
+Deserializing into an existing enum changes it only when the serialized name is recognized.</p>
+</div>
+<div class="paragraph">
+<p>When a reflected class field has a reflected enum type in the same file, the class generator emits the corresponding string conversion automatically.
+See <a href="serialization.html" class="xref page">Serialize and deserialize</a> for stream behavior.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="class-reflection.html">Reflect classes and fields</a></span>
+  <span class="next"><a href="serialization.html">Serialize and deserialize</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

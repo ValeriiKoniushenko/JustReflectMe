@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Getting started :: JustReflectMe</title>
+    <link rel="prev" href="overview.html">
+    <link rel="next" href="reflection-model.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>Start here</li>
+    <li><a href="getting-started.html">Getting started</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/getting-started.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Getting started</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This guide builds JRM, connects its runtime adapter and generator to an application, and reflects a small inheritance model.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The current CMake project requires:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>CMake 3.30 or newer;</p>
+</li>
+<li>
+<p>a GCC, Clang, or MSVC toolchain with the CMake <code>cxx_std_23</code> feature;</p>
+</li>
+<li>
+<p>Git submodules for the bundled dependencies;</p>
+</li>
+<li>
+<p>a build system supported by CMake, with Ninja used in the examples.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Project policy targets C26 as toolchains mature, but the shipped build currently requests C23.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_build_jrm_itself"><a class="anchor" href="#_build_jrm_itself"></a>Build JRM itself</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">git clone --recurse-submodules https://github.com/ValeriiKoniushenko/JustReflectMe.git
+cd JustReflectMe
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DJRM_DISABLE_TESTS=OFF
+cmake --build build --parallel</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The resulting generator is <code>build/bin/jrm</code>; with tests enabled, the test executable is <code>build/bin/JRMTests</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_integrate_it_into_a_cmake_application"><a class="anchor" href="#_integrate_it_into_a_cmake_application"></a>Integrate it into a CMake application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Add the checkout as a subdirectory and link the runtime adapter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cmake hljs" data-lang="cmake">set(JRM_DISABLE_TESTS ON)
+add_subdirectory("${JRM_SOURCE_DIR}" jrm-build)
+
+add_executable(jrm_quickstart main.cpp)
+target_link_libraries(jrm_quickstart PRIVATE JustReflectMe::Adapter)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then create a generator target and make the application depend on it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cmake hljs" data-lang="cmake">add_custom_target(jrm_quickstart_codegen ALL
+    COMMAND $&lt;TARGET_FILE:jrm&gt; "${CMAKE_CURRENT_SOURCE_DIR}"
+    DEPENDS jrm
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    VERBATIM
+)
+add_dependencies(jrm_quickstart jrm_quickstart_codegen)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>$&lt;TARGET_FILE:jrm&gt;</code> rather than assuming the executable path; this works across single- and multi-configuration CMake generators.
+The generator must run before compilation because the reflected header includes its generated companion.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The checked-in example&#8217;s <code>JRM_SOURCE_DIR</code> points back to this repository.
+In another project, set it to the location where JRM was cloned or vendored.
+If that directory sits below the scanned project root, add its relative path to <code>excludedPaths</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_declare_reflected_types"><a class="anchor" href="#_declare_reflected_types"></a>Declare reflected types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Include the adapter, put <code>ENUM_CLASS()</code> before a scoped enum, and put <code>CLASS()</code> before a class or struct.
+Every reflected class needs <code>R_FRIEND</code>; only fields immediately marked with <code>FIELD()</code> are included.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">ENUM_CLASS();
+enum class Priority
+{
+    Low,
+    Normal,
+    High
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">CLASS();
+class Entity
+{
+    R_FRIEND(Entity);
+
+public:
+    FIELD(R::Required, R::Attr = Identity);
+    int id = 0;
+};
+
+CLASS();
+class Task : public Entity
+{
+    R_FRIEND(Task, Entity);
+
+public:
+    FIELD();
+    std::string title = "Untitled";
+
+    FIELD();
+    Priority priority = Priority::Normal;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On the first scan, JRM appends the generated-header include to the source header:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">#include "model.generated.h" // Added automatically by jrm after the first scan.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Do not edit <code>model.generated.h</code>; a later scan replaces it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_run_the_generator"><a class="anchor" href="#_run_the_generator"></a>Run the generator</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The CMake target runs automatically in this example, or you can scan a project directly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">build/bin/jrm /absolute/path/to/your/project</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The project path must exist.
+The first run creates <code>.jrm/config.yaml</code> and <code>.jrm/cache.data</code> in that project root.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_consume_the_metadata"><a class="anchor" href="#_consume_the_metadata"></a>Consume the metadata</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    std::cout &lt;&lt; R&lt;Priority&gt;::FullName() &lt;&lt; " has " &lt;&lt; R&lt;Priority&gt;::Size() &lt;&lt; " values\n";
+    std::cout &lt;&lt; R&lt;Priority&gt;::ToString(Priority::High) &lt;&lt; '\n';
+
+    if (const auto value = R&lt;Priority&gt;::FromString("Normal"))
+    {
+        std::cout &lt;&lt; static_cast&lt;int&gt;(*value) &lt;&lt; '\n';
+    }</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    std::cout &lt;&lt; R&lt;Task&gt;::FullName() &lt;&lt; '\n';
+    for (const RClassField&amp; field : R&lt;Task&gt;::GetFields())
+    {
+        std::cout &lt;&lt; field.type &lt;&lt; ' ' &lt;&lt; field.name &lt;&lt; '\n';
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The remainder of the guide explains <a href="class-reflection.html" class="xref page">class metadata</a>, <a href="enum-reflection.html" class="xref page">enum conversion</a>, and <a href="serialization.html" class="xref page">JSON round trips</a>.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="overview.html">Why JustReflectMe?</a></span>
+  <span class="next"><a href="reflection-model.html">How reflection works</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

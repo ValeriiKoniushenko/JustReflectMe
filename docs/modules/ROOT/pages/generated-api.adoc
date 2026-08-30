@@ -1,0 +1,94 @@
+= Generated `R<T>` API
+
+JRM emits an explicit `R<T>` specialization for every successfully reflected declaration.
+This page summarizes the generated, application-facing surface.
+
+== Common identity functions
+
+[cols="1,2"]
+|===
+|Member |Meaning
+
+|`Name()`
+|Unqualified type name.
+
+|`FullName()`
+|Type name including namespace scopes.
+
+|`ParentScope()`
+|Enclosing namespace path, or an empty string at file scope.
+|===
+
+These values are compile-time string views in generated specializations.
+
+== Class and struct specialization
+
+[cols="2,3"]
+|===
+|Member |Behavior
+
+|`GetFieldNumbers()`
+|Returns the number of directly reflected fields.
+
+|`GetFields()`
+|Returns a vector of `RClassField` values in declaration order.
+
+|`GetFieldsMap()`
+|Returns the direct-field metadata keyed by field name.
+
+|`Serialize(object, stream, noSignals)`
+|Writes reflected base data and direct fields into an existing stream.
+
+|`Serialize(object, noSignals)`
+|Creates and returns a stream; JSON is the default implementation.
+
+|`Deserialize(stream, object, noSignals)`
+|Updates an existing object using serialized fields and generated fallbacks.
+
+|`GetField(object, name, callback)`
+|Invokes a callback with the mutable address and textual type of a direct field; returns whether it found the name.
+|===
+
+To construct a value and deserialize it in one operation, `RInternal::Deserialize<RImpl, T>(stream, noSignals, constructor arguments...)` is available.
+Treat `RInternal` as a lower-level helper: the generated in-place overload is the clearest stable entry point for most code.
+
+== Enum-class specialization
+
+[cols="2,3"]
+|===
+|Member |Behavior
+
+|`Size()`
+|Number of reflected enumerators.
+
+|`ToString(value)`
+|Returns the exact declared name, or an empty view when unknown.
+
+|`FromString(name)`
+|Returns an optional constant using case-sensitive lookup.
+
+|`ToArrayC()` / `ToArrayN()`
+|Return constants or names in declaration order.
+
+|`ToMapCN()` / `ToMapNC()`
+|Return constant-to-name or name-to-constant lookup maps.
+
+|`Serialize(value, stream)` / `Serialize(value)`
+|Write an enum's symbolic name into a stream.
+
+|`Deserialize(stream, value)` / `Deserialize(stream)`
+|Update or return an enum from its symbolic name.
+|===
+
+The in-place enum overload leaves an initialized destination unchanged when the name is unknown.
+Use that overload or `FromString()` for untrusted input; the value-returning overload default-initializes its local enum before lookup and therefore assumes the serialized name is valid.
+
+== Runtime support types
+
+`RClassField` contains `type`, `name`, and `attribs`.
+These are non-owning string views into generated string literals, while the attribute collection is a vector.
+
+`RResourceStream<RImpl>` exposes `write`, `read`, `getData`, and `logs` and owns one implementation object.
+`RJsonResourceStream` stores `nlohmann::json` and missing-field diagnostics.
+
+`RStatus` currently has `Ok` and `NotFound`; missing reads append `NotFound`, while successful reads do not currently append an `Ok` entry.

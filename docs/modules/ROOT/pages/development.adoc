@@ -1,0 +1,108 @@
+= Build, test, and benchmark
+
+This page summarizes the repository workflows used to validate JRM itself.
+
+== Incremental build and unit tests
+
+[source,shell]
+----
+include::example$commands.sh[tag=clone_and_build]
+----
+
+[source,shell]
+----
+include::example$commands.sh[tag=run_tests]
+----
+
+The test target runs JRM over `tests/` before compiling the suite, so the user-acceptance headers exercise the generated specializations.
+Tests cover configuration and cache behavior, preprocessing and scope navigation, reflector diagnostics, generated-file integration, metadata, class and enum serialization, inheritance, and runtime adapter behavior.
+
+Prefer incremental builds.
+Use a clean build only after structural CMake or toolchain changes, or when the build cache is demonstrably stale.
+
+=== CMake configuration options
+
+[cols="2,1,4"]
+|===
+|Option |Default |Effect
+
+|`JRM_DISABLE_TESTS`
+|`OFF`
+|Skip GoogleTest targets and the test-time code-generation target. Consumer projects normally set this to `ON`.
+
+|`JRM_ENABLE_BENCHMARKS`
+|`OFF`
+|Build `JRMStringAndNavigationBenchmarks`. It cannot be combined with coverage instrumentation.
+
+|`JRM_ENABLE_CODE_COVERAGE`
+|`OFF`
+|Instrument supported GCC or Clang targets. Tests must remain enabled.
+
+|`JRM_GENERATE_CODE_COVERAGE_HTML`
+|`OFF`
+|Add the `JRMCodeCoverageHtml` target. Requires coverage instrumentation.
+
+|`JRM_CODE_COVERAGE_OUTPUT_DIRECTORY`
+|`<build-dir>/coverage`
+|Select the report directory. It must be a child of the active CMake binary directory and cannot equal that directory.
+|===
+
+== C++ policy and quality checks
+
+The repository targets C++26 as an engineering policy while retaining a current CMake `cxx_std_23` feature requirement for available toolchains.
+MSVC debug information uses embedded `/Z7`-style data for ccache compatibility.
+
+Before committing C++ changes, run clang-format on changed C/C++ files and clang-tidy with a configured `compile_commands.json`.
+CI checks formatting, static analysis, GCC and Clang builds, unit tests, coverage, and Valgrind.
+
+For documentation example changes, the focused format check is:
+
+[source,shell]
+----
+include::example$commands.sh[tag=format_check]
+----
+
+== Benchmarks
+
+The Google Benchmark target measures `StringHelper` and `FileNavigationHelper` primitives used by scanning: replacement, trimming, splitting, line navigation, bounded search, line/column calculation, type-name parsing, and scope-end discovery.
+It does not currently benchmark a complete project scan, so do not present those microbenchmarks as end-to-end generation latency.
+
+[source,shell]
+----
+include::example$commands.sh[tag=benchmark]
+----
+
+Use Release builds, repeat measurements on the same machine and power mode, and compare matching benchmark names and argument sets.
+Coverage instrumentation and benchmarks cannot be enabled in the same CMake configuration.
+
+== Coverage
+
+[source,shell]
+----
+include::example$commands.sh[tag=coverage]
+----
+
+Coverage supports GCC and Clang and writes an HTML report below the selected build directory.
+GCC requires `gcov` and `gcovr`; Clang requires matching `llvm-profdata` and `llvm-cov` tools.
+
+== Valgrind
+
+[source,shell]
+----
+include::example$commands.sh[tag=valgrind]
+----
+
+Valgrind complements normal unit tests for lifetime, allocation, filesystem, and ownership-sensitive changes.
+The repository wrapper fails on memory errors and definite leaks.
+
+== Build the documentation site
+
+Documentation sources use the Antora component layout below `docs/modules/ROOT`.
+After changing source pages and tagged examples, build the site as a separate step from the repository root:
+
+[source,shell]
+----
+include::example$commands.sh[tag=docs_site]
+----
+
+The generated `docs/html` directory is build output and must not be edited or used as documentation source.

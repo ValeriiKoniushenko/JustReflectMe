@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>How reflection works :: JustReflectMe</title>
+    <link rel="prev" href="getting-started.html">
+    <link rel="next" href="class-reflection.html">
+    <meta name="generator" content="Antora 3.1.15">
+    <link rel="stylesheet" href="../../_/css/site.css">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="../..">JustReflectMe</a>
+      <button class="navbar-burger" aria-controls="topbar-nav" aria-expanded="false" aria-label="Toggle main menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="#">Home</a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Products</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Product A</a>
+            <a class="navbar-item" href="#">Product B</a>
+            <a class="navbar-item" href="#">Product C</a>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="#">Services</a>
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="#">Service A</a>
+            <a class="navbar-item" href="#">Service B</a>
+            <a class="navbar-item" href="#">Service C</a>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <span class="control">
+            <a class="button is-primary" href="#">Download</a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="JustReflectMe" data-version="latest">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <button class="nav-menu-toggle" aria-label="Toggle expand/collapse all" style="display: none"></button>
+    <h3 class="title"><a href="index.html">JustReflectMe</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="index.html">JustReflectMe</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Start here</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="overview.html">Why JustReflectMe?</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="getting-started.html">Getting started</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="2">
+    <a class="nav-link" href="reflection-model.html">How reflection works</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">User guides</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="class-reflection.html">Reflect classes and fields</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="enum-reflection.html">Reflect enum classes</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="serialization.html">Serialize and deserialize</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="inheritance-and-signals.html">Inheritance and lifecycle signals</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Reference</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="generated-api.html">Generated R&lt;T&gt; API</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="markers.html">Marker macros and field options</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="configuration.html">Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="cli.html">Command-line interface</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="limitations.html">Scope and limitations</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <button class="nav-item-toggle"></button>
+    <span class="nav-text">Project</span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="architecture.html">Architecture</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="development.html">Build, test, and benchmark</a>
+  </li>
+  <li class="nav-item" data-depth="2">
+    <a class="nav-link" href="troubleshooting.html">Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">JustReflectMe</span>
+    <span class="version">latest</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <div class="title"><a href="index.html">JustReflectMe</a></div>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="index.html">latest</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="index.html">JustReflectMe</a></li>
+    <li>Start here</li>
+    <li><a href="reflection-model.html">How reflection works</a></li>
+  </ul>
+</nav>
+<div class="edit-this-page"><a href="file:///home/valerii/workspace/JustReflectMe//docs/modules/ROOT/pages/reflection-model.adoc">Edit this Page</a></div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">How reflection works</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>JRM performs source-to-source code generation before the C++ compiler processes the consuming target.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_end_to_end_flow"><a class="anchor" href="#_end_to_end_flow"></a>End-to-end flow</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <code>jrm</code> executable receives a project-root path.</p>
+</li>
+<li>
+<p><code>ConfigManager</code> loads <code>.jrm/config.yaml</code>, creating the default configuration when it is absent.</p>
+</li>
+<li>
+<p><code>Cache</code> loads <code>.jrm/cache.data</code> and compares configured source-file timestamps.</p>
+</li>
+<li>
+<p>The scanner walks the project tree, excluding configured paths and generated files.</p>
+</li>
+<li>
+<p>One <code>FileProcessor</code> instance preprocesses each changed file, removing comments and protecting string and character literals with placeholders.</p>
+</li>
+<li>
+<p>The processor builds a lexical scope tree for namespaces, classes, structs, enum classes, and template scopes.</p>
+</li>
+<li>
+<p><code>EnumClassReflector</code> and <code>ClassReflector</code> locate their marker tokens, scan declarations, and resolve links between reflected types known in that file.</p>
+</li>
+<li>
+<p>The processor combines reflector output into a sibling <code>*.generated.h</code> and appends a single include to the original header.</p>
+</li>
+<li>
+<p>The cache records successfully processed inputs.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Files without reflection markers remain untouched and do not receive a generated companion.
+Generated output is written only when its contents differ, preserving timestamps for no-op runs.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_compile_time_and_runtime_halves"><a class="anchor" href="#_compile_time_and_runtime_halves"></a>Compile-time and runtime halves</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The generator executable and its scanning internals live in <code>JustReflectMe::Core</code>.
+Application code normally links only <code>JustReflectMe::Adapter</code>, which provides marker macros, <code>R&lt;T&gt;</code>, resource streams, status types, and JSON support.</p>
+</div>
+<div class="paragraph">
+<p>The generator creates explicit specializations of the otherwise minimal <code>R&lt;T&gt;</code> template.
+That design makes discovery simple: all user-facing reflected operations begin with <code>R&lt;YourType&gt;::</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_file_local_context"><a class="anchor" href="#_file_local_context"></a>File-local context</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cross-link resolution currently happens after all reflectors scan one file, not after scanning the whole project.
+This is enough for a class field whose reflected enum or class is declared in the same header.
+It is not enough to infer every relationship between declarations distributed across separate headers.</p>
+</div>
+<div class="paragraph">
+<p>Keep tightly coupled reflection models together when generated serialization depends on recognizing another reflected type.
+See <a href="limitations.html" class="xref page">Scope and limitations</a> for the practical consequences.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_generated_artifacts_and_source_control"><a class="anchor" href="#_generated_artifacts_and_source_control"></a>Generated artifacts and source control</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The original header is modified once to include its generated companion.
+Whether generated headers are committed is a repository policy decision, but every build must guarantee that the generator runs before a compiler reads the original header.
+Never hand-edit generated files; place custom prologue or epilogue text through <a href="configuration.html" class="xref page"><code>insertCodeAtTheTop</code> and <code>insertCodeAtTheBottom</code></a>.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="getting-started.html">Getting started</a></span>
+  <span class="next"><a href="class-reflection.html">Reflect classes and fields</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <p>This page was built using the Antora default UI.</p>
+  <p>The source code for this UI is licensed under the terms of the MPL-2.0 license.</p>
+</footer>
+<script id="site-script" src="../../_/js/site.js" data-ui-root-path="../../_"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

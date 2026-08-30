@@ -1,0 +1,60 @@
+= Marker macros and field options
+
+Marker macros are declared by `JustReflectMe/Adapter.h`.
+They intentionally have no runtime behavior; the generator recognizes their source spelling.
+
+== Type markers
+
+[cols="1,2,2"]
+|===
+|Marker |Place it |Effect
+
+|`CLASS()`
+|Immediately before a class or struct definition.
+|Generates a class-style `R<T>` specialization.
+
+|`ENUM_CLASS()`
+|Immediately before an `enum class` definition.
+|Generates enum identity, conversion, collection, and serialization functions.
+
+|`R_FRIEND(Type, Bases...)`
+|Inside a marked class or struct.
+|Grants generated code private access. Arguments after `Type` select reflected bases for serialization.
+
+|`FIELD(Options...)`
+|Immediately before a non-static data member in a marked class or struct.
+|Adds the member to metadata, lookup, and serialization.
+|===
+
+`CLASS()` and `ENUM_CLASS()` may be on the declaration's line or the preceding line, but keeping them on a dedicated preceding line produces the most readable and reliably scanned code.
+
+== Field options
+
+[cols="1,3"]
+|===
+|Option |Meaning
+
+|`R::Default`
+|Default missing-field policy; currently equivalent to `R::NonRequired`.
+
+|`R::NonRequired`
+|A missing serialized field uses its generated fallback and adds a `NotFound` log entry without throwing.
+
+|`R::Required`
+|A missing field uses its fallback, logs `NotFound`, and throws `std::runtime_error`.
+
+|`R::NoDefaultValue`
+|Prevents JRM from copying the field's source initializer into generated deserialization code. The generated fallback is value initialization.
+
+|`R::Attr = Identifier`
+|Adds `Identifier` to the field's metadata attributes. Repeat the option for multiple attributes.
+|===
+
+Unknown `FIELD` expressions produce generator warnings and are skipped as options.
+Attribute values are identifiers, not arbitrary strings or C++ expressions.
+The reflected-enum field path currently does not preserve every missing-field option; see xref:serialization.adoc[Missing fields].
+
+== Friend aliases
+
+Projects that wrap `R_FRIEND` in their own macro can list the recognized spellings in xref:configuration.adoc[`rFriendAliases`].
+The alias must expand to the required friendship in compiled C++; configuration only teaches the source scanner which spelling to locate.
