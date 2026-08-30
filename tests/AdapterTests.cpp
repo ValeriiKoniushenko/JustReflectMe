@@ -34,9 +34,9 @@ TEST(AdapterTests, WritesAndReadsJsonFieldsAndBuildsMetadataMap)
     EXPECT_TRUE(stream.logs().empty());
 
     const std::vector<RClassField> fields = {
-        { "int", "id", { "primary" } },
-        { "std::string", "name", {} },
-        { "long", "id", { "replacement" } },
+        RClassField{ .type = "int", .name = "id", .attribs = { "primary" } },
+        RClassField{ .type = "std::string", .name = "name", .attribs = {} },
+        RClassField{ .type = "long", .name = "id", .attribs = { "replacement" } },
     };
     const auto fieldsByName = RInternal::GetClassFieldsAsMap(fields);
 

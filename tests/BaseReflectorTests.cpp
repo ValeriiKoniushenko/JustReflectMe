@@ -6,6 +6,7 @@
 #undef JRM_ENABLE_TESTS
 
 #include "gtest/gtest.h"
+#include <array>
 #include <limits>
 #include <optional>
 #include <string>
@@ -140,6 +141,7 @@ TEST(BaseReflectorTests, ConvertsSeverityAndTracksMessages)
 
     EXPECT_EQ(TestReflector::SeverityToString(JRM::BaseReflector::Severity::Warning), "warning");
     EXPECT_EQ(TestReflector::SeverityToString(JRM::BaseReflector::Severity::Error), "error");
+    // NOLINTNEXTLINE(bugprone-invalid-enum-cast) - exercise the defensive default branch.
     EXPECT_EQ(TestReflector::SeverityToString(static_cast<JRM::BaseReflector::Severity>(99)),
               "unknown");
     EXPECT_FALSE(reflector.hasWarnings());
@@ -157,6 +159,7 @@ TEST(BaseReflectorTests, ConvertsSeverityAndTracksMessages)
     EXPECT_EQ(reflector.numberOfErrors(), 1);
     EXPECT_EQ(reflector.numberOfSeverity(JRM::BaseReflector::Severity::Warning), 2);
     EXPECT_EQ(reflector.numberOfSeverity(JRM::BaseReflector::Severity::Error), 1);
+    // NOLINTNEXTLINE(bugprone-invalid-enum-cast) - exercise an absent severity entry.
     EXPECT_EQ(reflector.numberOfSeverity(static_cast<JRM::BaseReflector::Severity>(99)), 0);
 }
 
@@ -252,11 +255,11 @@ TEST(BaseReflectorTests, ValidatesTokensAndBuildsFullNames)
 
 TEST(BaseReflectorTests, PrintsScopeIdentifiersAndFindsGlobalTypes)
 {
-    const char outerName[] = "Outer";
-    const char innerName[] = "Inner";
+    const std::array outerName{ 'O', 'u', 't', 'e', 'r', '\0' };
+    const std::array innerName{ 'I', 'n', 'n', 'e', 'r', '\0' };
     JRM::Scope root;
-    auto outer = namedScope(outerName, &root);
-    auto inner = namedScope(innerName, &outer);
+    auto outer = namedScope(outerName.data(), &root);
+    auto inner = namedScope(innerName.data(), &outer);
 
     EXPECT_EQ(TestReflector::exposePrettyPrintScope(nullptr), "");
     EXPECT_EQ(TestReflector::exposePrettyPrintScope(&outer), "Outer");
