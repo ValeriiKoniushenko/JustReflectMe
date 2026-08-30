@@ -157,8 +157,6 @@ TEST(CacheTests, HandlesRelativeAbsoluteAndChangedFileTimes)
     TestSupport::TemporaryDirectory project;
     const auto source = project.writeFile("src/value.h", "#pragma once\n");
     const auto timestamp = std::filesystem::last_write_time(source);
-    const auto originalDirectory = std::filesystem::current_path();
-    std::filesystem::current_path(project.path());
 
     JRM::Cache cache(project.path(), false);
     EXPECT_TRUE(cache.isNeedUpdate("src/value.h"));
@@ -176,7 +174,6 @@ TEST(CacheTests, HandlesRelativeAbsoluteAndChangedFileTimes)
 
     JRM::Cache loaded(project.path(), false);
     EXPECT_FALSE(loaded.isNeedUpdate("src/value.h", timestamp));
-    std::filesystem::current_path(originalDirectory);
 }
 
 TEST(CacheTests, ReadsAbsolutePathsAndEmptyLines)

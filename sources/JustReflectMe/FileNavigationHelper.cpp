@@ -231,9 +231,11 @@ namespace FileNavigator
             --source;
         }
 
-        if (*source && StartWith(source, { kConst }))
+        const auto* const qualifier = GoToNotSpace(source);
+        if (*qualifier && StartWith(qualifier, { kConst }))
         {
             result.isConst = true;
+            source = qualifier;
         }
 
         // Try to determine '*' and '&' at the end of the type

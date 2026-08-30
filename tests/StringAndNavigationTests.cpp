@@ -112,3 +112,87 @@ TEST(FileNavigationHelperTests, DetectsWhitespaceLeadingToNewline)
     EXPECT_FALSE(FileNavigator::LeadToNewLine(" \tvalue"));
     EXPECT_FALSE(FileNavigator::LeadToNewLine(nullptr));
 }
+
+TEST(FileNavigationHelperTests, HandlesNavigationSearchAndScopeBoundaries)
+{
+    const std::string lines = "first\r\nsecond\x1Dthird";
+    const auto* begin = lines.c_str();
+    const auto* second = begin + lines.find("second");
+    const auto* third = begin + lines.find("third");
+
+    EXPECT_EQ(FileNavigator::GoToLineStart(nullptr, begin), nullptr);
+    EXPECT_EQ(FileNavigator::GoToLineStart(second + 2, begin), second);
+    EXPECT_EQ(FileNavigator::GoToPrevLine(nullptr, begin), nullptr);
+    EXPECT_EQ(FileNavigator::GoToPrevLine(begin, begin), begin);
+    EXPECT_EQ(FileNavigator::GoToPrevLine(third + 1, begin), second);
+    EXPECT_EQ(FileNavigator::GoToNextLine(begin), second);
+    EXPECT_EQ(FileNavigator::GoToNextLine(second), third);
+    EXPECT_EQ(FileNavigator::GoToNextLine(third), nullptr);
+
+    EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(nullptr, "first", 1), nullptr);
+    EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(begin, nullptr, 1), nullptr);
+    EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(begin, "missing", 1), nullptr);
+    EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(begin, "third", 1), nullptr);
+    EXPECT_EQ(FileNavigator::FindOnThisLine(begin, "second"), nullptr);
+    EXPECT_EQ(FileNavigator::FindWordOnThisLine("prefixWord word", "word"),
+              std::string_view("prefixWord word").data() + 11);
+
+    EXPECT_EQ(FileNavigator::GoToSpace("word\tvalue"), std::string_view("word\tvalue").data() + 4);
+    EXPECT_EQ(FileNavigator::GoToBlank("word\nvalue"), std::string_view("word\nvalue").data() + 4);
+    EXPECT_EQ(FileNavigator::GoToNotSpace(" \tvalue"), std::string_view(" \tvalue").data() + 2);
+    EXPECT_EQ(FileNavigator::SkipAllBlanks(" \t\nvalue"),
+              std::string_view(" \t\nvalue").data() + 3);
+    EXPECT_EQ(FileNavigator::ReadAsIdentifier("  Namespace::Value rest"), "Namespace::Value");
+    EXPECT_TRUE(FileNavigator::ReadAsIdentifier("  42").empty());
+    EXPECT_TRUE(FileNavigator::ReadAsIdentifier(nullptr).empty());
+
+    EXPECT_EQ(FileNavigator::GetLineNumber(nullptr, 2), 0);
+    EXPECT_EQ(FileNavigator::GetLineNumberAndColumn(nullptr, 2),
+              (std::pair<std::size_t, std::size_t>{ 0, 0 }));
+    EXPECT_EQ(FileNavigator::FindScopeEnd(nullptr), nullptr);
+    EXPECT_EQ(FileNavigator::FindScopeEnd("value"), nullptr);
+    EXPECT_EQ(*FileNavigator::FindScopeEnd("{ { } }"), '}');
+    EXPECT_EQ(*FileNavigator::FindScopeEnd("(())"), ')');
+    EXPECT_EQ(*FileNavigator::FindScopeEnd("<><>"), '>');
+    EXPECT_EQ(*FileNavigator::FindScopeEnd("[[]]"), ']');
+    EXPECT_EQ(FileNavigator::FindScopeEnd("{ missing"), nullptr);
+
+    EXPECT_FALSE(FileNavigator::IsWord("prefixWord", "Word", 6));
+    EXPECT_FALSE(FileNavigator::IsWord("wordSuffix", "word", 0));
+    EXPECT_TRUE(FileNavigator::IsWord(" word;", "word", 1));
+    EXPECT_EQ(FileNavigator::StartWith("static value", { "constexpr", "static", "inline" }), 1);
+    EXPECT_EQ(
+        FileNavigator::StartWith("value", std::vector<std::string_view>{ "constexpr", "static" }),
+        -1);
+    EXPECT_TRUE(FileNavigator::StartWith("prefix", "pre"));
+    EXPECT_FALSE(FileNavigator::StartWith("prefix", "post"));
+}
+
+TEST(FileNavigationHelperTests, ParsesTypenameVariantsAndAttributes)
+{
+    int offset = 0;
+    EXPECT_TRUE(FileNavigator::ReadAsTypename(nullptr, offset).name.empty());
+    EXPECT_TRUE(FileNavigator::ReadAsTypename("42", offset).name.empty());
+
+    const auto constexprType = FileNavigator::ReadAsTypename("constexpr Widget&,", offset);
+    EXPECT_EQ(constexprType.name, "Widget&");
+    EXPECT_EQ(constexprType.attribute, FileNavigator::Typename::Attribute::Constexpr);
+    EXPECT_FALSE(constexprType.isConst);
+
+    const auto inlineType = FileNavigator::ReadAsTypename("inline const Value * field", offset);
+    EXPECT_EQ(inlineType.name, "Value*");
+    EXPECT_EQ(inlineType.attribute, FileNavigator::Typename::Attribute::Inline);
+    EXPECT_TRUE(inlineType.isConst);
+    EXPECT_EQ(inlineType.getNameWithCV(), "const Value*");
+
+    const auto trailingConst = FileNavigator::ReadAsTypename("Value const", offset);
+    EXPECT_EQ(trailingConst.name, "Value");
+    EXPECT_TRUE(trailingConst.isConst);
+
+    FileNavigator::Typename typenameValue;
+    typenameValue.name = "Thing";
+    typenameValue.setAttributeFromStr("static");
+    EXPECT_EQ(typenameValue.attribute, FileNavigator::Typename::Attribute::Static);
+    typenameValue.setAttributeFromStr("unknown");
+    EXPECT_EQ(typenameValue.getNameWithCV(), "Thing");
+}

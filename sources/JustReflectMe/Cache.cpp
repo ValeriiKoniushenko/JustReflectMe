@@ -84,12 +84,15 @@ namespace JRM
 
     bool Cache::isNeedUpdate(const std::filesystem::path& path)
     {
-        if (!_files.contains(path.generic_string()))
+        const auto relativePath = path.is_absolute() ? path.lexically_relative(_projectDir) : path;
+        const auto cacheKey = relativePath.generic_string();
+        if (!_files.contains(cacheKey))
         {
             return true;
         }
 
-        return _files[path.generic_string()] != fs::file_time_type(fs::last_write_time(path));
+        const auto filePath = path.is_absolute() ? path : _projectDir / path;
+        return _files[cacheKey] != fs::file_time_type(fs::last_write_time(filePath));
     }
 
     bool Cache::isNeedUpdate(const std::filesystem::path& path,
@@ -124,9 +127,9 @@ namespace JRM
             return;
         }
 
-        _files[path.is_absolute() ? path.lexically_relative(_projectDir).generic_string()
-                                  : path.generic_string()]
-            = fs::file_time_type(fs::last_write_time(path));
+        const auto relativePath = path.is_absolute() ? path.lexically_relative(_projectDir) : path;
+        const auto filePath = path.is_absolute() ? path : _projectDir / path;
+        _files[relativePath.generic_string()] = fs::file_time_type(fs::last_write_time(filePath));
     }
 
     void Cache::saveCache()
