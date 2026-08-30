@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <utility>
 
 namespace TestSupport
 {
@@ -15,8 +16,8 @@ namespace TestSupport
         TemporaryDirectory()
         {
             static std::size_t sequence = 0;
-            const auto unique = std::to_string(
-                std::chrono::steady_clock::now().time_since_epoch().count());
+            const auto unique
+                = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
             _path = fs::temp_directory_path()
                     / ("just_reflect_me_tests_" + unique + "_" + std::to_string(sequence++));
             fs::create_directories(_path);
@@ -25,11 +26,22 @@ namespace TestSupport
         TemporaryDirectory(const TemporaryDirectory&) = delete;
         TemporaryDirectory& operator=(const TemporaryDirectory&) = delete;
 
-        ~TemporaryDirectory()
+        TemporaryDirectory(TemporaryDirectory&& other) noexcept
+            : _path(std::exchange(other._path, {}))
         {
-            std::error_code error;
-            fs::remove_all(_path, error);
         }
+
+        TemporaryDirectory& operator=(TemporaryDirectory&& other) noexcept
+        {
+            if (this != &other)
+            {
+                cleanup();
+                _path = std::exchange(other._path, {});
+            }
+            return *this;
+        }
+
+        ~TemporaryDirectory() { cleanup(); }
 
         [[nodiscard]] const fs::path& path() const noexcept { return _path; }
 
@@ -50,6 +62,11 @@ namespace TestSupport
         }
 
     private:
+        void cleanup() noexcept
+        {
+            std::error_code error;
+            fs::remove_all(_path, error);
+        }
         fs::path _path;
     };
 } // namespace TestSupport

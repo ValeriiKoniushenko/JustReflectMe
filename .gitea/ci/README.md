@@ -6,6 +6,7 @@ This package is portable between repositories. It provides:
 - `diff.py`: changed C/C++ file discovery and analysis-target selection;
 - `clang_format.py` and `clang_tidy.py`: configurable checker implementations;
 - `coverage.py`: gcovr-summary PR publishing and ZIP report attachment;
+- `valgrind.py`: Valgrind test execution and PR reporting;
 - `cleanup.py`: replacement-review and attachment cleanup.
 
 Keep repository policy outside this directory. A consuming repository needs a

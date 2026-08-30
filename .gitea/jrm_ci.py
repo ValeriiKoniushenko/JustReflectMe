@@ -11,4 +11,5 @@ CI_REVIEW_CONTEXTS = (
     "clang-format",
     "clang-tidy",
     "code-coverage",
+    "valgrind",
 )

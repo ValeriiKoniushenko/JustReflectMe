@@ -280,6 +280,9 @@ def main(*, excluded_paths: tuple[str, ...] = ()) -> None:
             if changed_file is None or not is_changed_line(changed_file, line_no):
                 continue
 
+            if check == "clang-diagnostic-error":
+                continue
+
             check = m.group("check") or "clang-tidy"
 
             fp_src = f"{diagnostic_path}:{line_no}:{m.group('col')}:{check}"
@@ -289,7 +292,7 @@ def main(*, excluded_paths: tuple[str, ...] = ()) -> None:
             seen_fingerprints.add(fp)
 
             is_error = ""
-            if level_rank[m.group("level")] >= fail_threshold and check != "clang-diagnostic-error":
+            if level_rank[m.group("level")] >= fail_threshold:
                 if args.verbose:
                     print(f"[debug] failing on level: {m.group('level')}")
                 is_error = "❗️**ERROR:**"

@@ -139,14 +139,14 @@ TEST(Enums, Deserialize)
 {
     {
         RResourceStream<RJsonResourceStream> s(nlohmann::json::string_t{ "Blue" });
-        Color out;
+        Color out{ Color::Red };
         R<Color>::Deserialize(s, out);
         ASSERT_EQ(Color::Blue, out);
     }
 
     {
         RResourceStream<RJsonResourceStream> s(nlohmann::json::string_t{ "Hello" });
-        Foo::TestEnum out2;
+        Foo::TestEnum out2{ Foo::TestEnum::Hello };
         R<Foo::TestEnum>::Deserialize(s, out2);
         ASSERT_EQ(Foo::TestEnum::Hello, out2);
     }

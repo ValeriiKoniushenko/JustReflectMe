@@ -3,6 +3,7 @@
 #undef JRM_ENABLE_TESTS
 
 #include "gtest/gtest.h"
+#include <array>
 
 TEST(ScopesTests, ResolvesNestedNamespaceTemplateClassAndEnumScopes)
 {
@@ -187,10 +188,10 @@ namespace JRM
 {
     TEST(ScopesTests, IgnoresNonOpeningScopeStarts)
     {
-        constexpr char content[] = "x";
+        constexpr std::array content{ 'x', '\0' };
         Scope scope;
 
-        Scopes::tryToDetermineScopeType(scope, content, content);
+        Scopes::tryToDetermineScopeType(scope, content.data(), content.data());
 
         EXPECT_EQ(scope.type, ContextType::Undefined);
         EXPECT_EQ(scope.identifierStart, nullptr);
