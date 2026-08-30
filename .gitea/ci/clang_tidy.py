@@ -290,6 +290,7 @@ def main(*, excluded_paths: tuple[str, ...] = ()) -> None:
 
             is_error = ""
             if level_rank[m.group("level")] >= fail_threshold and check != "clang-diagnostic-error":
+                print(f"[debug] failing on error: {level_rank[m.group("level")]}")
                 is_error = "❗️**ERROR:**"
                 should_fail = True
 
