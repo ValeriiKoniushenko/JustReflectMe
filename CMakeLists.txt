@@ -20,13 +20,19 @@ endif ()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Features.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Flags.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Coverage.cmake)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # ========= Base setup & Predefinitions =========
-set(BUILD_UTILS_WITH_TEST_COVERAGE ON)
+option(JRM_ENABLE_CODE_COVERAGE "Instrument project targets for code coverage collection." OFF)
+option(JRM_GENERATE_CODE_COVERAGE_HTML
+       "Add the JRMCodeCoverageHtml target that runs tests and writes an HTML report."
+       OFF)
+set(JRM_CODE_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage" CACHE PATH
+    "Directory for the JRM code coverage HTML report.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(REQUIRED_CXX_STANDARD cxx_std_23) # read-only
 set(CXX_STANDARD)
@@ -47,3 +53,5 @@ if (NOT JRM_DISABLE_TESTS)
 endif ()
 
 add_subdirectory(sources)
+
+JRMConfigureCodeCoverage()

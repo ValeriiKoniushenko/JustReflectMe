@@ -13,16 +13,61 @@ TEST(StringHelperTests, ReplacesEveryOccurrenceAndHandlesReplacementGrowth)
     EXPECT_EQ(value, "three-two-three");
 }
 
-TEST(StringHelperTests, TrimsAndSplitsWithOptionalWhitespaceRemoval)
+TEST(StringHelperTests, RemovesMatchesAndLeavesStringsWithoutMatchesUntouched)
 {
-    std::string padded = " \t value\n";
+    std::string values = "red,green,red";
+    StringHelper::FindAndReplaceAll(values, "red", "");
+    EXPECT_EQ(values, ",green,");
+
+    std::string unchanged = "blue";
+    StringHelper::FindAndReplaceAll(unchanged, "red", "green");
+    EXPECT_EQ(unchanged, "blue");
+}
+
+TEST(StringHelperTests, IgnoresEmptySearchPatterns)
+{
+    std::string value = "stable";
+
+    StringHelper::FindAndReplaceAll(value, "", "replacement");
+
+    EXPECT_EQ(value, "stable");
+}
+
+TEST(StringHelperTests, TrimsLeadingAndTrailingWhitespaceWithoutChangingInternalWhitespace)
+{
+    std::string padded = " \t value\r\n";
     StringHelper::TrimInPlace(padded);
     EXPECT_EQ(padded, "value");
 
+    std::string internalWhitespace = "alpha  beta";
+    StringHelper::TrimInPlace(internalWhitespace);
+    EXPECT_EQ(internalWhitespace, "alpha  beta");
+
+    std::string onlyWhitespace = " \t\v\f\r\n";
+    StringHelper::TrimInPlace(onlyWhitespace);
+    EXPECT_TRUE(onlyWhitespace.empty());
+
+    std::string empty;
+    StringHelper::TrimInPlace(empty);
+    EXPECT_TRUE(empty.empty());
+}
+
+TEST(StringHelperTests, SplitsWithDefaultDelimiterAndOptionalWhitespaceRemoval)
+{
     EXPECT_THAT(StringHelper::SplitString(" first, second ,, fourth "),
                 testing::ElementsAre("first", "second", "", "fourth"));
     EXPECT_THAT(StringHelper::SplitString(" first, second ", ',', false),
                 testing::ElementsAre(" first", " second "));
+}
+
+TEST(StringHelperTests, SplitsCustomDelimitersAndDefinesBoundaryBehavior)
+{
+    EXPECT_THAT(StringHelper::SplitString("one| two |three", '|'),
+                testing::ElementsAre("one", "two", "three"));
+    EXPECT_THAT(StringHelper::SplitString("single value"), testing::ElementsAre("single value"));
+    EXPECT_THAT(StringHelper::SplitString("tail,"), testing::ElementsAre("tail"));
+    EXPECT_THAT(StringHelper::SplitString("   "), testing::ElementsAre(""));
+    EXPECT_TRUE(StringHelper::SplitString("").empty());
 }
 
 TEST(FileNavigationHelperTests, NavigatesLinesAndFindsKeywordsOnFinalLine)
@@ -38,7 +83,8 @@ TEST(FileNavigationHelperTests, NavigatesLinesAndFindsKeywordsOnFinalLine)
     EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(begin, "keyword", 1),
               second + std::string_view("second ").size());
     EXPECT_EQ(FileNavigator::FindFirstWithLineLimit(begin, "keyword", 0), nullptr);
-    EXPECT_EQ(FileNavigator::FindOnThisLine(final, "keyword"), final + std::string_view("final ").size());
+    EXPECT_EQ(FileNavigator::FindOnThisLine(final, "keyword"),
+              final + std::string_view("final ").size());
     EXPECT_EQ(FileNavigator::FindWordOnThisLine("signal signalExtra", "signal"),
               std::string_view("signal signalExtra").data());
 }

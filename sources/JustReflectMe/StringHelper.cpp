@@ -32,6 +32,11 @@ namespace StringHelper
 
     void FindAndReplaceAll(std::string& str, std::string_view from, const std::string& to)
     {
+        if (from.empty())
+        {
+            return;
+        }
+
         auto foundPos = str.find(from);
         while (foundPos != std::string::npos)
         {
