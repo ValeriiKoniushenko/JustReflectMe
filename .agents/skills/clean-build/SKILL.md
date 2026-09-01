@@ -11,18 +11,9 @@ Nukes the build dir and cache; use only when the incremental build is untrustwor
 
 ```bash
 rm -rf build
+git submodule sync --recursive
+git submodule update --init --recursive --remote --force
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-```
-
-### Linux / macOS
-
-```bash
-cmake --build build -j$(nproc)
-```
-
-### Windows
-
-```powershell
 cmake --build build --parallel
 ```
 
@@ -32,8 +23,3 @@ cmake --build build --parallel
 - Switching between MSVC/GCC/Clang toolchains
 - ccache double-invocation bug resurfaces
 - "it builds in CI but not locally" type reports
-
-## Cost warning
-
-This is slow (no cache reuse). Don't run it reflexively for every failure — try `build` first and only escalate here if
-that doesn't explain the issue.

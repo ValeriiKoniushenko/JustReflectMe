@@ -14,23 +14,17 @@ Benchmark is the `dependencies/benchmark` submodule, pinned by the superproject.
 
 ## Prepare a comparable run
 
-1. Ensure dependencies are present after a fresh clone:
-
-   ```sh
-   git submodule update --init --recursive
-   ```
-
-2. Configure a Release build with benchmarks enabled. Do not use Debug results for
+1. Configure a Release build with benchmarks enabled. Do not use Debug results for
    performance conclusions.
 
    ```sh
    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DJRM_ENABLE_BENCHMARKS=ON
    ```
 
-3. Build incrementally using the `build` skill:
+2. Build incrementally using the `build` skill:
 
    ```sh
-   cmake --build build -j$(nproc)
+   cmake --build build --parallel
    ```
 
 For before/after comparisons, use the same machine, build directory configuration, and
