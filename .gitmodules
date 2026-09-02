@@ -4,3 +4,6 @@
 [submodule "dependencies/benchmark"]
 	path = dependencies/benchmark
 	url = https://github.com/google/benchmark.git
+[submodule ".agents/Agents"]
+	path = .agents/Agents
+	url = git@github.com:ValeriiKoniushenko/Agents.git

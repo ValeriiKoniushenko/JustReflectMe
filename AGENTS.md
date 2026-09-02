@@ -60,6 +60,35 @@ JustReflectMe (jrm) — a code reflector library for C++ sources.
 - CI runs on self-hosted Gitea (gitea.vakon.dev) via act_runner:
   clang-format, clang-tidy, build (GCC+Clang), unit tests, valgrind.
 
+## Agent Skill Workflows
+
+Shared skills in `.agents/Agents/skills/` must read this section before running a
+project-specific command. CMake creates ignored relative links for them in
+`.agents/skills/`; project-local skills may coexist there.
+
+- Default configure command: `cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DJRM_DISABLE_TESTS=OFF`.
+  The standard incremental command is `cmake --build build --parallel`. Build artifacts
+  are under `build/bin/`, including `jrm` and `JRMTests`.
+- Run the full test suite with `cmake --build build --target JRMTests --parallel` followed
+  by `build/bin/JRMTests`, or `ctest --test-dir build --output-on-failure` when CTest is
+  configured.
+- Benchmarks use `cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DJRM_ENABLE_BENCHMARKS=ON`
+  and `build/bin/JRMStringAndNavigationBenchmarks`. List them with
+  `--benchmark_list_tests`; focus with `--benchmark_filter=<regex>`.
+- Coverage supports GCC and Clang, requires `JRM_DISABLE_TESTS=OFF`,
+  `JRM_ENABLE_CODE_COVERAGE=ON`, and `JRM_GENERATE_CODE_COVERAGE_HTML=ON`. Build
+  `JRMCodeCoverageHtml`; the default report is `build/coverage/index.html`.
+- For Valgrind, configure a Debug build with tests enabled and run
+  `python3 .gitea/check_valgrind.py --executable build/bin/JRMTests --no-gitea --verbose`.
+  Pass GoogleTest filters after `--` when investigating a subset.
+- Run `python3 .gitea/check_clang_format.py --no-gitea` to check changed C++ formatting;
+  add `--fix` to apply formatting. Run
+  `python3 .gitea/check_clang_tidy.py --build-dir build --no-gitea` for changed-file
+  clang-tidy analysis. These helpers accept `--files` for a focused file list.
+- Documentation sources use Antora under `docs/modules/ROOT/`; never read or edit
+  generated `docs/html/`. Update `docs/modules/ROOT/nav.adoc` when page paths change.
+  The normal site build is `cd docs && npx antora --fetch antora-playbook.yml`.
+
 ## Conventions
 
 - Target standard: **C++26** (`-std=c++2c` on GCC/Clang). Support is still partial across compilers — verify a given
