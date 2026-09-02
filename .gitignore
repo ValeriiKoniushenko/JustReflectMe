@@ -22,3 +22,7 @@ vg.log
 /.agents/skills/lint-and-format
 /.agents/skills/test
 /.agents/skills/valgrind
+/.agents/skills/verification-run
+/.agents/skills/ecs-benchmarks
+/.agents/skills/codegen
+
