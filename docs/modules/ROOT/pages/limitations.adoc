@@ -25,8 +25,7 @@ It understands file, namespace, class, struct, enum-class, template, and anonymo
 
 == C++ language level
 
-Repository policy is moving toward C++26, but the current CMake targets request `cxx_std_23`.
-Do not assume that every C++26 language or library feature is available across GCC, Clang, and MSVC.
+Repository policy is C++26
 
 == Error model
 

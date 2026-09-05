@@ -7,11 +7,11 @@ This guide builds JRM, connects its runtime adapter and generator to an applicat
 The current CMake project requires:
 
 * CMake 3.30 or newer;
-* a GCC, Clang, or MSVC toolchain with the CMake `cxx_std_23` feature;
+* a GCC, Clang, or MSVC toolchain with the CMake `cxx_std_26` feature;
 * Git submodules for the bundled dependencies;
 * a build system supported by CMake, with Ninja used in the examples.
 
-Project policy targets C++26 as toolchains mature, but the shipped build currently requests C++23.
+Project policy targets C++26 as toolchains mature, but the shipped build currently requests C++26.
 
 == Build JRM itself
 

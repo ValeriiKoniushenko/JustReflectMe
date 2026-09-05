@@ -49,7 +49,7 @@ Use a clean build only after structural CMake or toolchain changes, or when the 
 
 == C++ policy and quality checks
 
-The repository targets C++26 as an engineering policy while retaining a current CMake `cxx_std_23` feature requirement for available toolchains.
+The repository targets C++26 as an engineering policy while retaining a current CMake `cxx_std_26` feature requirement for available toolchains.
 MSVC debug information uses embedded `/Z7`-style data for ccache compatibility.
 
 Before committing C++ changes, run clang-format on changed C/C++ files and clang-tidy with a configured `compile_commands.json`.

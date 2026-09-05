@@ -3,7 +3,7 @@
 Build-time reflection and code generation for C++ classes, structs, fields, and scoped enums.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](CMakeLists.txt)
+[![C++26](https://img.shields.io/badge/C%2B%2B-26-blue.svg)](CMakeLists.txt)
 [![CMake](https://img.shields.io/badge/build-CMake-informational.svg)](CMakeLists.txt)
 
 JRM scans explicitly annotated headers and generates ordinary `R<T>` specializations in adjacent
@@ -19,7 +19,7 @@ enum conversion, runtime field lookup, and JSON serialization—without compiler
 - CMake targets for the runtime adapter, generator, tests, coverage, and microbenchmarks.
 - GCC, Clang, and MSVC project support.
 
-The shipped CMake targets currently require C++23. The project policy is moving toward C++26 as
+The shipped CMake targets currently require C++26. The project policy is moving toward C++26 as
 cross-compiler support becomes available.
 
 ## Documentation
