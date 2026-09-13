@@ -5,6 +5,8 @@ function(JRMApplyTargetSettings target)
     set_target_properties(${target} PROPERTIES
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
+        # JRM has no C++ modules; GCC's scanning flags bypass ccache.
+        CXX_SCAN_FOR_MODULES OFF
         COMPILE_WARNING_AS_ERROR "${JRM_WARNINGS_AS_ERRORS}")
     if(WIN32)
         target_compile_definitions(${target} PRIVATE NOMINMAX=1)
