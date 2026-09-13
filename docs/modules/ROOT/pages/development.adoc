@@ -14,7 +14,9 @@ include::example$commands.sh[tag=clone_and_build]
 include::example$commands.sh[tag=run_tests]
 ----
 
-The test target runs JRM over `tests/` before compiling the suite, so the user-acceptance headers exercise the generated specializations.
+The test target stages acceptance inputs under `<build-dir>/tests/JRMTests-reflection/<config>/` and runs JRM there.
+Generated headers and cache files stay in the build tree. Unchanged builds skip generation.
+CTest runs the complete suite; direct invocation of `JRMTests` remains supported.
 Tests cover configuration and cache behavior, preprocessing and scope navigation, reflector diagnostics, generated-file integration, metadata, class and enum serialization, inheritance, and runtime adapter behavior.
 
 Prefer incremental builds.
@@ -27,8 +29,16 @@ Use a clean build only after structural CMake or toolchain changes, or when the 
 |Option |Default |Effect
 
 |`JRM_DISABLE_TESTS`
+|Context-dependent
+|Explicit values win. Otherwise follows an existing `BUILD_TESTING`; without it, tests default on standalone and off when embedded.
+
+|`JRM_SETUP_AGENT_SKILLS`
 |`OFF`
-|Skip GoogleTest targets and the test-time code-generation target. Consumer projects normally set this to `ON`.
+|Install shared skill links explicitly. Requires the pinned Agents submodule and a Git checkout.
+
+|`JRM_WARNINGS_AS_ERRORS`
+|`OFF`
+|Treat JRM warnings as errors; enabled in CI.
 
 |`JRM_ENABLE_BENCHMARKS`
 |`OFF`
@@ -44,8 +54,33 @@ Use a clean build only after structural CMake or toolchain changes, or when the 
 
 |`JRM_CODE_COVERAGE_OUTPUT_DIRECTORY`
 |`<build-dir>/coverage`
-|Select the report directory. It must be a child of the active CMake binary directory and cannot equal that directory.
+|Select the report directory. It must be a child of JRM’s binary directory, separate from build artifacts. Multi-config builds append the configuration name. Existing nonempty directories must carry the `.jrm-coverage` report marker.
 |===
+
+== Presets and build isolation
+
+[source,shell]
+----
+include::example$commands.sh[tag=presets]
+----
+
+Presets use separate directories under `build/`. Available configurations include `debug`, `release`, Linux `gcc-debug`, `gcc-release`, `clang-debug`, `clang-release`, `benchmark`, `coverage-gcc`, and `coverage-clang`.
+Compiler-specific presets require the corresponding toolchain on `PATH`.
+Coverage presets also require matching coverage tools.
+Use an ignored `CMakeUserPresets.json` for personal overrides.
+For MSVC, run the portable presets from a developer command prompt.
+
+[source,shell]
+----
+include::example$commands.sh[tag=multi_config]
+----
+
+Multi-config executables are under `bin/<config>/` and libraries under `lib/<config>/`.
+Separate configurations stage independent reflection projects.
+CMake generates the version header under `<build-dir>/include/JustReflectMe/`.
+In-source builds are rejected.
+Normal builds need no Git or agent tooling once required build dependencies are populated.
+Parent projects retain their output-directory, compiler-launcher, and runtime settings.
 
 == C++ policy and quality checks
 

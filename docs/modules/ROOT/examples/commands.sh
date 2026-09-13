@@ -19,7 +19,7 @@ build/bin/jrm --fallback-config
 # end::cli_info[]
 
 # tag::run_tests[]
-build/bin/JRMTests
+ctest --test-dir build --output-on-failure --no-tests=error
 # end::run_tests[]
 
 # tag::format_check[]
@@ -54,3 +54,17 @@ python3 .gitea/check_valgrind.py \
 cd docs
 npx antora --fetch antora-playbook.yml
 # end::docs_site[]
+
+# tag::presets[]
+cmake --preset debug
+cmake --build --preset debug --parallel
+ctest --preset debug
+# end::presets[]
+
+# tag::multi_config[]
+cmake --preset multi
+cmake --build --preset multi-debug --parallel
+ctest --preset multi-debug
+cmake --build --preset multi-release --parallel
+ctest --preset multi-release
+# end::multi_config[]

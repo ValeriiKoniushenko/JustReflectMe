@@ -7,7 +7,6 @@
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 
-#include "MltClasses.h"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include <uat/MltClasses.h>

@@ -92,6 +92,17 @@ namespace
 
 } // namespace
 
+TEST(FileProcessorRegistrationTests, RejectsDuplicateReflectors)
+{
+    JRM::FileProcessor processor;
+    processor.registerReflector<JRM::EnumClassReflector>();
+    const auto* original = processor.getReflectors().front().get();
+    processor.registerReflector<JRM::EnumClassReflector>();
+
+    ASSERT_EQ(processor.getReflectors().size(), 1U);
+    EXPECT_EQ(processor.getReflectors().front().get(), original);
+}
+
 TEST_F(FileProcessorTests, SingleFile)
 {
     const RAIIFile file("test.cpp", R"(/* some file */
@@ -120,20 +131,20 @@ std::string sss = "////////"; // 19
     processor.registerReflector<JRM::EnumClassReflector>();
 
     EXPECT_CALL(processor, onPreGenerateContent(testing::_))
-        .WillOnce(testing::Invoke(
+        .WillOnce(
             [&](const std::string& content)
             {
                 ASSERT_FALSE(content.contains("#include \"test.generated.inl\""));
                 //
-            }));
+            });
 
     EXPECT_CALL(processor, onPostGenerateHeaderContent(testing::_))
-        .WillOnce(testing::Invoke(
+        .WillOnce(
             [&](const std::string& content)
             {
                 ASSERT_TRUE(content.contains("#include \"test.generated.h\""));
                 //
-            }));
+            });
 
     JRM::Config dummy;
 
@@ -175,20 +186,20 @@ namespace NS
 )");
 
     EXPECT_CALL(processor, onPreGenerateContent(testing::_))
-        .WillOnce(testing::Invoke(
+        .WillOnce(
             [&](const std::string& content)
             {
                 ASSERT_FALSE(content.contains("#include \"test_1.generated.inl\""));
                 //
-            }));
+            });
 
     EXPECT_CALL(processor, onPostGenerateHeaderContent(testing::_))
-        .WillOnce(testing::Invoke(
+        .WillOnce(
             [&](const std::string& content)
             {
                 ASSERT_TRUE(content.contains("#include \"test_1.generated.h\""));
                 //
-            }));
+            });
 
     processor.registerReflector<JRM::EnumClassReflector>();
 

@@ -31,7 +31,7 @@ Add the checkout as a subdirectory and link the runtime adapter:
 include::example$quickstart/CMakeLists.txt[tag=dependency]
 ----
 
-Then create a generator target and make the application depend on it:
+Attach incremental reflection to the application:
 
 [source,cmake]
 ----
@@ -63,7 +63,7 @@ include::example$quickstart/model.h[tag=reflected_enum]
 include::example$quickstart/model.h[tag=reflected_classes]
 ----
 
-On the first scan, JRM appends the generated-header include to the source header:
+On a direct CLI scan, JRM appends the generated-header include to the source header:
 
 [source,cpp]
 ----
@@ -74,7 +74,12 @@ Do not edit `model.generated.h`; a later scan replaces it.
 
 == Run the generator
 
-The CMake target runs automatically in this example, or you can scan a project directly:
+The CMake helper stages the listed sources and headers under the build directory, then reflects that copy.
+Inputs are relative to `ROOT`; `HEADERS` must list reflected headers. Optional `CONFIG` selects a configuration YAML file.
+It creates `<target>_CodeReflector`, tracks generator and input changes, and rejects missing or empty generated headers.
+The example keeps `jrm_quickstart_codegen` as a compatibility target.
+
+The CMake target runs automatically, or you can scan a project directly:
 
 [source,shell]
 ----

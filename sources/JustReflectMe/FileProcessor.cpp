@@ -771,8 +771,7 @@ namespace JRM
         return true;
     }
 
-    void FileProcessor::integrateHeaderIncludes(const FileData& data,
-                                                const std::string& generatedHpp)
+    void FileProcessor::integrateHeaderIncludes(const FileData&, const std::string& generatedHpp)
     {
         const auto includeString = "#include \"" + generatedHpp + "\"";
         const auto hpp = getHeaderFilename();
@@ -819,8 +818,7 @@ namespace JRM
         onPostGenerateHeaderContent(originalSources);
     }
 
-    void FileProcessor::integrateSourceIncludes(const FileData& data,
-                                                const std::string& generatedCpp)
+    void FileProcessor::integrateSourceIncludes(const FileData&, const std::string& generatedCpp)
     {
         if (generatedCpp.empty() || _pathImpl.empty())
         {

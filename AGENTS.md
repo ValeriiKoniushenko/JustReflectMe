@@ -54,7 +54,18 @@ JustReflectMe (jrm) — a code reflector library for C++ sources.
 
 ## Build
 
-- CMake, cross-platform (Linux, Windows): MSVC / GCC / Clang.
+- CMake 3.30+, cross-platform (Linux, Windows): MSVC / GCC / Clang.
+- Presets: `debug`, `release`, `multi`, `gcc-debug`, `gcc-release`, `clang-debug`,
+  `clang-release`, `benchmark`, `coverage-gcc`, `coverage-clang`. Each uses its own `build/` child.
+- `JRM_DISABLE_TESTS` respects explicit values; otherwise it follows existing `BUILD_TESTING`,
+  or defaults to OFF standalone and ON when embedded.
+- `JRM_WARNINGS_AS_ERRORS` defaults OFF; CI enables it.
+- `JRM_SETUP_AGENT_SKILLS` defaults OFF. Enable explicitly to install shared skill links.
+  Ordinary builds do not require Git or the Agents submodule; build dependencies must be present.
+- `jrm_target_reflection(target ROOT <path> SOURCES <files...> HEADERS <files...> [CONFIG <yaml>])`
+  stages relative inputs per configuration and attaches incremental reflection to an existing target.
+- Multi-config outputs use `bin/<config>/`, `lib/<config>/`, and coverage reports `<report>/<config>/`.
+- Build regression checks: `python3 .gitea/check_cmake.py --build-dir build` after a full build.
 - MSVC debug info: use `/Z7`, not `/Zi` — required for ccache compatibility.
 - CI runs on self-hosted Gitea (gitea.vakon.dev) via act_runner:
   clang-format, clang-tidy, build (GCC+Clang), unit tests, valgrind.
@@ -93,12 +104,13 @@ Do not update submodules to newer remote revisions as part of a build or verific
 - Tests require `JRM_DISABLE_TESTS=OFF`. Build them with
   `cmake --build build --target JRMTests --parallel`, then run the complete suite with
   `build/bin/JRMTests`.
-- CTest is not currently registered by this project; invoke `JRMTests` directly.
+- CTest registers the full suite: `ctest --test-dir build --output-on-failure --no-tests=error`.
+  Direct invocation of `JRMTests` remains supported.
 - For focused iteration, pass a GoogleTest filter such as
   `build/bin/JRMTests --gtest_filter='Classes.*'`. Run the unfiltered suite before declaring
   a behavior change verified.
-- Building `JRMTests` first runs the `JRMTests_CodeReflector` target, which invokes `jrm` on
-  `tests/` so the user-acceptance headers compile against freshly generated specializations.
+- Building `JRMTests` first runs the `JRMTests_CodeReflector` target, which stages acceptance inputs under
+  `build/tests/JRMTests-reflection/<config>/` and invokes `jrm` there. Source fixtures remain unchanged.
 
 ### `benchmark`
 
@@ -144,7 +156,7 @@ Do not update submodules to newer remote revisions as part of a build or verific
 - For this repository's unit-test fixtures, building `JRMTests` performs code generation
   automatically. Follow explicit regeneration with the standard incremental build and report
   generated changes separately.
-- CMake also configures `sources/JustReflectMe/version.h` from `version.h.template`; rerun CMake
+- CMake also configures `build/include/JustReflectMe/version.h` from `version.h.template`; rerun CMake
   configure when the project version or that template changes.
 
 ### `docs-generation`

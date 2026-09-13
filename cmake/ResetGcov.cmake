@@ -1,0 +1,11 @@
+foreach(target IN ITEMS sources/CMakeFiles/_JustReflectMe_Adapter.dir
+        sources/CMakeFiles/_JustReflectMe_Core.dir tests/CMakeFiles/JRMTests.dir)
+    set(directory "${JRM_BINARY_DIR}/${target}")
+    if(JRM_MULTI_CONFIG)
+        string(APPEND directory "/${JRM_CONFIG}")
+    endif()
+    file(GLOB_RECURSE counters "${directory}/*.gcda")
+    if(counters)
+        file(REMOVE ${counters})
+    endif()
+endforeach()

@@ -12,9 +12,9 @@
 #include "Cache.h"
 #include "Config.h"
 #include "FileProcessor.h"
+#include "JustReflectMe/version.h"
 #include "Reflectors/ClassReflector.h"
 #include "Reflectors/EnumClassReflector.h"
-#include "version.h"
 
 #include <filesystem>
 #include <iostream>

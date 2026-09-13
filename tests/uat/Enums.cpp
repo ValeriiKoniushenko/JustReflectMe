@@ -7,10 +7,9 @@
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 
-#include "Enums.h"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include <uat/Enums.h>
 
 TEST(Enums, FullNames)
 {

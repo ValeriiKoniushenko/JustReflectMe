@@ -106,8 +106,7 @@ namespace JRM
         return result;
     }
 
-    std::string BaseReflector::generateSourceFile(const std::string& newHeaderPath,
-                                                  FileData& data) const
+    std::string BaseReflector::generateSourceFile(const std::string&, FileData& data) const
     {
         std::string result;
         result.reserve(1024);

@@ -1,93 +1,96 @@
-cmake_minimum_required(VERSION 3.30.0..)
+cmake_minimum_required(VERSION 3.30)
 
-project(JustReflectMe VERSION 1.2.0 LANGUAGES CXX)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+    message(FATAL_ERROR "In-source builds are not supported. Use cmake -S . -B build.")
+endif()
 
-# The nested Agents repository validates Git symlink support and links its shared
-# skills into .agents/skills without overwriting project-local skills.
-include("${CMAKE_CURRENT_SOURCE_DIR}/.agents/Agents/CMakeLists.txt")
+if(NOT DEFINED CMAKE_MSVC_DEBUG_INFORMATION_FORMAT)
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+endif()
+if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR
+   AND NOT DEFINED CMAKE_EXPORT_COMPILE_COMMANDS
+   AND NOT DEFINED ENV{CMAKE_EXPORT_COMPILE_COMMANDS})
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export compile commands for developer tools.")
+endif()
 
-cmake_policy(SET CMP0141 NEW)
-set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
-    "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
-)
+project(JustReflectMe VERSION 1.3.0 LANGUAGES CXX)
 
-if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
-    if (NOT CMAKE_CXX_COMPILER_LAUNCHER)
-        find_program(CCACHE_PROGRAM ccache)
-        if (CCACHE_PROGRAM)
-            set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-            set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-            message(STATUS "ccache: ${CCACHE_PROGRAM}")
-        endif ()
-    endif ()
-endif ()
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Features.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Flags.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Coverage.cmake)
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# ========= Base setup & Predefinitions =========
+set(_jrm_disable_tests ON)
+if((DEFINED BUILD_TESTING AND BUILD_TESTING)
+   OR (NOT DEFINED BUILD_TESTING AND PROJECT_IS_TOP_LEVEL))
+    set(_jrm_disable_tests OFF)
+endif()
+option(JRM_DISABLE_TESTS "Skip JRM unit tests." "${_jrm_disable_tests}")
+option(JRM_SETUP_AGENT_SKILLS "Install shared agent skill links in the source checkout." OFF)
+option(JRM_WARNINGS_AS_ERRORS "Treat JRM compiler warnings as errors." OFF)
 option(JRM_ENABLE_CODE_COVERAGE "Instrument project targets for code coverage collection." OFF)
-option(JRM_GENERATE_CODE_COVERAGE_HTML
-       "Add the JRMCodeCoverageHtml target that runs tests and writes an HTML report."
-       OFF)
+option(JRM_GENERATE_CODE_COVERAGE_HTML "Add the JRMCodeCoverageHtml report target." OFF)
 option(JRM_ENABLE_BENCHMARKS "Build Google Benchmark performance benchmarks." OFF)
-set(JRM_CODE_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage" CACHE PATH
+set(JRM_CODE_COVERAGE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/coverage" CACHE PATH
     "Directory for the JRM code coverage HTML report.")
 
-if (JRM_ENABLE_BENCHMARKS AND JRM_ENABLE_CODE_COVERAGE)
-    message(FATAL_ERROR
-        "JRM_ENABLE_BENCHMARKS and JRM_ENABLE_CODE_COVERAGE cannot both be enabled. "
-        "Benchmark results must be collected without coverage instrumentation.")
-endif ()
+if(JRM_GENERATE_CODE_COVERAGE_HTML AND NOT JRM_ENABLE_CODE_COVERAGE)
+    message(FATAL_ERROR "JRM_GENERATE_CODE_COVERAGE_HTML requires JRM_ENABLE_CODE_COVERAGE=ON.")
+endif()
+if(JRM_ENABLE_CODE_COVERAGE)
+    if(JRM_DISABLE_TESTS)
+        message(FATAL_ERROR "JRM_ENABLE_CODE_COVERAGE requires JRM_DISABLE_TESTS=OFF.")
+    endif()
+    if(JRM_ENABLE_BENCHMARKS)
+        message(FATAL_ERROR "JRM_ENABLE_BENCHMARKS and JRM_ENABLE_CODE_COVERAGE cannot both be enabled.")
+    endif()
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$" OR MSVC)
+        message(FATAL_ERROR "JRM_ENABLE_CODE_COVERAGE supports GCC and Clang with the GNU frontend only.")
+    endif()
+endif()
 
-if (JRM_DISABLE_TESTS)
-    message(STATUS "JRM unit tests: disabled")
-else ()
-    message(STATUS "JRM unit tests: enabled")
-endif ()
+if(JRM_SETUP_AGENT_SKILLS)
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        message(FATAL_ERROR "JRM_SETUP_AGENT_SKILLS is available only for standalone builds.")
+    endif()
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/.agents/Agents/CMakeLists.txt")
+        message(FATAL_ERROR "Initialize the pinned .agents/Agents submodule to install shared skills.")
+    endif()
+    include("${PROJECT_SOURCE_DIR}/.agents/Agents/CMakeLists.txt")
+endif()
 
-if (JRM_ENABLE_BENCHMARKS)
-    message(STATUS "JRM benchmarks: enabled")
-else ()
-    message(STATUS "JRM benchmarks: disabled")
-endif ()
+if(PROJECT_IS_TOP_LEVEL)
+    if(NOT DEFINED CMAKE_CXX_COMPILER_LAUNCHER)
+        find_program(JRM_CCACHE_EXECUTABLE ccache)
+        if(JRM_CCACHE_EXECUTABLE)
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${JRM_CCACHE_EXECUTABLE}")
+        endif()
+    endif()
+endif()
 
-if (JRM_ENABLE_CODE_COVERAGE)
-    message(STATUS "JRM code coverage: enabled")
-else ()
-    message(STATUS "JRM code coverage: disabled")
-endif ()
+foreach(_kind IN ITEMS ARCHIVE LIBRARY RUNTIME)
+    if(NOT DEFINED CMAKE_${_kind}_OUTPUT_DIRECTORY)
+        if(_kind STREQUAL "RUNTIME")
+            set(CMAKE_${_kind}_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
+        else()
+            set(CMAKE_${_kind}_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
+        endif()
+    endif()
+endforeach()
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(REQUIRED_CXX_STANDARD cxx_std_26) # read-only
-set(CXX_STANDARD)
+include("${PROJECT_SOURCE_DIR}/cmake/Flags.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/Reflection.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/Coverage.cmake")
 
-JRF_InstallCXXStandardVersion()
+configure_file(sources/JustReflectMe/version.h.template
+    "${PROJECT_BINARY_DIR}/include/JustReflectMe/version.h" @ONLY)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sources/JustReflectMe/version.h.template
-    ${CMAKE_CURRENT_SOURCE_DIR}/sources/JustReflectMe/version.h
-    @ONLY
-)
-
-# ========= Adding subdirectories =========
 add_subdirectory(dependencies)
-
-if (NOT JRM_DISABLE_TESTS)
-    add_subdirectory(tests)
-endif ()
-
 add_subdirectory(sources)
-
-if (JRM_ENABLE_BENCHMARKS)
+if(NOT JRM_DISABLE_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+if(JRM_ENABLE_BENCHMARKS)
     add_subdirectory(benchmarks)
-endif ()
-
+endif()
 JRMConfigureCodeCoverage()

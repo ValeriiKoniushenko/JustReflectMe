@@ -65,7 +65,7 @@ namespace JRM
     {
     }
 
-    std::string EnumClassReflector::onGenerateHeaderFile(FileData& fileData) const
+    std::string EnumClassReflector::onGenerateHeaderFile(FileData&) const
     {
         std::string result;
         result.reserve(1024 * 4);

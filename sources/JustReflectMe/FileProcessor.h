@@ -20,10 +20,6 @@
 #include <unordered_set>
 #include <vector>
 
-#if defined(JRM_ENABLE_TESTS)
-    #include "gtest/gtest_prod.h"
-#endif
-
 namespace JRM
 {
     class FileData;
@@ -141,8 +137,8 @@ namespace JRM
         [[nodiscard]] static bool isGeneratedFilename(const std::string& filename);
 
     protected:
-        virtual void onPreGenerateContent(const std::string& content) const {}
-        virtual void onPostGenerateHeaderContent(const std::string& content) const {}
+        virtual void onPreGenerateContent(const std::string&) const {}
+        virtual void onPostGenerateHeaderContent(const std::string&) const {}
         [[nodiscard]] std::set<std::string> getAllRequiredIncludes() const;
 
         /** Writes `text` to `path` only if the existing content differs.
@@ -178,10 +174,6 @@ namespace JRM
         std::string _path;     // to .h   - must be filled
         std::string _pathImpl; // to .cpp - can be empty
         const Config* _config = nullptr;
-
-#if defined(JRM_ENABLE_TESTS)
-        FRIEND_TEST(FileProcessorTests, FindAllEntryPoints);
-#endif
     };
 
     // =====================================================
@@ -190,14 +182,12 @@ namespace JRM
     template<IsBaseReflector T>
     void FileProcessor::registerReflector()
     {
-#if defined(NDEBUG)
         if (hasReflector<T>())
         {
             std::cerr << "[JustReflectMe] Such a reflector '" << typeid(T).name()
                       << "' already registered!\n";
             return;
         }
-#endif
 
         _reflectors.emplace_back(std::make_unique<T>());
         _reflectorsMeta.emplace(std::type_index(typeid(T)));

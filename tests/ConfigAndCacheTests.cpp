@@ -161,6 +161,20 @@ TEST(CacheTests, HandlesMissingProjectsAndCacheFiles)
     EXPECT_TRUE(std::filesystem::exists(project.path() / ".jrm" / "cache.data"));
 }
 
+TEST(CacheTests, DiagnosesAbsoluteTimestampLookup)
+{
+    TestSupport::TemporaryDirectory project;
+    const auto source = project.writeFile("value.h", "#pragma once\n");
+    JRM::Cache cache(project.path(), false);
+
+    testing::internal::CaptureStderr();
+    const bool needsUpdate = cache.isNeedUpdate(source, std::filesystem::last_write_time(source));
+    const auto diagnostic = testing::internal::GetCapturedStderr();
+
+    EXPECT_TRUE(needsUpdate);
+    EXPECT_THAT(diagnostic, testing::HasSubstr("Absolute path is passed to isNeedUpdate"));
+}
+
 TEST(CacheTests, HandlesRelativeAbsoluteAndChangedFileTimes)
 {
     TestSupport::TemporaryDirectory project;

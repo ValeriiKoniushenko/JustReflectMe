@@ -7,9 +7,7 @@
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 
-#define JRM_ENABLE_TESTS
 #include "JustReflectMe/Scopes.h"
-#undef JRM_ENABLE_TESTS
 
 #include "gtest/gtest.h"
 #include <array>

@@ -71,7 +71,7 @@ namespace JRM
         return out;
     }
 
-    std::string ClassReflector::onGenerateHeaderFile(FileData& fileData) const
+    std::string ClassReflector::onGenerateHeaderFile(FileData&) const
     {
         std::string result;
         result.reserve(1024 * 4);
@@ -437,7 +437,6 @@ namespace JRM
                     continue;
                 }
 
-                auto* fieldOpen = it;
                 auto* fieldClose = FileNavigator::FindScopeEnd(it);
                 ++it;
                 while (it < fieldClose)
@@ -702,7 +701,7 @@ namespace JRM
         @@F_DESERIALIZE_
     }
 
-    @@FUNC_PREF_bool GetField(@@NAME_& obj, const char* fieldName, const std::function<void(void*, const char*)>& onFound)
+    @@FUNC_PREF_bool GetField([[maybe_unused]] @@NAME_& obj, [[maybe_unused]] const char* fieldName, const std::function<void(void*, const char*)>& onFound)
     {
         if (!onFound) return false;
 @@F_GET_FIELD_

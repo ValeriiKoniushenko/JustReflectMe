@@ -262,7 +262,7 @@ namespace JRM
         [[nodiscard]] static std::string PrettyPrintIdentifier(const Scope* scope);
 
         [[nodiscard]] virtual std::string onGenerateHeaderFile(FileData& data) const = 0;
-        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData& data) const { return {}; }
+        [[nodiscard]] virtual std::string onGenerateSourceFile(FileData&) const { return {}; }
 
         virtual void onScan(const FileData& content) = 0;
 

@@ -82,13 +82,11 @@ namespace JRM
                              const std::filesystem::file_time_type& time)
     {
         const auto str = path.generic_string();
-#ifdef NDEBUG
         if (path.is_absolute()) [[unlikely]]
         {
             std::cerr << "[JustReflectMe] Error. Absolute path is passed to isNeedUpdate. File: "
                       << str << "\n";
         }
-#endif
         if (_ignoreCacheRequests)
         {
             return true;

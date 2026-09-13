@@ -4,5 +4,4 @@ target_link_libraries(JRMStringAndNavigationBenchmarks
     JustReflectMe::Core
     benchmark::benchmark_main
 )
-target_compile_features(JRMStringAndNavigationBenchmarks PRIVATE ${CXX_STANDARD})
-JRFCoreAddCompileOptionsTo(JRMStringAndNavigationBenchmarks)
+JRMApplyTargetSettings(JRMStringAndNavigationBenchmarks)

@@ -212,7 +212,7 @@ namespace JRM
         }
     }
 
-    void Scopes::tryToDetermineScopeAttribute(Scope& scope, const char* p, const char* start)
+    void Scopes::tryToDetermineScopeAttribute(Scope& scope, const char*, const char* start)
     {
         using namespace FileNavigator;
 

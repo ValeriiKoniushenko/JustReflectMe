@@ -101,7 +101,7 @@ namespace
 
         for (auto _ : state)
         {
-            const auto tokens = StringHelper::SplitString(input);
+            auto tokens = StringHelper::SplitString(input);
             benchmark::DoNotOptimize(tokens);
         }
     }
