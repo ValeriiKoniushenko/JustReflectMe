@@ -386,19 +386,22 @@ public:
 
 /**
  * Put it before the enum-class definition to highlight it for JRM.
+ * Leave the parentheses empty: JRM currently interprets no ENUM_CLASS arguments.
  * @code
  * ENUM_CLASS();
  * enum class Color {
  *     Red,
  *     Green,
  *     Blue
- * }
+ * };
  * @endcode
  */
 #define ENUM_CLASS(...) static_assert(true, "")
 
 /**
  * Put it before the class definition to highlight it for JRM.
+ * Leave the parentheses empty: JRM currently interprets no CLASS arguments.
+ * Specify reflected base classes in R_FRIEND, not CLASS.
  * @code
  * CLASS();
  * class Foo{
@@ -410,21 +413,21 @@ public:
 
 /**
  * Put it before the class's field definition to highlight it for JRM.
- * Also, it can't work without identifying your clas in the JRM system with 'CLASS()' keyword.
+ * The enclosing class or struct must be marked with CLASS().
+ * Leave the parentheses empty for defaults, or pass comma-separated options:
+ * - R::Default or R::NonRequired: missing JSON fields use their fallback and log NotFound.
+ * - R::Required: missing JSON fields also throw std::runtime_error.
+ * - R::NoDefaultValue: use value initialization instead of the field's source initializer
+ *   as the deserialization fallback; this does not make the field required.
+ * - R::Attr = Identifier: add a metadata attribute; repeat for multiple attributes.
+ *   The value must be an unquoted identifier, not a string or arbitrary expression.
+ * JRM matches these exact R:: spellings in source, not RPoint:: aliases or C++ expressions.
+ * Unknown options produce warnings. Reflected-enum fields do not forward all missing-field
+ * policy flags to their deserializer.
  * @code
  * CLASS(); // <--- you MUST put it
  * class Foo{
- *     FIELD();
- *     int a = 1;
- * };
- * @endcode
- *
- * The default behavior of 'FIELD' can be changed with enum class RPoint. Just put the necessary
- * extra parameters using comma separator to change the current behavior.
- * @code
- * CLASS();
- * class Foo{
- *     FIELD(R::NoDefaultValue, R::xyz);
+ *     FIELD(R::NoDefaultValue, R::Attr = Example);
  *     int a = 1;
  * };
  * @endcode

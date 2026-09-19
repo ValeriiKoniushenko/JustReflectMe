@@ -27,8 +27,13 @@ They intentionally have no runtime behavior; the generator recognizes their sour
 |===
 
 `CLASS()` and `ENUM_CLASS()` may be on the declaration's line or the preceding line, but keeping them on a dedicated preceding line produces the most readable and reliably scanned code.
+Leave their parentheses empty: the current reflectors interpret no arguments for either marker.
+Specify reflected bases in `R_FRIEND(Type, Bases...)`, not in `CLASS()`.
 
 == Field options
+
+Use `FIELD()` for defaults, or pass a comma-separated list of the options below.
+JRM matches their exact `R::` spellings in source; `RPoint::` aliases and arbitrary C++ expressions are not supported option syntax.
 
 [cols="1,3"]
 |===
