@@ -961,7 +961,8 @@ namespace JRM
                 {
                     out += "\n\t\t";
                     out += std::format("if (obj.{} < {}) {{", field.name, field.min);
-                    out += std::format(" s.write(\"{}\", {});", field.name, field.min);
+                    out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
+                                       field.min);
                     out += " }";
 
                     shouldPutElseKeyword = true;
@@ -975,7 +976,8 @@ namespace JRM
                         out += "else ";
                     }
                     out += std::format("if (obj.{} > {}) {{", field.name, field.max);
-                    out += std::format(" s.write(\"{}\", {});", field.name, field.max);
+                    out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
+                                       field.max);
                     out += " }";
 
                     shouldPutElseKeyword = true;
@@ -1084,15 +1086,15 @@ namespace JRM
                     if (!field.min.empty())
                     {
                         out += "\n\t\t";
-                        out += std::format("if (obj.{} < {}) {{ obj.{} = {}; }}", field.name,
-                                           field.min, field.name, field.min);
+                        out += std::format("if (obj.{} < {}) {{ obj.{} = ({}); }}", field.name,
+                                           field.min, field.name, field.type.name, field.min);
                     }
 
                     if (!field.max.empty())
                     {
                         out += "\n\t\t";
-                        out += std::format("if (obj.{} > {}) {{ obj.{} = {}; }}", field.name,
-                                           field.max, field.name, field.max);
+                        out += std::format("if (obj.{} > {}) {{ obj.{} = {}({}); }}", field.name,
+                                           field.max, field.name, field.type.name, field.max);
                     }
                     if (!field.min.empty() || !field.max.empty())
                     {
