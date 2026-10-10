@@ -1031,30 +1031,31 @@ namespace JRM
                 }
                 else
                 {
-                    out += "\n\t\ts.read(\"" + field.name + "\", ";
-
+                    std::string valueStr;
                     if (field.typeMeta)
                     {
-                        out += std::format("obj.{}", field.name);
+                        valueStr = std::format("obj.{}", field.name);
                     }
                     else
                     {
-                        out += "obj." + field.name;
+                        valueStr = "obj." + field.name;
                     }
 
-                    out += ", ";
+                    std::string defaultValueStr;
                     if (!field.defaultValue.empty())
                     {
-                        out += field.defaultValue;
+                        defaultValueStr = field.defaultValue;
                     }
                     else
                     {
-                        out += "decltype(obj." + field.name + "){}";
+                        defaultValueStr = "decltype(obj." + field.name + "){}";
                     }
 
-                    out += ", ";
-                    out += std::to_string(field.flags);
-                    out += ");";
+                    std::string flagsStr = std::to_string(field.flags);
+
+                    out += "\n\t\t";
+                    out += std::format("s.read(\"{}\", {}, {}, {});", field.name, valueStr,
+                                       defaultValueStr, flagsStr);
                 }
             }
 
