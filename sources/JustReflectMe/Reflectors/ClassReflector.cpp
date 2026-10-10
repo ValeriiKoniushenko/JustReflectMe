@@ -1060,27 +1060,18 @@ namespace JRM
                     out += std::format("\n\t\ts.read(\"{}\", {}, {}, {});", field.name, valueStr,
                                        defaultValueStr, flagsStr);
 
-                    bool shouldPutElseKeyword = false;
                     if (!field.min.empty())
                     {
                         out += "\n\t\t";
                         out += std::format("if (obj.{} < {}) {{ obj.{} = {}; }}", field.name,
                                            field.min, field.name, field.min);
-
-                        shouldPutElseKeyword = true;
                     }
 
                     if (!field.max.empty())
                     {
                         out += "\n\t\t";
-                        if (shouldPutElseKeyword)
-                        {
-                            out += "else ";
-                        }
                         out += std::format("if (obj.{} > {}) {{ obj.{} = {}; }}", field.name,
                                            field.max, field.name, field.max);
-
-                        shouldPutElseKeyword = true;
                     }
                     if (!field.min.empty() || !field.max.empty())
                     {
