@@ -43,15 +43,31 @@ TEST(AdapterTests, WritesAndReadsJsonFieldsAndBuildsMetadataMap)
     EXPECT_TRUE(stream.logs().empty());
 
     const std::vector<RClassField> fields = {
-        RClassField{ .type = "int", .name = "id", .attribs = { "primary" } },
-        RClassField{ .type = "std::string", .name = "name", .attribs = {} },
-        RClassField{ .type = "long", .name = "id", .attribs = { "replacement" } },
+        RClassField{
+            .type = "int",
+            .name = "id",
+            .attributes = RClassField::Attributes{ .attribs{ "primary" },
+                                                   .min = std::nullopt,
+                                                   .max = std::nullopt, },
+        },
+        RClassField{
+            .type = "std::string",
+            .name = "name",
+            .attributes = RClassField::Attributes{},
+        },
+        RClassField{
+            .type = "long",
+            .name = "id",
+            .attributes = RClassField::Attributes{ .attribs{ "replacement" },
+            .min = std::nullopt,
+            .max = std::nullopt, },
+        },
     };
     const auto fieldsByName = RInternal::GetClassFieldsAsMap(fields);
 
     ASSERT_EQ(fieldsByName.size(), 2);
     EXPECT_EQ(fieldsByName.at("id").type, "long");
-    EXPECT_THAT(fieldsByName.at("id").attribs, testing::ElementsAre("replacement"));
+    EXPECT_THAT(fieldsByName.at("id").attributes.attribs, testing::ElementsAre("replacement"));
     EXPECT_EQ(RStatusToString(RStatus::Ok), "Ok");
     EXPECT_EQ(RStatusToString(RStatus::NotFound), "NotFound");
 }

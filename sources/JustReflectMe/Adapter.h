@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "Number.h"
 #include "nlohmann/json.hpp"
 
 #include <string>
@@ -26,7 +27,12 @@ struct RClassField
 {
     std::string_view type;
     std::string_view name;
-    std::vector<std::string_view> attribs;
+    struct Attributes
+    {
+        std::vector<std::string_view> attribs;
+        std::optional<JRM::Number> min;
+        std::optional<JRM::Number> max;
+    } attributes;
 };
 
 /**

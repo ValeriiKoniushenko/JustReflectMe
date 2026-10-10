@@ -12,6 +12,7 @@ add_library(_JustReflectMe_Core STATIC
     JustReflectMe/FileNavigationHelper.cpp JustReflectMe/FileNavigationHelper.h
     JustReflectMe/FileProcessor.cpp JustReflectMe/FileProcessor.h
     JustReflectMe/JustReflectMe.cpp JustReflectMe/JustReflectMe.h
+    JustReflectMe/Number.cpp JustReflectMe/Number.h
     JustReflectMe/Scopes.cpp JustReflectMe/Scopes.h
     JustReflectMe/StringHelper.cpp JustReflectMe/StringHelper.h
     JustReflectMe/Reflectors/BaseReflector.cpp JustReflectMe/Reflectors/BaseReflector.h

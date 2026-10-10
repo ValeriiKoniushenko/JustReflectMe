@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "../Number.h"
 #include "BaseReflector.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
