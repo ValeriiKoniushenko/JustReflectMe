@@ -730,8 +730,24 @@ namespace JRM
             }
 
             field.attributes = std::move(fieldMeta.attribs);
+
             field.min = fieldMeta.min;
+            if (field.min && !IsNumericTypeName(field.type.name))
+            {
+                warnMessage(content, fieldMeta.p - content, fileData.getPath(),
+                            std::format("Parse warning for field '{} {}': Only numeric types can "
+                                        "be marked with R::Min",
+                                        field.type.getNameWithCV(), field.name));
+            }
+
             field.max = fieldMeta.max;
+            if (field.max && !IsNumericTypeName(field.type.name))
+            {
+                warnMessage(content, fieldMeta.p - content, fileData.getPath(),
+                            std::format("Parse warning for field '{} {}': Only numeric types can "
+                                        "be marked with R::Max",
+                                        field.type.getNameWithCV(), field.name));
+            }
 
             data.fields.emplace_back(std::move(field));
         }

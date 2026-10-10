@@ -265,7 +265,7 @@ namespace FileNavigator
             None,
             Constexpr,
             Static,
-            Inline
+            Inline,
         };
 
         /**

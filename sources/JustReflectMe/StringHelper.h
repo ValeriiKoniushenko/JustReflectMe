@@ -18,7 +18,9 @@ namespace StringHelper
 
     void TrimInPlace(std::string& s);
 
-    std::vector<std::string> SplitString(const std::string& str, char delim = ',',
-                                         bool isTrim = true);
+    [[nodiscard]] std::vector<std::string> SplitString(const std::string& str, char delim = ',',
+                                                       bool isTrim = true);
+
+    [[nodiscard]] bool IsNumericTypeName(std::string_view n);
 
 } // namespace StringHelper
