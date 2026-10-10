@@ -918,17 +918,58 @@ namespace JRM
 
             for (const auto& field : data.fields)
             {
-                out += "\n\t\ts.write(\"" + field.name + "\", ";
+                std::string valueStr;
                 if (field.typeMeta)
                 {
-                    out += "R<" + field.type.name + ">::Serialize(obj." + field.name
-                           + ").getData()";
+                    valueStr = std::format("R<{}>::Serialize(obj.{}).getData()", field.type.name,
+                                           field.name);
                 }
                 else
                 {
-                    out += "obj." + field.name;
+                    valueStr = "obj." + field.name;
                 }
-                out += ");";
+
+                bool shouldPutElseKeyword = false;
+
+                if (!field.min.empty() || !field.max.empty())
+                {
+                    out += "\n";
+                }
+
+                if (!field.min.empty())
+                {
+                    out += "\n\t\t";
+                    out += std::format("if (obj.{} < {}) {{", field.name, field.min);
+                    out += std::format(" s.write(\"{}\", {});", field.name, field.min);
+                    out += " }";
+
+                    shouldPutElseKeyword = true;
+                }
+
+                if (!field.max.empty())
+                {
+                    out += "\n\t\t";
+                    if (shouldPutElseKeyword)
+                    {
+                        out += "else ";
+                    }
+                    out += std::format("if (obj.{} > {}) {{", field.name, field.max);
+                    out += std::format(" s.write(\"{}\", {});", field.name, field.max);
+                    out += " }";
+
+                    shouldPutElseKeyword = true;
+                }
+
+                out += "\n\t\t";
+                if (shouldPutElseKeyword)
+                {
+                    out += "else { ";
+                }
+                out += std::format("s.write(\"{}\", {});", field.name, valueStr);
+                if (shouldPutElseKeyword)
+                {
+                    out += " }\n";
+                }
             }
 
             out += R"(

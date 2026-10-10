@@ -43,6 +43,8 @@ Checks: >
 
     -performance-enum-size,
     -performance-no-int-to-ptr,
+    -performance-prefer-single-char-overloads,
+    -performance-faster-string-find,
 
     -readability-avoid-nested-conditional-operator,
     -readability-braces-around-statements,
