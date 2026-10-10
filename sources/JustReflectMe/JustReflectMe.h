@@ -12,6 +12,7 @@
 #include "Config.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -63,6 +64,8 @@ namespace JRM
     private:
         std::filesystem::path _sourcePath;
         Config _config;
+
+        std::optional<bool> _overrideAlwaysDirtyCache;
     };
 
 } // namespace JRM

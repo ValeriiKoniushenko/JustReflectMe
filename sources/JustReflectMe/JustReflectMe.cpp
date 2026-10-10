@@ -34,6 +34,7 @@ namespace JRM
         }
 
         const std::string first = argv[1];
+        const std::string second = argc > 2 ? argv[2] : "";
         if (first == "--help" || first == "-h")
         {
             JustReflectMe::printHelp();
@@ -46,10 +47,15 @@ namespace JRM
             return false;
         }
 
-        if (first == "--fallback-config" || first == "-f")
+        if (first == "--fallback-config" || first == "-c")
         {
             std::cout << ConfigManager::spawnFallbackConfigAsString();
             return false;
+        }
+
+        if (second == "--force" || second == "-f")
+        {
+            _overrideAlwaysDirtyCache = true;
         }
 
         try
@@ -99,6 +105,11 @@ namespace JRM
         {
             ConfigManager configManager;
             _config = configManager.initializeProjectAndLoadConfig(_sourcePath, hasError);
+
+            if (_overrideAlwaysDirtyCache)
+            {
+                _config.alwaysDirtyCache->value = *_overrideAlwaysDirtyCache;
+            }
 
             if (_config.showEveryIteratedFilePath->value)
             {
@@ -315,12 +326,13 @@ namespace JRM
 
     void JustReflectMe::printHelp()
     {
-        std::cout << "Usage: jrm <path to project>\n";
+        std::cout << "Usage: jrm <path to project> [-f]\n";
         std::cout << "\n"
                   << "Options:\n"
                   << "  --help            -h\t Print this help message.\n"
                   << "  --version         -v\t Print the version of JustReflectMe.\n"
-                  << "  --fallback-config -f\t Print the fallback (default) config.\n"
+                  << "  --fallback-config -c\t Print the fallback (default) config.\n"
+                  << "  --force           -f\t Force rescan and reflect the code.\n"
                   << std::endl;
     }
 
