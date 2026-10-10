@@ -416,8 +416,8 @@ namespace JRM
             int genFlags = 0;
             int flags = RPoint::Default;
             std::vector<std::string> attribs;
-            std::optional<Number> min;
-            std::optional<Number> max;
+            std::string min;
+            std::string max;
         };
         std::vector<FieldMeta> fields;
 
@@ -535,10 +535,14 @@ namespace JRM
                             continue;
                         }
 
-                        meta.min = TryParseNumber(it);
-                        while (std::isdigit(*it) || *it == '.')
+                        if (TryParseNumber(it).has_value())
                         {
-                            ++it;
+                            meta.min = {};
+                            while (std::isdigit(*it) || *it == '.' || *it == '\'')
+                            {
+                                meta.min += *it;
+                                ++it;
+                            }
                         }
                     }
                     else if (type.name == "R::Max")
@@ -567,10 +571,14 @@ namespace JRM
                             continue;
                         }
 
-                        meta.max = TryParseNumber(it);
-                        while (std::isdigit(*it) || *it == '.')
+                        if (TryParseNumber(it).has_value())
                         {
-                            ++it;
+                            meta.max = {};
+                            while (std::isdigit(*it) || *it == '.' || *it == '\'')
+                            {
+                                meta.max += *it;
+                                ++it;
+                            }
                         }
                     }
                     else
@@ -732,7 +740,7 @@ namespace JRM
             field.attributes = std::move(fieldMeta.attribs);
 
             field.min = fieldMeta.min;
-            if (field.min && !IsNumericTypeName(field.type.name))
+            if (!field.min.empty() && !IsNumericTypeName(field.type.name))
             {
                 warnMessage(content, fieldMeta.p - content, fileData.getPath(),
                             std::format("Parse warning for field '{} {}': Only numeric types can "
@@ -741,7 +749,7 @@ namespace JRM
             }
 
             field.max = fieldMeta.max;
-            if (field.max && !IsNumericTypeName(field.type.name))
+            if (!field.max.empty() && !IsNumericTypeName(field.type.name))
             {
                 warnMessage(content, fieldMeta.p - content, fileData.getPath(),
                             std::format("Parse warning for field '{} {}': Only numeric types can "
@@ -806,6 +814,7 @@ namespace JRM
                 // Buliding of RClassField::Attributes
                 std::string attributesOut = "RClassField::Attributes{ ";
 
+                // RClassField::Attributes::attribs
                 {
                     attributesOut += "\n\t\t\t\t\t";
                     attributesOut += ".attribs = { ";
@@ -822,6 +831,14 @@ namespace JRM
 
                     attributesOut += attribOut;
                 }
+
+                // RClassField::Attributes::min
+                attributesOut += "\n\t\t\t\t\t";
+                attributesOut += ".min = JRM::Number{ " + field.min + " },";
+
+                // RClassField::Attributes::min
+                attributesOut += "\n\t\t\t\t\t";
+                attributesOut += ".max = JRM::Number{ " + field.max + " },";
 
                 attributesOut += "\n\t\t\t\t";
                 attributesOut += "}";

@@ -57,8 +57,8 @@ namespace JRM
             std::string defaultValue;
             int flags = 0;
             std::optional<TypeMeta> typeMeta;
-            std::optional<Number> min;
-            std::optional<Number> max;
+            std::string min;
+            std::string max;
         };
 
         struct TokenData : public BaseTokenData
