@@ -880,15 +880,36 @@ namespace JRM
 
                 // RClassField::Attributes::min
                 attributesOut += "\n\t\t\t\t\t";
-                attributesOut += ".min = JRM::Number{ " + field.min + " },";
+                if (field.min.empty())
+                {
+                    attributesOut += ".min = std::nullopt,";
+                }
+                else
+                {
+                    attributesOut += ".min = JRM::Number{ " + field.min + " },";
+                }
 
                 // RClassField::Attributes::min
                 attributesOut += "\n\t\t\t\t\t";
-                attributesOut += ".max = JRM::Number{ " + field.max + " },";
+                if (field.max.empty())
+                {
+                    attributesOut += ".max = std::nullopt,";
+                }
+                else
+                {
+                    attributesOut += ".max = JRM::Number{ " + field.max + " },";
+                }
 
                 // RClassField::Attributes::step
                 attributesOut += "\n\t\t\t\t\t";
-                attributesOut += ".step = JRM::Number{ " + field.step + " },";
+                if (field.step.empty())
+                {
+                    attributesOut += ".step = std::nullopt,";
+                }
+                else
+                {
+                    attributesOut += ".step = JRM::Number{ " + field.step + " },";
+                }
 
                 attributesOut += "\n\t\t\t\t";
                 attributesOut += "}";
