@@ -15,6 +15,8 @@
 #include "../Scopes.h"
 #include "JustReflectMe/FileNavigationHelper.h"
 
+#include <cctype>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 
@@ -279,4 +281,34 @@ namespace JRM
         _severityTraces[severity] += 1;
     }
 
+    std::optional<Number> TryParseNumber(const char* s)
+    {
+        if (!s)
+        {
+            return std::nullopt;
+        }
+
+        const char* first = s;
+        const char* last = s;
+        while (*last && (*last == '.' || std::isdigit(*last)))
+        {
+            ++last;
+        }
+
+        // 1. Try integer first
+        int64_t i{};
+        if (auto [p, ec] = std::from_chars(first, last, i); ec == std::errc{} && p == last)
+        {
+            return i;
+        }
+
+        // 2. Otherwise try floating point
+        double d{};
+        if (auto [p, ec] = std::from_chars(first, last, d); ec == std::errc{} && p == last)
+        {
+            return d;
+        }
+
+        return std::nullopt; // not a number
+    }
 } // namespace JRM

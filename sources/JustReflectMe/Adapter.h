@@ -49,6 +49,12 @@ struct R
     /** @brief Treats a missing serialized field as non-fatal. */
     constexpr static uint64_t NonRequired = 1 << 4;
 
+    /** @brief Set a lower limit for numeric field. */
+    constexpr static uint64_t Min = 1 << 5;
+
+    /** @brief Set a higher limit for numeric field. */
+    constexpr static uint64_t Max = 1 << 6;
+
     /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
     constexpr static uint64_t Default = R::NonRequired;
 };
@@ -421,6 +427,8 @@ public:
  *   as the deserialization fallback; this does not make the field required.
  * - R::Attr = Identifier: add a metadata attribute; repeat for multiple attributes.
  *   The value must be an unquoted identifier, not a string or arbitrary expression.
+ * - R::Min = Number: set minimum value only for a number field.
+ * - R::Max = Number: set maximum value only for a number field.
  * JRM matches these exact R:: spellings in source, not RPoint:: aliases or C++ expressions.
  * Unknown options produce warnings. Reflected-enum fields do not forward all missing-field
  * policy flags to their deserializer.

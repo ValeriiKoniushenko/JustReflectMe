@@ -19,6 +19,7 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace JRM
@@ -27,6 +28,8 @@ namespace JRM
     struct Config;
     struct Scope;
     class FileData;
+
+    using Number = std::variant<int64_t, double>;
 
     /**
      * @brief Metadata describing a reflected type.
@@ -287,5 +290,8 @@ namespace JRM
 
     template<class T>
     concept IsBaseReflector = std::derived_from<std::remove_reference_t<T>, BaseReflector>;
+
+    // ============ HELPERs =============
+    [[nodiscard]] std::optional<Number> TryParseNumber(const char* s);
 
 } // namespace JRM

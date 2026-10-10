@@ -13,8 +13,10 @@
 #include "../Config.h"
 #include "JustReflectMe/FileData.h"
 #include "JustReflectMe/FileNavigationHelper.h"
+#include "JustReflectMe/Reflectors/BaseReflector.h"
 #include "JustReflectMe/StringHelper.h"
 
+#include <cctype>
 #include <cstring>
 #include <iostream>
 #include <map>
@@ -414,6 +416,8 @@ namespace JRM
             int genFlags = 0;
             int flags = RPoint::Default;
             std::vector<std::string> attribs;
+            std::optional<Number> min;
+            std::optional<Number> max;
         };
         std::vector<FieldMeta> fields;
 
@@ -437,7 +441,7 @@ namespace JRM
                     continue;
                 }
 
-                auto* fieldClose = FileNavigator::FindScopeEnd(it);
+                const auto* fieldClose = FileNavigator::FindScopeEnd(it);
                 ++it;
                 while (it < fieldClose)
                 {
@@ -476,17 +480,18 @@ namespace JRM
                         {
                             errorMessage(content, it - content, fileData.getPath(),
                                          "Can't parse field of the class: '" + data.name
-                                             + "'. Can't validate the field's attribute.");
+                                             + "'. Can't validate the field's attribute 'Attr'.");
                             continue;
                         }
 
-                        ++it;
+                        it = SkipAllBlanks(it + 1);
 
                         if (it >= fieldClose || *it == '=')
                         {
-                            errorMessage(content, it - content, fileData.getPath(),
-                                         "Can't parse field of the class: '" + data.name
-                                             + "'. Can't validate the field's attribute. (2)");
+                            errorMessage(
+                                content, it - content, fileData.getPath(),
+                                "Can't parse field of the class: '" + data.name
+                                    + "'. Can't validate the field's attribute 'Attr'. (2)");
                             continue;
                         }
 
@@ -496,13 +501,77 @@ namespace JRM
                         {
                             errorMessage(content, it - content, fileData.getPath(),
                                          "Can't parse field of the class: '" + data.name
-                                             + "'. Can't validate the field's attribute value.");
+                                             + "'. Can't validate the field's 'Attr' value.");
                             continue;
                         }
 
                         it += attr.size();
 
                         meta.attribs.push_back(std::move(attr));
+                    }
+                    else if (type.name == "R::Min")
+                    {
+                        meta.flags |= RPoint::Min;
+
+                        // expecting: = SomeValue
+                        it = SkipAllBlanks(it);
+                        if (it >= fieldClose || *it != '=')
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute 'Min'.");
+                            continue;
+                        }
+
+                        it = SkipAllBlanks(it + 1);
+
+                        if (!std::isdigit(*it) && *it != '.')
+                        {
+                            errorMessage(
+                                content, it - content, fileData.getPath(),
+                                "Can't parse field of the class: '" + data.name
+                                    + "'. Can't validate the value of the field's attribute "
+                                      "'Min'.");
+                            continue;
+                        }
+
+                        meta.min = TryParseNumber(it);
+                        while (std::isdigit(*it) || *it == '.')
+                        {
+                            ++it;
+                        }
+                    }
+                    else if (type.name == "R::Max")
+                    {
+                        meta.flags |= RPoint::Max;
+
+                        // expecting: = SomeValue
+                        it = SkipAllBlanks(it);
+                        if (it >= fieldClose || *it != '=')
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute 'Max'.");
+                            continue;
+                        }
+
+                        it = SkipAllBlanks(it + 1);
+
+                        if (!std::isdigit(*it) && *it != '.')
+                        {
+                            errorMessage(
+                                content, it - content, fileData.getPath(),
+                                "Can't parse field of the class: '" + data.name
+                                    + "'. Can't validate the value of the field's attribute "
+                                      "'Max'.");
+                            continue;
+                        }
+
+                        meta.max = TryParseNumber(it);
+                        while (std::isdigit(*it) || *it == '.')
+                        {
+                            ++it;
+                        }
                     }
                     else
                     {
@@ -535,7 +604,7 @@ namespace JRM
 
         for (auto&& fieldMeta : fields)
         {
-            auto* p = fieldMeta.p;
+            const auto* p = fieldMeta.p;
             FieldData field;
             field.flags = fieldMeta.flags;
 
@@ -661,6 +730,8 @@ namespace JRM
             }
 
             field.attributes = std::move(fieldMeta.attribs);
+            field.min = fieldMeta.min;
+            field.max = fieldMeta.max;
 
             data.fields.emplace_back(std::move(field));
         }
