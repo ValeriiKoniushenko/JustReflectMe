@@ -526,7 +526,7 @@ namespace JRM
 
                         it = SkipAllBlanks(it + 1);
 
-                        if (!std::isdigit(*it) && *it != '.')
+                        if (!std::isdigit(*it) && *it != '.' && *it != '-')
                         {
                             errorMessage(
                                 content, it - content, fileData.getPath(),
@@ -539,7 +539,7 @@ namespace JRM
                         if (TryParseNumber(it).has_value())
                         {
                             meta.min = {};
-                            while (std::isdigit(*it) || *it == '.' || *it == '\'')
+                            while (std::isdigit(*it) || *it == '.' || *it == '\'' || *it == '-')
                             {
                                 meta.min += *it;
                                 ++it;
@@ -562,7 +562,7 @@ namespace JRM
 
                         it = SkipAllBlanks(it + 1);
 
-                        if (!std::isdigit(*it) && *it != '.')
+                        if (!std::isdigit(*it) && *it != '.' && *it != '-')
                         {
                             errorMessage(
                                 content, it - content, fileData.getPath(),
@@ -575,7 +575,7 @@ namespace JRM
                         if (TryParseNumber(it).has_value())
                         {
                             meta.max = {};
-                            while (std::isdigit(*it) || *it == '.' || *it == '\'')
+                            while (std::isdigit(*it) || *it == '.' || *it == '\'' || *it == '-')
                             {
                                 meta.max += *it;
                                 ++it;
