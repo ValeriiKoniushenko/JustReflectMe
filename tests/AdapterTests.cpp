@@ -48,7 +48,9 @@ TEST(AdapterTests, WritesAndReadsJsonFieldsAndBuildsMetadataMap)
             .name = "id",
             .attributes = RClassField::Attributes{ .attribs{ "primary" },
                                                    .min = std::nullopt,
-                                                   .max = std::nullopt, },
+                                                   .max = std::nullopt,
+                                                   .step = std::nullopt,
+                                                 },
         },
         RClassField{
             .type = "std::string",
@@ -60,7 +62,9 @@ TEST(AdapterTests, WritesAndReadsJsonFieldsAndBuildsMetadataMap)
             .name = "id",
             .attributes = RClassField::Attributes{ .attribs{ "replacement" },
             .min = std::nullopt,
-            .max = std::nullopt, },
+            .max = std::nullopt, 
+            .step = std::nullopt,
+            },
         },
     };
     const auto fieldsByName = RInternal::GetClassFieldsAsMap(fields);

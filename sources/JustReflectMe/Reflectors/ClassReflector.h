@@ -59,6 +59,7 @@ namespace JRM
             std::optional<TypeMeta> typeMeta;
             std::string min;
             std::string max;
+            std::string step;
         };
 
         struct TokenData : public BaseTokenData

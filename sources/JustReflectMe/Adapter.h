@@ -32,6 +32,7 @@ struct RClassField
         std::vector<std::string_view> attribs;
         std::optional<JRM::Number> min;
         std::optional<JRM::Number> max;
+        std::optional<JRM::Number> step;
     } attributes;
 };
 
@@ -60,6 +61,9 @@ struct R
 
     /** @brief Set a higher limit for numeric field. */
     constexpr static uint64_t Max = 1 << 6;
+
+    /** @brief [Custom field] Set a step for numeric field. */
+    constexpr static uint64_t Step = 1 << 7;
 
     /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
     constexpr static uint64_t Default = R::NonRequired;

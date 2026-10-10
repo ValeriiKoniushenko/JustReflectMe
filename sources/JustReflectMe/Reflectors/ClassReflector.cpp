@@ -418,6 +418,7 @@ namespace JRM
             std::vector<std::string> attribs;
             std::string min;
             std::string max;
+            std::string step;
         };
         std::vector<FieldMeta> fields;
 
@@ -581,6 +582,42 @@ namespace JRM
                             }
                         }
                     }
+                    else if (type.name == "R::Step")
+                    {
+                        meta.flags |= RPoint::Step;
+
+                        // expecting: = SomeValue
+                        it = SkipAllBlanks(it);
+                        if (it >= fieldClose || *it != '=')
+                        {
+                            errorMessage(content, it - content, fileData.getPath(),
+                                         "Can't parse field of the class: '" + data.name
+                                             + "'. Can't validate the field's attribute 'Step'.");
+                            continue;
+                        }
+
+                        it = SkipAllBlanks(it + 1);
+
+                        if (!std::isdigit(*it) && *it != '.')
+                        {
+                            errorMessage(
+                                content, it - content, fileData.getPath(),
+                                "Can't parse field of the class: '" + data.name
+                                    + "'. Can't validate the value of the field's attribute "
+                                      "'Step'.");
+                            continue;
+                        }
+
+                        if (TryParseNumber(it).has_value())
+                        {
+                            meta.step = {};
+                            while (std::isdigit(*it) || *it == '.' || *it == '\'')
+                            {
+                                meta.step += *it;
+                                ++it;
+                            }
+                        }
+                    }
                     else
                     {
                         warnMessage(content, it - content, fileData.getPath(),
@@ -658,7 +695,7 @@ namespace JRM
 
                 if (*p == '{')
                 {
-                    auto s = classScope->findDeepest(p);
+                    const auto* s = classScope->findDeepest(p);
                     if (!s || !s->isValid())
                     {
                         errorMessage(content, p - content, fileData.getPath(),
@@ -757,6 +794,15 @@ namespace JRM
                                         field.type.getNameWithCV(), field.name));
             }
 
+            field.step = fieldMeta.step;
+            if (!field.step.empty() && !IsNumericTypeName(field.type.name))
+            {
+                warnMessage(content, fieldMeta.p - content, fileData.getPath(),
+                            std::format("Parse warning for field '{} {}': Only numeric types can "
+                                        "be marked with R::Step",
+                                        field.type.getNameWithCV(), field.name));
+            }
+
             data.fields.emplace_back(std::move(field));
         }
     }
@@ -839,6 +885,10 @@ namespace JRM
                 // RClassField::Attributes::min
                 attributesOut += "\n\t\t\t\t\t";
                 attributesOut += ".max = JRM::Number{ " + field.max + " },";
+
+                // RClassField::Attributes::step
+                attributesOut += "\n\t\t\t\t\t";
+                attributesOut += ".step = JRM::Number{ " + field.step + " },";
 
                 attributesOut += "\n\t\t\t\t";
                 attributesOut += "}";
