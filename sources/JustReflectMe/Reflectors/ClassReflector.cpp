@@ -804,8 +804,11 @@ namespace JRM
             for (const auto& field : data.fields)
             {
                 // Buliding of RClassField::Attributes
-                std::string attributesOut = "RClassField::Attributes{";
+                std::string attributesOut = "RClassField::Attributes{ ";
+
                 {
+                    attributesOut += "\n\t\t\t\t\t";
+                    attributesOut += ".attribs = { ";
                     std::string attribOut;
                     for (auto&& attrib : field.attributes)
                     {
@@ -815,13 +818,17 @@ namespace JRM
                         }
                         attribOut += "\"" + attrib + "\"";
                     }
-                    attribOut.insert(0, "{ ");
-                    attribOut += " }";
-                }
-                attributesOut += " }";
+                    attribOut += " },";
 
-                out += std::format("\t\t\t{{ \"{}\", \"{}\", {} }},\n", field.type.getNameWithCV(),
-                                   field.name, attributesOut);
+                    attributesOut += attribOut;
+                }
+
+                attributesOut += "\n\t\t\t\t";
+                attributesOut += "}";
+
+                out += std::format(
+                    "\t\t\t{{ \n\t\t\t\t\"{}\", \n\t\t\t\t\"{}\", \n\t\t\t\t{} \n\t\t\t}},\n",
+                    field.type.getNameWithCV(), field.name, attributesOut);
             }
             out += "\t\t};";
             FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);
