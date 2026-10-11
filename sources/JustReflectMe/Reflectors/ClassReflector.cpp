@@ -1101,8 +1101,9 @@ namespace JRM
                         if (!field.min.empty())
                         {
                             out += "\n\t\t";
-                            out += std::format("if (obj.{} < {}) {{ obj.{} = ({}); }}", field.name,
-                                               field.min, field.name, field.type.name, field.min);
+                            out += std::format("if (obj.{} < {}) {{ obj.{} = {}({}); }}",
+                                               field.name, field.min, field.name, field.type.name,
+                                               field.min);
                         }
 
                         if (!field.max.empty())
