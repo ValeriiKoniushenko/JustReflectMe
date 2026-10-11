@@ -76,6 +76,9 @@ struct R
      * explictly integer or floating point depends on the field's type*/
     constexpr static uint64_t Step = 1 << 7;
 
+    /** @brief Supress Min/Max limits for de/serialization. */
+    constexpr static uint64_t SuppressLimits = 1 << 8;
+
     /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
     constexpr static uint64_t Default = R::NonRequired;
 };
@@ -446,10 +449,11 @@ public:
  * - R::NonRequired
  * - R::Required
  * - R::NoDefaultValue
- * - R::Attr = Identifier
+ * - R::Attr = CustomIdentifier
  * - R::Min = Number
  * - R::Max = Number
  * - R::Step = Number
+ * - R::SuppressLimits
  *
  * JRM matches these exact R:: spellings in source, not RPoint:: aliases or C++ expressions.
  * Unknown options produce warnings. Reflected-enum fields do not forward all missing-field

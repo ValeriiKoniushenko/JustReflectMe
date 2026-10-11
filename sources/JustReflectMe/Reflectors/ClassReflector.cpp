@@ -419,6 +419,7 @@ namespace JRM
             std::string min;
             std::string max;
             std::string step;
+            bool suppressLimits = false;
         };
         std::vector<FieldMeta> fields;
 
@@ -618,11 +619,18 @@ namespace JRM
                             }
                         }
                     }
+                    else if (type.name == "R::SuppressLimits")
+                    {
+                        meta.flags |= RPoint::SuppressLimits;
+                    }
                     else
                     {
-                        warnMessage(content, it - content, fileData.getPath(),
-                                    "The FIELD's parameter or expression is not recognized: '"
-                                        + type.name + "'");
+                        if (!type.name.empty()) // suppress no-type warnings
+                        {
+                            warnMessage(content, it - content, fileData.getPath(),
+                                        "The FIELD's parameter or expression is not recognized: '"
+                                            + type.name + "'");
+                        }
 
                         // Skipping one token
                         it = std::strpbrk(it, ",);");
@@ -952,35 +960,38 @@ namespace JRM
 
                 bool shouldPutElseKeyword = false;
 
-                if (!field.min.empty() || !field.max.empty())
+                if ((field.flags & RPoint::SuppressLimits) == 0)
                 {
-                    out += "\n";
-                }
-
-                if (!field.min.empty())
-                {
-                    out += "\n\t\t";
-                    out += std::format("if (obj.{} < {}) {{", field.name, field.min);
-                    out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
-                                       field.min);
-                    out += " }";
-
-                    shouldPutElseKeyword = true;
-                }
-
-                if (!field.max.empty())
-                {
-                    out += "\n\t\t";
-                    if (shouldPutElseKeyword)
+                    if (!field.min.empty() || !field.max.empty())
                     {
-                        out += "else ";
+                        out += "\n";
                     }
-                    out += std::format("if (obj.{} > {}) {{", field.name, field.max);
-                    out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
-                                       field.max);
-                    out += " }";
 
-                    shouldPutElseKeyword = true;
+                    if (!field.min.empty())
+                    {
+                        out += "\n\t\t";
+                        out += std::format("if (obj.{} < {}) {{", field.name, field.min);
+                        out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
+                                           field.min);
+                        out += " }";
+
+                        shouldPutElseKeyword = true;
+                    }
+
+                    if (!field.max.empty())
+                    {
+                        out += "\n\t\t";
+                        if (shouldPutElseKeyword)
+                        {
+                            out += "else ";
+                        }
+                        out += std::format("if (obj.{} > {}) {{", field.name, field.max);
+                        out += std::format(" s.write(\"{}\", {}({}));", field.name, field.type.name,
+                                           field.max);
+                        out += " }";
+
+                        shouldPutElseKeyword = true;
+                    }
                 }
 
                 out += "\n\t\t";
@@ -1074,31 +1085,37 @@ namespace JRM
                         defaultValueStr = "decltype(obj." + field.name + "){}";
                     }
 
-                    if (!field.min.empty() || !field.max.empty())
+                    if ((field.flags & RPoint::SuppressLimits) == 0)
                     {
-                        out += "\n";
+                        if (!field.min.empty() || !field.max.empty())
+                        {
+                            out += "\n";
+                        }
                     }
-
                     std::string flagsStr = std::to_string(field.flags);
                     out += std::format("\n\t\ts.read(\"{}\", {}, {}, {});", field.name, valueStr,
                                        defaultValueStr, flagsStr);
 
-                    if (!field.min.empty())
+                    if ((field.flags & RPoint::SuppressLimits) == 0)
                     {
-                        out += "\n\t\t";
-                        out += std::format("if (obj.{} < {}) {{ obj.{} = ({}); }}", field.name,
-                                           field.min, field.name, field.type.name, field.min);
-                    }
+                        if (!field.min.empty())
+                        {
+                            out += "\n\t\t";
+                            out += std::format("if (obj.{} < {}) {{ obj.{} = ({}); }}", field.name,
+                                               field.min, field.name, field.type.name, field.min);
+                        }
 
-                    if (!field.max.empty())
-                    {
-                        out += "\n\t\t";
-                        out += std::format("if (obj.{} > {}) {{ obj.{} = {}({}); }}", field.name,
-                                           field.max, field.name, field.type.name, field.max);
-                    }
-                    if (!field.min.empty() || !field.max.empty())
-                    {
-                        out += "\n";
+                        if (!field.max.empty())
+                        {
+                            out += "\n\t\t";
+                            out += std::format("if (obj.{} > {}) {{ obj.{} = {}({}); }}",
+                                               field.name, field.max, field.name, field.type.name,
+                                               field.max);
+                        }
+                        if (!field.min.empty() || !field.max.empty())
+                        {
+                            out += "\n";
+                        }
                     }
                 }
             }
