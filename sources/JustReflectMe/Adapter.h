@@ -43,26 +43,37 @@ struct RClassField
 template<class T = void>
 struct R
 {
-    /** @brief Marks a field attribute supplied to the reflection metadata. */
+    /** @brief Marks a field attribute supplied to the reflection metadata. This attribute can be
+     * used to mark somehow a field to process it by the user code. Mostly, this field can be
+     * treated as a user-specific metadata that can be used ONLY by the user. */
     constexpr static uint64_t Attr = 1 << 1;
 
-    /** @brief Prevents the generated deserializer from assigning a field's C++ default value. */
+    /** @brief Prevents the generated deserializer from assigning a field's default value. It can be
+     * used in cases where the field's type is to complex to be set up as a default value or it has
+     * some specific behavior on creation. */
     constexpr static uint64_t NoDefaultValue = 1 << 2;
 
     /** @brief Marks a field as required; a missing value is logged and causes deserialization to
-     * throw. */
+     * throw an exception: `std::runtime_error`. */
     constexpr static uint64_t Required = 1 << 3;
 
-    /** @brief Treats a missing serialized field as non-fatal. */
+    /** @brief Default behavior: Treats a missing serialized field as non-fatal. */
     constexpr static uint64_t NonRequired = 1 << 4;
 
-    /** @brief Set a lower limit for numeric field. */
+    /** @brief Set a lower limit for numeric field. WARNING!!! Numeric literal must be explictly
+     * integer or floating point depends on the field's type.
+     * This attribute will be used while de/serialization process to set Min limit.
+     */
     constexpr static uint64_t Min = 1 << 5;
 
-    /** @brief Set a higher limit for numeric field. */
+    /** @brief Set a higher limit for numeric field. WARNING!!! Numeric literal must be explictly
+     * integer or floating point depends on the field's type.
+     * This attribute will be used while de/serialization process to set Max limit.
+     */
     constexpr static uint64_t Max = 1 << 6;
 
-    /** @brief [Custom field] Set a step for numeric field. */
+    /** @brief [Custom field] Set a step for numeric field. WARNING!!!Numeric literal must be
+     * explictly integer or floating point depends on the field's type*/
     constexpr static uint64_t Step = 1 << 7;
 
     /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
@@ -430,23 +441,24 @@ public:
 /**
  * Put it before the class's field definition to highlight it for JRM.
  * The enclosing class or struct must be marked with CLASS().
- * Leave the parentheses empty for defaults, or pass comma-separated options:
- * - R::Default or R::NonRequired: missing JSON fields use their fallback and log NotFound.
- * - R::Required: missing JSON fields also throw std::runtime_error.
- * - R::NoDefaultValue: use value initialization instead of the field's source initializer
- *   as the deserialization fallback; this does not make the field required.
- * - R::Attr = Identifier: add a metadata attribute; repeat for multiple attributes.
- *   The value must be an unquoted identifier, not a string or arbitrary expression.
- * - R::Min = Number: set minimum value only for a number field.
- * - R::Max = Number: set maximum value only for a number field.
+ * Leave the parentheses empty for defaults, or pass comma-separated options (all detailed
+ * descriptions about every field you'll find at the fields' definitions):
+ * - R::NonRequired
+ * - R::Required
+ * - R::NoDefaultValue
+ * - R::Attr = Identifier
+ * - R::Min = Number
+ * - R::Max = Number
+ * - R::Step = Number
+ *
  * JRM matches these exact R:: spellings in source, not RPoint:: aliases or C++ expressions.
  * Unknown options produce warnings. Reflected-enum fields do not forward all missing-field
  * policy flags to their deserializer.
  * @code
- * CLASS(); // <--- you MUST put it
+ * CLASS(); // <--- you MUST put
  * class Foo{
- *     FIELD(R::NoDefaultValue, R::Attr = Example);
- *     int a = 1;
+ *     FIELD(R::NoDefaultValue, R::Attr = Example, R::Min = 10);
+ *     int a = 100;
  * };
  * @endcode
  */
