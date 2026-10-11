@@ -25,7 +25,7 @@ namespace JRM
 
         const char* first = s;
         const char* last = s;
-        while (*last && (*last == '.' || std::isdigit(*last)))
+        while (*last && (*last == '-' || *last == '.' || std::isdigit(*last)))
         {
             ++last;
         }
