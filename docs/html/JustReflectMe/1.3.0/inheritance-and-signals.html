@@ -215,8 +215,8 @@ Deserialization applies the base specialization before the derived fields.</p>
 Non-reflected bases can remain in the C++ inheritance list; omit them from <code>R_FRIEND</code>.</p>
 </div>
 <div class="paragraph">
-<p><code>GetFields()</code>, <code>GetFieldsMap()</code>, <code>GetFieldNumbers()</code>, and <code>GetField()</code> describe only direct fields in the generated specialization.
-Call a base specialization separately when tooling needs base metadata.</p>
+<p><code>GetFields()</code>, <code>GetFieldsArray()</code>, <code>GetFieldsMap()</code>, <code>GetFieldNumbers()</code>, <code>GetField()</code>, <code>ForEachField()</code>, and <code>ForEachMember()</code> describe only direct fields in the generated specialization.
+When tooling needs base metadata, use <code>ForEachBase()</code> to reach each base listed in <code>R_FRIEND</code> and call that base&#8217;s specialization; see <a href="class-reflection.html" class="xref page">Walk reflected bases</a>.</p>
 </div>
 </div>
 </div>

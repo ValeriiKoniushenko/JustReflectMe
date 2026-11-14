@@ -244,6 +244,26 @@ This page summarizes the generated, application-facing surface.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Returns the direct-field metadata keyed by field name.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GetFieldsArray()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns a reference to a cached <code>std::array&lt;RClassField, N&gt;</code> in declaration order. It is built once, so element addresses are stable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ForEachField(object, visitor)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calls <code>visitor(const RClassField&amp;, FieldType&amp;)</code> for each direct field in declaration order. Accepts <code>T&amp;</code> or <code>const T&amp;</code>; the reference keeps the constness of the object and of the field.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ForEachMember(visitor)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calls <code>visitor(const RClassField&amp;, std::integral_constant&lt;FieldType T::*, &amp;T::field&gt;, setter)</code> for each direct field in declaration order. <code>setter</code> is <code>RNoSetter</code>, or a captureless <code>void(T&amp;, const FieldType&amp;)</code> generated from <code>R::Meta(Setter = &#8230;&#8203;)</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GetBaseNumbers()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the number of bases listed in <code>R_FRIEND</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ForEachBase(visitor)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calls <code>visitor(std::type_identity&lt;Base&gt;{})</code> for each base listed in <code>R_FRIEND</code>, in that order.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Serialize(object, stream, noSignals)</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Writes reflected base data and direct fields into an existing stream.</p></td>
 </tr>
@@ -322,8 +342,16 @@ Use that overload or <code>FromString()</code> for untrusted input; the value-re
 <h2 id="_runtime_support_types"><a class="anchor" href="#_runtime_support_types"></a>Runtime support types</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>RClassField</code> contains <code>type</code>, <code>name</code>, and <code>attribs</code>.
-These are non-owning string views into generated string literals, while the attribute collection is a vector.</p>
+<p><code>RClassField</code> contains <code>type</code>, <code>name</code>, and <code>attributes</code>.
+<code>attributes</code> holds <code>attribs</code> (<code>R::Attr</code> identifiers), the optional <code>min</code>, <code>max</code>, and <code>step</code> limits, <code>flags</code> (every <code>R::</code> option of the marker as bits), and <code>meta</code> (<code>R::Meta</code> entries in declaration order).
+Strings are non-owning views into generated string literals, while <code>attribs</code> and <code>meta</code> are vectors.
+<code>hasFlag(flag)</code>, <code>hasMeta(key)</code>, and <code>getMeta(key)</code> answer the common queries.</p>
+</div>
+<div class="paragraph">
+<p><code>RMetaEntry</code> is one <code>R::Meta</code> entry: a <code>key</code> and a <code>value</code>, both string views; the value is empty for a bare key.</p>
+</div>
+<div class="paragraph">
+<p><code>RNoSetter</code> is the empty type that <code>ForEachMember</code> passes for a field without a declared setter.</p>
 </div>
 <div class="paragraph">
 <p><code>RResourceStream&lt;RImpl&gt;</code> exposes <code>write</code>, <code>read</code>, <code>getData</code>, and <code>logs</code> and owns one implementation object.

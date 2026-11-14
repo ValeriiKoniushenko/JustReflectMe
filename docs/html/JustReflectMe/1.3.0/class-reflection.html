@@ -253,9 +253,76 @@ Treat unusual data declarators such as bit-fields and marked static members as u
 </div>
 </div>
 <div class="paragraph">
-<p><code>GetFields()</code> returns <code>RClassField</code> entries containing a textual type, field name, and zero or more marker attributes.
-<code>GetFieldsMap()</code> indexes equivalent metadata by field name.
+<p><code>GetFields()</code> returns <code>RClassField</code> entries in declaration order, each with a textual type, field name, marker attributes, numeric limits, the marker&#8217;s flags, and <code>R::Meta</code> entries.
+<code>GetFieldsArray()</code> returns the same entries from a cached <code>std::array</code>, so their addresses stay valid for the whole program.
+<code>GetFieldsMap()</code> indexes equivalent metadata by field name; it is unordered, so prefer the other two when order matters.
 Metadata describes fields declared directly in the type; base fields are serialized through the base specialization but are not added to the derived type&#8217;s <code>GetFields()</code> result.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_visit_fields_with_their_real_types"><a class="anchor" href="#_visit_fields_with_their_real_types"></a>Visit fields with their real types</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    R&lt;Task&gt;::ForEachField(restored,
+                          [](const RClassField&amp; field, const auto&amp; value)
+                          {
+                              // `value` has the field's real type: std::string, then Priority.
+                              using Value = std::remove_cvref_t&lt;decltype(value)&gt;;
+                              if constexpr (std::is_same_v&lt;Value, std::string&gt;)
+                              {
+                                  std::cout &lt;&lt; field.name &lt;&lt; " = " &lt;&lt; value &lt;&lt; '\n';
+                              }
+                          });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ForEachField(object, visitor)</code> calls the visitor once per field, in declaration order, with the field&#8217;s metadata and a reference of the field&#8217;s real type.
+The reference is <code>const</code> when the object or the field is <code>const</code>.
+Overload resolution or <code>if constexpr</code> replaces comparing type strings, so this is the preferred way for tools to read and write fields.</p>
+</div>
+<div class="paragraph">
+<p>To work without an object, <code>ForEachMember(visitor)</code> passes each field&#8217;s member pointer as a compile-time constant (<code>std::integral_constant&lt;FieldType T::*, &amp;T::field&gt;</code>) together with a setter slot:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    Lamp lamp;
+    R&lt;Lamp&gt;::ForEachMember(
+        [&amp;](const RClassField&amp; field, auto member, auto setter)
+        {
+            const auto label = field.attributes.getMeta("DisplayName").value_or(field.name);
+            std::cout &lt;&lt; label &lt;&lt; " = " &lt;&lt; (lamp.*decltype(member)::value) &lt;&lt; '\n';
+
+            if constexpr (!std::is_same_v&lt;decltype(setter), RNoSetter&gt;)
+            {
+                setter(lamp, 2.f); // Calls Lamp::setBrightness, which clamps the value to 1.
+            }
+        });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The setter slot is <code>RNoSetter</code> unless the field declares <code>R::Meta(Setter = memberFunction)</code>; then it is a captureless callable <code>void(T&amp;, const FieldType&amp;)</code> that calls that member function, which also converts to a plain function pointer.
+See <a href="markers.html#tool-metadata" class="xref page">Tool metadata</a> for the marker.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_walk_reflected_bases"><a class="anchor" href="#_walk_reflected_bases"></a>Walk reflected bases</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">    R&lt;Task&gt;::ForEachBase(
+        [](auto base)
+        {
+            using Base = typename decltype(base)::type;
+            std::cout &lt;&lt; R&lt;Task&gt;::Name() &lt;&lt; " derives from " &lt;&lt; R&lt;Base&gt;::Name() &lt;&lt; '\n';
+        });</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>ForEachBase(visitor)</code> passes <code>std::type_identity&lt;Base&gt;</code> for every base listed in <code>R_FRIEND</code>, in that order.
+Combined with <code>ForEachField</code>, it lets a tool visit the fields of a whole class hierarchy without knowing the hierarchy in advance.</p>
 </div>
 </div>
 </div>
@@ -276,6 +343,7 @@ Metadata describes fields declared directly in the type; base fields are seriali
 </div>
 <div class="paragraph">
 <p><code>GetField</code> calls the callback synchronously with an untyped address and textual type, and returns <code>false</code> for an unknown name or empty callback.
+Prefer the typed visitors above when the reflected type is known at compile time.
 The caller is responsible for checking the type string before casting.
 Because the API exposes mutable addresses and currently casts away constness for a reflected const field, reserve it for controlled infrastructure such as editors or serializers.</p>
 </div>

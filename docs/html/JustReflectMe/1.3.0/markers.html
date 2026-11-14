@@ -222,13 +222,19 @@ They intentionally have no runtime behavior; the generator recognizes their sour
 </tbody>
 </table>
 <div class="paragraph">
-<p><code>CLASS()</code> and <code>ENUM_CLASS()</code> may be on the declaration&#8217;s line or the preceding line, but keeping them on a dedicated preceding line produces the most readable and reliably scanned code.</p>
+<p><code>CLASS()</code> and <code>ENUM_CLASS()</code> may be on the declaration&#8217;s line or the preceding line, but keeping them on a dedicated preceding line produces the most readable and reliably scanned code.
+Leave their parentheses empty: the current reflectors interpret no arguments for either marker.
+Specify reflected bases in <code>R_FRIEND(Type, Bases&#8230;&#8203;)</code>, not in <code>CLASS()</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_field_options"><a class="anchor" href="#_field_options"></a>Field options</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Use <code>FIELD()</code> for defaults, or pass a comma-separated list of the options below.
+JRM matches their exact <code>R::</code> spellings in source; <code>RPoint::</code> aliases and arbitrary C++ expressions are not supported option syntax.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -261,12 +267,77 @@ They intentionally have no runtime behavior; the generator recognizes their sour
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>R::Attr = Identifier</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Adds <code>Identifier</code> to the field&#8217;s metadata attributes. Repeat the option for multiple attributes.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>R::Meta(Entries&#8230;&#8203;)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Adds free-form <code>key</code> / <code>key = value</code> entries for tools such as editors, without changing serialization. See <a href="#tool-metadata">Tool metadata</a>.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
 <p>Unknown <code>FIELD</code> expressions produce generator warnings and are skipped as options.
 Attribute values are identifiers, not arbitrary strings or C++ expressions.
 The reflected-enum field path currently does not preserve every missing-field option; see <a href="serialization.html" class="xref page">Missing fields</a>.</p>
+</div>
+<div class="paragraph">
+<p>Every option given to a field is also recorded as a bit in <code>RClassField::Attributes::flags</code>; test it with <code>attributes.hasFlag(RPoint::Required)</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="tool-metadata"><a class="anchor" href="#tool-metadata"></a>Tool metadata</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>R::Meta(&#8230;&#8203;)</code> attaches metadata that JRM stores but does not interpret:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">CLASS();
+class Lamp
+{
+    R_FRIEND(Lamp);
+
+public:
+    void setBrightness(float value) { brightness = std::clamp(value, 0.f, 1.f); }
+
+    FIELD(R::Min = 0.0, R::Max = 1.0, R::Step = 0.05,
+          R::Meta(DisplayName = "Brightness", Category = Lighting, Setter = setBrightness));
+    float brightness = 0.5f;
+
+    FIELD(R::Meta(ReadOnly, Tooltip = "Assigned by the scene"));
+    int sceneId = 0;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each comma-separated entry is a key, optionally followed by <code>=</code> and a value:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the key is a plain identifier;</p>
+</li>
+<li>
+<p>the value is an identifier (<code>Lighting</code>, <code>Gui::AssetRef</code>), a number (<code>3</code>, <code>-2.5</code>), or a string literal (<code>"Brightness"</code>);</p>
+</li>
+<li>
+<p>a bare key (<code>ReadOnly</code>) has an empty value.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Entries are available in declaration order as <code>RClassField::Attributes::meta</code>, a vector of <code>RMetaEntry { key, value }</code>.
+Look one up with <code>attributes.getMeta("DisplayName")</code>, which returns <code>std::nullopt</code> for an absent key and an empty view for a bare key, or test presence with <code>attributes.hasMeta("ReadOnly")</code>.
+String values are stored without their quotes; identifiers and numbers are stored as written.</p>
+</div>
+<div class="paragraph">
+<p>A field may carry several <code>R::Meta(&#8230;&#8203;)</code> groups; their entries are merged in order.
+A repeated key produces a warning, and its last value replaces the earlier one in place.
+A malformed entry is reported as an error and skipped; the remaining entries are still parsed.</p>
+</div>
+<div class="paragraph">
+<p>The <code>Setter</code> key is reserved.
+<code>Setter = memberFunction</code> must name a member function of the class; <code>ForEachMember</code> then passes a generated setter that calls <code>object.memberFunction(value)</code> instead of <code>RNoSetter</code> (see <a href="class-reflection.html" class="xref page">Visit fields with their real types</a>).
+The member function is checked by the compiler when the generated header is compiled.</p>
 </div>
 </div>
 </div>

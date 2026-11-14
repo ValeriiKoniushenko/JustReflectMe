@@ -215,10 +215,19 @@ It understands file, namespace, class, struct, enum-class, template, and anonymo
 <p>Put enum constants on separate lines. The enum scanner advances line by line.</p>
 </li>
 <li>
-<p>Class metadata covers fields declared directly in that class. Base metadata remains in each base&#8217;s <code>R&lt;Base&gt;</code> specialization.</p>
+<p>Class metadata covers fields declared directly in that class. Base metadata remains in each base&#8217;s <code>R&lt;Base&gt;</code> specialization; <code>ForEachBase</code> reaches only bases listed in <code>R_FRIEND</code>.</p>
 </li>
 <li>
-<p><code>GetField</code> is an untyped mutable callback API; it does not provide type-safe dynamic invocation.</p>
+<p><code>GetField</code> is an untyped mutable callback API; it does not provide type-safe dynamic invocation. Use <code>ForEachField</code> or <code>ForEachMember</code> when the type is known at compile time.</p>
+</li>
+<li>
+<p><code>ForEachMember</code> takes the address of every reflected field, and that code is compiled for every reflected class even when unused. A <code>FIELD()</code> on a bit-field or a reference member therefore does not compile.</p>
+</li>
+<li>
+<p><code>R::Meta</code> values cannot contain nested parentheses, and two string literals written with nothing between them (<code>"a""b"</code>) cannot be told apart.</p>
+</li>
+<li>
+<p>The function named by <code>R::Meta(Setter = &#8230;&#8203;)</code> is checked only by the compiler, when the generated header is compiled.</p>
 </li>
 <li>
 <p>Serialization has no schema versioning or migration layer.</p>
