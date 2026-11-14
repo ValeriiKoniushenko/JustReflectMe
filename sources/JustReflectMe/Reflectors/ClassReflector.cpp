@@ -68,6 +68,9 @@ namespace JRM
     std::set<std::string> ClassReflector::getIncludes() const
     {
         auto out = BaseReflector::getIncludes();
+        out.emplace("array");
+        out.emplace("concepts");
+        out.emplace("type_traits");
         out.emplace("vector");
         out.emplace("string_view");
         return out;
@@ -420,6 +423,8 @@ namespace JRM
             std::string max;
             std::string step;
             bool suppressLimits = false;
+            MetaEntries meta;
+            std::string setter;
         };
         std::vector<FieldMeta> fields;
 
@@ -623,6 +628,12 @@ namespace JRM
                     {
                         meta.flags |= RPoint::SuppressLimits;
                     }
+                    else if (type.name == "R::Meta")
+                    {
+                        meta.flags |= RPoint::Meta;
+                        parseMetaGroup(it, fieldClose, fileData, data.name, meta.meta,
+                                       meta.setter);
+                    }
                     else
                     {
                         if (!type.name.empty()) // suppress no-type warnings
@@ -660,6 +671,10 @@ namespace JRM
             const auto* p = fieldMeta.p;
             FieldData field;
             field.flags = fieldMeta.flags;
+            field.allFlags = static_cast<uint64_t>(fieldMeta.flags)
+                             | static_cast<uint64_t>(fieldMeta.genFlags);
+            field.meta = std::move(fieldMeta.meta);
+            field.setter = std::move(fieldMeta.setter);
 
             int typenameReadOffset = 0;
             field.type = ReadAsTypename(p, typenameReadOffset);
@@ -815,6 +830,203 @@ namespace JRM
         }
     }
 
+    namespace
+    {
+        bool IsIdentifierStart(char ch)
+        {
+            return std::isalpha(static_cast<unsigned char>(ch)) != 0 || ch == '_';
+        }
+
+        bool IsIdentifierChar(char ch)
+        {
+            return std::isalnum(static_cast<unsigned char>(ch)) != 0 || ch == '_';
+        }
+
+        /// Reads `name` or `a::b::name`; leaves `it` past it. Empty if `it` is not at one.
+        std::string ReadQualifiedIdentifier(const char*& it, const char* end)
+        {
+            std::string out;
+            while (it < end && IsIdentifierStart(*it))
+            {
+                while (it < end && IsIdentifierChar(*it))
+                {
+                    out += *it++;
+                }
+                if (it + 1 < end && it[0] == ':' && it[1] == ':' && IsIdentifierStart(it[2]))
+                {
+                    out += "::";
+                    it += 2;
+                    continue;
+                }
+                break;
+            }
+            return out;
+        }
+
+        /// Reads a numeric literal such as `3`, `-2.5` or `1'000`; leaves `it` past it.
+        std::string ReadNumber(const char*& it, const char* end)
+        {
+            std::string out;
+            if (it < end && *it == '-')
+            {
+                out += *it++;
+            }
+            while (it < end
+                   && (std::isdigit(static_cast<unsigned char>(*it)) != 0 || *it == '.'
+                       || *it == '\''))
+            {
+                out += *it++;
+            }
+            return out;
+        }
+
+        void SkipToNextMetaEntry(const char*& it, const char* groupClose)
+        {
+            while (it < groupClose && *it != ',')
+            {
+                ++it;
+            }
+        }
+    } // namespace
+
+    void ClassReflector::parseMetaGroup(const char*& it, const char* fieldClose,
+                                        const FileData& fileData, const std::string& className,
+                                        MetaEntries& meta, std::string& setter)
+    {
+        const char* const content = fileData.getContent().c_str();
+        const auto fail = [&](const char* where, const std::string& what)
+        {
+            errorMessage(content, where - content, fileData.getPath(),
+                         "Can't parse field of the class: '" + className + "'. R::Meta: " + what);
+        };
+
+        it = SkipAllBlanks(it);
+        if (it >= fieldClose || *it != '(')
+        {
+            fail(it, "expected '(' after 'R::Meta'. Expected: R::Meta(Key, Key = Value, ...).");
+            it = fieldClose;
+            return;
+        }
+
+        const char* const groupClose = FindScopeEnd(it);
+        if (!groupClose || groupClose > fieldClose)
+        {
+            fail(it, "can't find the closing ')' of the group.");
+            it = fieldClose;
+            return;
+        }
+
+        ++it;
+        while (it < groupClose)
+        {
+            while (it < groupClose && (*it == ',' || IsSpace(*it)))
+            {
+                ++it;
+            }
+            if (it >= groupClose)
+            {
+                break;
+            }
+
+            const char* const entryStart = it;
+            std::string key = ReadQualifiedIdentifier(it, groupClose);
+            if (key.empty() || key.contains("::"))
+            {
+                fail(entryStart, "expected a plain identifier as a key.");
+                SkipToNextMetaEntry(it, groupClose);
+                continue;
+            }
+
+            it = SkipAllBlanks(it);
+
+            std::string value;
+            bool hasValue = false;
+            bool isIdentifierValue = false;
+            if (it < groupClose && *it == '=')
+            {
+                it = SkipAllBlanks(it + 1);
+                const char* const valueStart = it;
+
+                if (it < groupClose && *it == PostProcessedFile::stringPlaceholder)
+                {
+                    const auto literal
+                        = fileData.getStringLiteralAt(static_cast<std::size_t>(it - content));
+                    while (it < groupClose && *it == PostProcessedFile::stringPlaceholder)
+                    {
+                        ++it;
+                    }
+                    if (!literal)
+                    {
+                        fail(valueStart, "can't restore the string value of '" + key + "'.");
+                        SkipToNextMetaEntry(it, groupClose);
+                        continue;
+                    }
+                    value = *literal;
+                    hasValue = true;
+                }
+                else if (it < groupClose && IsIdentifierStart(*it))
+                {
+                    value = ReadQualifiedIdentifier(it, groupClose);
+                    hasValue = true;
+                    isIdentifierValue = true;
+                }
+                else if (it < groupClose
+                         && (std::isdigit(static_cast<unsigned char>(*it)) != 0 || *it == '-'
+                             || *it == '.'))
+                {
+                    value = ReadNumber(it, groupClose);
+                    if (!TryParseNumber(value.c_str()).has_value())
+                    {
+                        fail(valueStart, "invalid numeric value of '" + key + "'.");
+                        SkipToNextMetaEntry(it, groupClose);
+                        continue;
+                    }
+                    hasValue = true;
+                }
+                else
+                {
+                    fail(valueStart, "missing value after '" + key
+                                         + " ='. Expected an identifier, a number or a string.");
+                    SkipToNextMetaEntry(it, groupClose);
+                    continue;
+                }
+            }
+
+            it = SkipAllBlanks(it);
+            if (it < groupClose && *it != ',')
+            {
+                fail(it, "unexpected token after '" + key + "'. Entries are separated by ','.");
+                SkipToNextMetaEntry(it, groupClose);
+                continue;
+            }
+
+            if (key == "Setter")
+            {
+                if (!hasValue || !isIdentifierValue || value.contains("::"))
+                {
+                    fail(entryStart, "'Setter' expects a member function name: Setter = setFoo.");
+                    continue;
+                }
+                setter = value;
+            }
+
+            if (auto existing = std::ranges::find(meta, key, &MetaEntries::value_type::first);
+                existing != meta.end())
+            {
+                warnMessage(content, entryStart - content, fileData.getPath(),
+                            "Field of the class '" + className + "': R::Meta key '" + key
+                                + "' is repeated; the last value is used.");
+                existing->second = std::move(value);
+            }
+            else
+            {
+                meta.emplace_back(std::move(key), std::move(value));
+            }
+        }
+
+        it = groupClose + 1;
+    }
+
     std::string ClassReflector::generateSources(const TokenData& data) const
     {
         std::string finalString = R"(
@@ -823,11 +1035,47 @@ namespace JRM
     @@FUNC_PREF_constexpr std::string_view ParentScope() { return "@@PARENTS_"; }
     @@FUNC_PREF_constexpr std::size_t GetFieldNumbers() { return @@FIELD_NUMBERS_; }
     @@FUNC_PREF_constexpr std::vector<RClassField> GetFields() {
-        @@F_GET_FIELDS_
+        return @@F_FIELDS_INIT_;
     }
     @@FUNC_PREF_constexpr std::unordered_map<std::string, RClassField> GetFieldsMap()
     {
         return RInternal::GetClassFieldsAsMap(GetFields());
+    }
+
+    // Declaration order; built once, so element addresses are stable for the program's lifetime.
+    @@FUNC_PREF_const std::array<RClassField, @@FIELD_NUMBERS_>& GetFieldsArray()
+    {
+        static const std::array<RClassField, @@FIELD_NUMBERS_> fields@@F_FIELDS_ARRAY_INIT_;
+        return fields;
+    }
+
+    // Calls visitor(const RClassField&, FieldType&) per field in declaration order.
+    // FieldType keeps the constness of `obj` and of the field declaration.
+    template<class Self, class V>
+        requires std::same_as<std::remove_const_t<Self>, @@NAME_>
+    @@FUNC_PREF_void ForEachField([[maybe_unused]] Self& obj, [[maybe_unused]] V&& visitor)
+    {
+        [[maybe_unused]] const auto& fields = GetFieldsArray();
+@@F_FOR_EACH_FIELD_
+    }
+
+    // Calls visitor(const RClassField&, std::integral_constant<FieldType T::*, &T::field>, setter)
+    // per field in declaration order. `setter` is RNoSetter, or a captureless callable
+    // void(T&, const FieldType&) generated from R::Meta(Setter = memberFunction).
+    template<class V>
+    @@FUNC_PREF_void ForEachMember([[maybe_unused]] V&& visitor)
+    {
+        [[maybe_unused]] const auto& fields = GetFieldsArray();
+@@F_FOR_EACH_MEMBER_
+    }
+
+    @@FUNC_PREF_constexpr std::size_t GetBaseNumbers() { return @@BASE_NUMBERS_; }
+
+    // Calls visitor(std::type_identity<Base>{}) per base listed in R_FRIEND, in that order.
+    template<class V>
+    @@FUNC_PREF_void ForEachBase([[maybe_unused]] V&& visitor)
+    {
+@@F_FOR_EACH_BASE_
     }
 
     template<IsResourceStreamImpl RImpl = RJsonResourceStream>
@@ -859,10 +1107,10 @@ namespace JRM
         // Class-specific find & replace
         FindAndReplaceAll(finalString, fieldNumbers, std::to_string(data.fields.size()));
 
-        // =================== F_GET_FIELDS_ =========================
+        // ============ F_FIELDS_INIT_ / F_FIELDS_ARRAY_INIT_ =============
         {
             std::string out;
-            out += "return {\n";
+            out += "{\n";
             for (const auto& field : data.fields)
             {
                 // Buliding of RClassField::Attributes
@@ -919,6 +1167,31 @@ namespace JRM
                     attributesOut += ".step = JRM::Number{ " + field.step + " },";
                 }
 
+                // RClassField::Attributes::flags
+                attributesOut += "\n\t\t\t\t\t";
+                attributesOut += ".flags = " + std::to_string(field.allFlags) + ",";
+
+                // RClassField::Attributes::meta
+                attributesOut += "\n\t\t\t\t\t";
+                if (field.meta.empty())
+                {
+                    attributesOut += ".meta = {},";
+                }
+                else
+                {
+                    attributesOut += ".meta = { ";
+                    for (std::size_t i = 0; i < field.meta.size(); ++i)
+                    {
+                        if (i != 0)
+                        {
+                            attributesOut += ", ";
+                        }
+                        attributesOut += std::format("RMetaEntry{{ \"{}\", \"{}\" }}",
+                                                     field.meta[i].first, field.meta[i].second);
+                    }
+                    attributesOut += " },";
+                }
+
                 attributesOut += "\n\t\t\t\t";
                 attributesOut += "}";
 
@@ -926,8 +1199,51 @@ namespace JRM
                     "\t\t\t{{ \n\t\t\t\t\"{}\", \n\t\t\t\t\"{}\", \n\t\t\t\t{} \n\t\t\t}},\n",
                     field.type.getNameWithCV(), field.name, attributesOut);
             }
-            out += "\t\t};";
-            FindAndReplaceAll(finalString, "@@F_GET_FIELDS_", out);
+            out += "\t\t}";
+
+            FindAndReplaceAll(finalString, "@@F_FIELDS_ARRAY_INIT_",
+                              data.fields.empty() ? "{}"s : "{ " + out + " }");
+            FindAndReplaceAll(finalString, "@@F_FIELDS_INIT_", out);
+        }
+
+        // =================== F_FOR_EACH_FIELD_ / F_FOR_EACH_MEMBER_ =========================
+        {
+            std::string forEachField;
+            std::string forEachMember;
+            for (std::size_t i = 0; i < data.fields.size(); ++i)
+            {
+                const auto& field = data.fields[i];
+                const auto memberPath = data.fullNamePath() + "::" + field.name;
+
+                forEachField += std::format("\t\tvisitor(fields[{}], obj.{});\n", i, field.name);
+
+                std::string setter = "RNoSetter{}";
+                if (!field.setter.empty())
+                {
+                    setter = std::format(
+                        "[]({}& obj, const std::remove_cv_t<decltype({})>& value) {{ "
+                        "obj.{}(value); }}",
+                        data.fullNamePath(), memberPath, field.setter);
+                }
+                forEachMember += std::format(
+                    "\t\tvisitor(fields[{}], std::integral_constant<decltype(&{}), &{}>{{}}, {});\n",
+                    i, memberPath, memberPath, setter);
+            }
+
+            FindAndReplaceAll(finalString, "@@F_FOR_EACH_FIELD_", forEachField);
+            FindAndReplaceAll(finalString, "@@F_FOR_EACH_MEMBER_", forEachMember);
+        }
+
+        // =================== F_FOR_EACH_BASE_ =========================
+        {
+            std::string out;
+            for (const auto& parent : data.serializableParents)
+            {
+                out += std::format("\t\tvisitor(std::type_identity<{}>{{}});\n", parent);
+            }
+            FindAndReplaceAll(finalString, "@@F_FOR_EACH_BASE_", out);
+            FindAndReplaceAll(finalString, "@@BASE_NUMBERS_",
+                              std::to_string(data.serializableParents.size()));
         }
 
         // =================== F_SERIALIZE_ =========================

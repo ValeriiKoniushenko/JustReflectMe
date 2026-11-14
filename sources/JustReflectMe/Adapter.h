@@ -12,13 +12,33 @@
 #include "Number.h"
 #include "nlohmann/json.hpp"
 
+#include <algorithm>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 // ==================================================
 //                     MISC
 // ==================================================
+
+/**
+ * @brief One free-form `key[ = value]` entry from a field's `R::Meta(...)` marker.
+ *
+ * JRM stores these entries without interpreting them, except for the reserved `Setter` key.
+ * A bare key (`R::Meta(ReadOnly)`) has an empty value. String values are stored without their
+ * quotes; identifiers and numbers are stored as written.
+ */
+struct RMetaEntry
+{
+    std::string_view key;
+    std::string_view value;
+
+    friend bool operator==(const RMetaEntry&, const RMetaEntry&) = default;
+};
 
 /**
  * @brief Metadata for one reflected class field.
@@ -29,11 +49,45 @@ struct RClassField
     std::string_view name;
     struct Attributes
     {
-        std::vector<std::string_view> attribs;
-        std::optional<JRM::Number> min;
-        std::optional<JRM::Number> max;
-        std::optional<JRM::Number> step;
+        // Every member has a default initializer, so designated initializers may omit any of them.
+        std::vector<std::string_view> attribs{};
+        std::optional<JRM::Number> min{};
+        std::optional<JRM::Number> max{};
+        std::optional<JRM::Number> step{};
+        /** @brief Every `R::` flag given to the field's marker, combined with `|`. */
+        uint64_t flags = 0;
+        /** @brief Entries of all `R::Meta(...)` groups, in declaration order, keys unique. */
+        std::vector<RMetaEntry> meta{};
+
+        /** @brief Returns whether every bit of `flag` is set. */
+        [[nodiscard]] bool hasFlag(uint64_t flag) const noexcept { return (flags & flag) == flag; }
+
+        /** @brief Returns whether `R::Meta` contains `key`, with or without a value. */
+        [[nodiscard]] bool hasMeta(std::string_view key) const noexcept
+        {
+            return getMeta(key).has_value();
+        }
+
+        /**
+         * @brief Returns the value stored for `key`.
+         * @return The value (empty for a bare key), or `std::nullopt` when the key is absent.
+         */
+        [[nodiscard]] std::optional<std::string_view> getMeta(std::string_view key) const noexcept
+        {
+            const auto it = std::ranges::find(meta, key, &RMetaEntry::key);
+            return it != meta.end() ? std::optional(it->value) : std::nullopt;
+        }
     } attributes;
+};
+
+/**
+ * @brief Setter slot passed by `R<T>::ForEachMember` for a field without `R::Meta(Setter = ...)`.
+ *
+ * A field with a declared setter receives a captureless callable `void(T&, const FieldType&)`
+ * instead. Test for this type with `std::is_same_v<decltype(setter), RNoSetter>`.
+ */
+struct RNoSetter
+{
 };
 
 /**
@@ -78,6 +132,12 @@ struct R
 
     /** @brief Supress Min/Max limits for de/serialization. */
     constexpr static uint64_t SuppressLimits = 1 << 8;
+
+    /** @brief Free-form metadata for tools such as editors:
+     * `R::Meta(Key, Key = Identifier, Key = "text", Key = 1.5)`. JRM stores the entries in
+     * `RClassField::Attributes::meta` without interpreting them, except `Setter = memberFunction`,
+     * which makes `ForEachMember` pass a generated setter for the field. */
+    constexpr static uint64_t Meta = 1 << 9;
 
     /** @brief Default missing-field behavior, equivalent to `NonRequired`. */
     constexpr static uint64_t Default = R::NonRequired;
@@ -454,6 +514,7 @@ public:
  * - R::Max = Number
  * - R::Step = Number
  * - R::SuppressLimits
+ * - R::Meta(Key, Key = Identifier, Key = Number, Key = "text", Setter = memberFunction)
  *
  * JRM matches these exact R:: spellings in source, not RPoint:: aliases or C++ expressions.
  * Unknown options produce warnings. Reflected-enum fields do not forward all missing-field

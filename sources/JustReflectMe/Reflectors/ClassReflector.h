@@ -49,17 +49,28 @@ namespace JRM
         [[nodiscard]] std::set<std::string> getIncludes() const override;
 
     protected:
+        /// `R::Meta` entries as (key, value). The value is the literal's body for strings and the
+        /// spelling as written for identifiers and numbers; empty for a bare key.
+        using MetaEntries = std::vector<std::pair<std::string, std::string>>;
+
         struct FieldData
         {
             std::vector<std::string> attributes;
             FileNavigator::Typename type;
             std::string name;
             std::string defaultValue;
+            /// Flags forwarded to the generated deserializer's `read` call.
             int flags = 0;
+            /// Every flag of the marker (including generator-only ones); exposed as
+            /// `RClassField::Attributes::flags`.
+            uint64_t allFlags = 0;
             std::optional<TypeMeta> typeMeta;
             std::string min;
             std::string max;
             std::string step;
+            MetaEntries meta;
+            /// Member function named by `R::Meta(Setter = ...)`, or empty.
+            std::string setter;
         };
 
         struct TokenData : public BaseTokenData
@@ -76,6 +87,17 @@ namespace JRM
         void onScan(const FileData& fileData) override;
 
         void processFields(const Scope* classScope, const FileData& fileData, TokenData& data);
+
+        /**
+         * @brief Parses one `R::Meta( ... )` group of a `FIELD` marker.
+         * @param it Points just past `R::Meta`; on return points past the group (or at
+         * `fieldClose` when the group is malformed).
+         * @param fieldClose The `FIELD` marker's closing parenthesis.
+         * @param meta Receives the entries; a repeated key overwrites the earlier value in place.
+         * @param setter Receives the `Setter` value when it is a valid identifier.
+         */
+        void parseMetaGroup(const char*& it, const char* fieldClose, const FileData& fileData,
+                            const std::string& className, MetaEntries& meta, std::string& setter);
 
     private:
         [[nodiscard]] std::string generateSources(const TokenData& data) const;

@@ -2,6 +2,7 @@ add_executable(JRMTests
     main.cpp
     AdapterTests.cpp
     BaseReflectorTests.cpp
+    ClassReflectorMetaTests.cpp
     ConfigAndCacheTests.cpp
     EnumsAndFileDataTests.cpp
     FileProcessorTests.cpp
@@ -10,6 +11,7 @@ add_executable(JRMTests
     StringAndNavigationTests.cpp
     uat/Classes.cpp
     uat/Enums.cpp
+    uat/FieldVisitors.cpp
     uat/MltClasses.cpp
     TestSupport.h
 )
@@ -18,7 +20,7 @@ JRMApplyTargetSettings(JRMTests)
 jrm_target_reflection(JRMTests
     ROOT "${CMAKE_CURRENT_SOURCE_DIR}"
     CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/.jrm/config.yaml"
-    HEADERS uat/Classes.h uat/Enums.h uat/MltClasses.h)
+    HEADERS uat/Classes.h uat/Enums.h uat/FieldVisitors.h uat/MltClasses.h)
 
 # Ensure the directory exists before CTest runs
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/run/$<CONFIG>/.keep" CONTENT "")

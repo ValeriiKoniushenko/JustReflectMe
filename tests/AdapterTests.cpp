@@ -75,3 +75,27 @@ TEST(AdapterTests, WritesAndReadsJsonFieldsAndBuildsMetadataMap)
     EXPECT_EQ(RStatusToString(RStatus::Ok), "Ok");
     EXPECT_EQ(RStatusToString(RStatus::NotFound), "NotFound");
 }
+
+TEST(AdapterTests, AttributesAnswerFlagAndMetaQueries)
+{
+    const RClassField field{
+        .type = "float",
+        .name = "speed",
+        .attributes = RClassField::Attributes{
+            .flags = RPoint::Required | RPoint::Meta,
+            .meta = { RMetaEntry{ "Hidden", "" }, RMetaEntry{ "DisplayName", "Speed" } },
+        },
+    };
+
+    EXPECT_TRUE(field.attributes.hasFlag(RPoint::Required));
+    EXPECT_FALSE(field.attributes.hasFlag(RPoint::SuppressLimits));
+    EXPECT_TRUE(field.attributes.hasMeta("Hidden"));
+    EXPECT_EQ(field.attributes.getMeta("Hidden"), std::optional<std::string_view>(""));
+    EXPECT_EQ(field.attributes.getMeta("DisplayName"), std::optional<std::string_view>("Speed"));
+    EXPECT_EQ(field.attributes.getMeta("Missing"), std::nullopt);
+
+    const auto byName = RInternal::GetClassFieldsAsMap({ field });
+    EXPECT_THAT(byName.at("speed").attributes.meta,
+                testing::ElementsAre(RMetaEntry{ "Hidden", "" },
+                                     RMetaEntry{ "DisplayName", "Speed" }));
+}
