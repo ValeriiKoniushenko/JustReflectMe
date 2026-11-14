@@ -2,6 +2,7 @@
 
 #include "JustReflectMe/Adapter.h"
 
+#include <algorithm>
 #include <string>
 
 // tag::reflected_enum[]
@@ -38,6 +39,24 @@ public:
     Priority priority = Priority::Normal;
 };
 // end::reflected_classes[]
+
+// tag::tool_metadata[]
+CLASS();
+class Lamp
+{
+    R_FRIEND(Lamp);
+
+public:
+    void setBrightness(float value) { brightness = std::clamp(value, 0.f, 1.f); }
+
+    FIELD(R::Min = 0.0, R::Max = 1.0, R::Step = 0.05,
+          R::Meta(DisplayName = "Brightness", Category = Lighting, Setter = setBrightness));
+    float brightness = 0.5f;
+
+    FIELD(R::Meta(ReadOnly, Tooltip = "Assigned by the scene"));
+    int sceneId = 0;
+};
+// end::tool_metadata[]
 
 // tag::generated_include[]
 #include "model.generated.h" // Added automatically by jrm after the first scan.

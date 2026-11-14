@@ -16,8 +16,11 @@ It understands file, namespace, class, struct, enum-class, template, and anonymo
 * Marker-driven parsing expects conventional declarations. Complex macro expansion, unusual declarators, multiple data declarators in one statement, and advanced template syntax may not scan correctly.
 * Prefer assignment-style field initializers when the braced form would need template argument deduction in generated deserialization code. In particular, use an assignment-style string initializer.
 * Put enum constants on separate lines. The enum scanner advances line by line.
-* Class metadata covers fields declared directly in that class. Base metadata remains in each base's `R<Base>` specialization.
-* `GetField` is an untyped mutable callback API; it does not provide type-safe dynamic invocation.
+* Class metadata covers fields declared directly in that class. Base metadata remains in each base's `R<Base>` specialization; `ForEachBase` reaches only bases listed in `R_FRIEND`.
+* `GetField` is an untyped mutable callback API; it does not provide type-safe dynamic invocation. Use `ForEachField` or `ForEachMember` when the type is known at compile time.
+* `ForEachMember` takes the address of every reflected field, and that code is compiled for every reflected class even when unused. A `FIELD()` on a bit-field or a reference member therefore does not compile.
+* `R::Meta` values cannot contain nested parentheses, and two string literals written with nothing between them (`"a""b"`) cannot be told apart.
+* The function named by `R::Meta(Setter = ...)` is checked only by the compiler, when the generated header is compiled.
 * Serialization has no schema versioning or migration layer.
 * JSON is the production adapter, and some reflected-enum paths currently assume JSON-like string access even when a custom stream is selected.
 * Missing-field flags are not fully forwarded by the generated reflected-enum field path. Give reflected enum fields explicit defaults and validate required keys at the application boundary.

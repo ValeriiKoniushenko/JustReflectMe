@@ -53,11 +53,44 @@ JRM matches their exact `R::` spellings in source; `RPoint::` aliases and arbitr
 
 |`R::Attr = Identifier`
 |Adds `Identifier` to the field's metadata attributes. Repeat the option for multiple attributes.
+
+|`R::Meta(Entries...)`
+|Adds free-form `key` / `key = value` entries for tools such as editors, without changing serialization. See <<tool-metadata>>.
 |===
 
 Unknown `FIELD` expressions produce generator warnings and are skipped as options.
 Attribute values are identifiers, not arbitrary strings or C++ expressions.
 The reflected-enum field path currently does not preserve every missing-field option; see xref:serialization.adoc[Missing fields].
+
+Every option given to a field is also recorded as a bit in `RClassField::Attributes::flags`; test it with `attributes.hasFlag(RPoint::Required)`.
+
+[#tool-metadata]
+== Tool metadata
+
+`R::Meta(...)` attaches metadata that JRM stores but does not interpret:
+
+[source,cpp]
+----
+include::example$quickstart/model.h[tag=tool_metadata]
+----
+
+Each comma-separated entry is a key, optionally followed by `=` and a value:
+
+* the key is a plain identifier;
+* the value is an identifier (`Lighting`, `Gui::AssetRef`), a number (`3`, `-2.5`), or a string literal (`"Brightness"`);
+* a bare key (`ReadOnly`) has an empty value.
+
+Entries are available in declaration order as `RClassField::Attributes::meta`, a vector of `RMetaEntry { key, value }`.
+Look one up with `attributes.getMeta("DisplayName")`, which returns `std::nullopt` for an absent key and an empty view for a bare key, or test presence with `attributes.hasMeta("ReadOnly")`.
+String values are stored without their quotes; identifiers and numbers are stored as written.
+
+A field may carry several `R::Meta(...)` groups; their entries are merged in order.
+A repeated key produces a warning, and its last value replaces the earlier one in place.
+A malformed entry is reported as an error and skipped; the remaining entries are still parsed.
+
+The `Setter` key is reserved.
+`Setter = memberFunction` must name a member function of the class; `ForEachMember` then passes a generated setter that calls `object.memberFunction(value)` instead of `RNoSetter` (see xref:class-reflection.adoc[Visit fields with their real types]).
+The member function is checked by the compiler when the generated header is compiled.
 
 == Friend aliases
 

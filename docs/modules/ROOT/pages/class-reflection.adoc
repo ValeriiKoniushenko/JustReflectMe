@@ -29,9 +29,41 @@ Treat unusual data declarators such as bit-fields and marked static members as u
 include::example$quickstart/main.cpp[tag=class_metadata]
 ----
 
-`GetFields()` returns `RClassField` entries containing a textual type, field name, and zero or more marker attributes.
-`GetFieldsMap()` indexes equivalent metadata by field name.
+`GetFields()` returns `RClassField` entries in declaration order, each with a textual type, field name, marker attributes, numeric limits, the marker's flags, and `R::Meta` entries.
+`GetFieldsArray()` returns the same entries from a cached `std::array`, so their addresses stay valid for the whole program.
+`GetFieldsMap()` indexes equivalent metadata by field name; it is unordered, so prefer the other two when order matters.
 Metadata describes fields declared directly in the type; base fields are serialized through the base specialization but are not added to the derived type's `GetFields()` result.
+
+== Visit fields with their real types
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=field_visitor]
+----
+
+`ForEachField(object, visitor)` calls the visitor once per field, in declaration order, with the field's metadata and a reference of the field's real type.
+The reference is `const` when the object or the field is `const`.
+Overload resolution or `if constexpr` replaces comparing type strings, so this is the preferred way for tools to read and write fields.
+
+To work without an object, `ForEachMember(visitor)` passes each field's member pointer as a compile-time constant (`std::integral_constant<FieldType T::*, &T::field>`) together with a setter slot:
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=member_visitor]
+----
+
+The setter slot is `RNoSetter` unless the field declares `R::Meta(Setter = memberFunction)`; then it is a captureless callable `void(T&, const FieldType&)` that calls that member function, which also converts to a plain function pointer.
+See xref:markers.adoc#tool-metadata[Tool metadata] for the marker.
+
+== Walk reflected bases
+
+[source,cpp]
+----
+include::example$quickstart/main.cpp[tag=base_visitor]
+----
+
+`ForEachBase(visitor)` passes `std::type_identity<Base>` for every base listed in `R_FRIEND`, in that order.
+Combined with `ForEachField`, it lets a tool visit the fields of a whole class hierarchy without knowing the hierarchy in advance.
 
 == Access a field by name
 
@@ -41,6 +73,7 @@ include::example$quickstart/main.cpp[tag=dynamic_field_access]
 ----
 
 `GetField` calls the callback synchronously with an untyped address and textual type, and returns `false` for an unknown name or empty callback.
+Prefer the typed visitors above when the reflected type is known at compile time.
 The caller is responsible for checking the type string before casting.
 Because the API exposes mutable addresses and currently casts away constness for a reflected const field, reserve it for controlled infrastructure such as editors or serializers.
 

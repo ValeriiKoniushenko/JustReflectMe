@@ -36,6 +36,21 @@ These values are compile-time string views in generated specializations.
 |`GetFieldsMap()`
 |Returns the direct-field metadata keyed by field name.
 
+|`GetFieldsArray()`
+|Returns a reference to a cached `std::array<RClassField, N>` in declaration order. It is built once, so element addresses are stable.
+
+|`ForEachField(object, visitor)`
+|Calls `visitor(const RClassField&, FieldType&)` for each direct field in declaration order. Accepts `T&` or `const T&`; the reference keeps the constness of the object and of the field.
+
+|`ForEachMember(visitor)`
+|Calls `visitor(const RClassField&, std::integral_constant<FieldType T::*, &T::field>, setter)` for each direct field in declaration order. `setter` is `RNoSetter`, or a captureless `void(T&, const FieldType&)` generated from `R::Meta(Setter = ...)`.
+
+|`GetBaseNumbers()`
+|Returns the number of bases listed in `R_FRIEND`.
+
+|`ForEachBase(visitor)`
+|Calls `visitor(std::type_identity<Base>{})` for each base listed in `R_FRIEND`, in that order.
+
 |`Serialize(object, stream, noSignals)`
 |Writes reflected base data and direct fields into an existing stream.
 
@@ -85,8 +100,14 @@ Use that overload or `FromString()` for untrusted input; the value-returning ove
 
 == Runtime support types
 
-`RClassField` contains `type`, `name`, and `attribs`.
-These are non-owning string views into generated string literals, while the attribute collection is a vector.
+`RClassField` contains `type`, `name`, and `attributes`.
+`attributes` holds `attribs` (`R::Attr` identifiers), the optional `min`, `max`, and `step` limits, `flags` (every `R::` option of the marker as bits), and `meta` (`R::Meta` entries in declaration order).
+Strings are non-owning views into generated string literals, while `attribs` and `meta` are vectors.
+`hasFlag(flag)`, `hasMeta(key)`, and `getMeta(key)` answer the common queries.
+
+`RMetaEntry` is one `R::Meta` entry: a `key` and a `value`, both string views; the value is empty for a bare key.
+
+`RNoSetter` is the empty type that `ForEachMember` passes for a field without a declared setter.
 
 `RResourceStream<RImpl>` exposes `write`, `read`, `getData`, and `logs` and owns one implementation object.
 `RJsonResourceStream` stores `nlohmann::json` and missing-field diagnostics.

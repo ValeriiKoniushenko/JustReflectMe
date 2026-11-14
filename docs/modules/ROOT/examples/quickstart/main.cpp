@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include <iostream>
+#include <type_traits>
 
 int main()
 {
@@ -46,5 +47,42 @@ int main()
                                          });
     // end::dynamic_field_access[]
 
-    return found ? 0 : 1;
+    // tag::field_visitor[]
+    R<Task>::ForEachField(restored,
+                          [](const RClassField& field, const auto& value)
+                          {
+                              // `value` has the field's real type: std::string, then Priority.
+                              using Value = std::remove_cvref_t<decltype(value)>;
+                              if constexpr (std::is_same_v<Value, std::string>)
+                              {
+                                  std::cout << field.name << " = " << value << '\n';
+                              }
+                          });
+    // end::field_visitor[]
+
+    // tag::base_visitor[]
+    R<Task>::ForEachBase(
+        [](auto base)
+        {
+            using Base = typename decltype(base)::type;
+            std::cout << R<Task>::Name() << " derives from " << R<Base>::Name() << '\n';
+        });
+    // end::base_visitor[]
+
+    // tag::member_visitor[]
+    Lamp lamp;
+    R<Lamp>::ForEachMember(
+        [&](const RClassField& field, auto member, auto setter)
+        {
+            const auto label = field.attributes.getMeta("DisplayName").value_or(field.name);
+            std::cout << label << " = " << (lamp.*decltype(member)::value) << '\n';
+
+            if constexpr (!std::is_same_v<decltype(setter), RNoSetter>)
+            {
+                setter(lamp, 2.f); // Calls Lamp::setBrightness, which clamps the value to 1.
+            }
+        });
+    // end::member_visitor[]
+
+    return found && lamp.brightness == 1.f ? 0 : 1;
 }

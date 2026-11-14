@@ -15,8 +15,8 @@ Deserialization applies the base specialization before the derived fields.
 All listed bases must be accessible through the derived object and must have generated reflection visible where the derived specialization is compiled.
 Non-reflected bases can remain in the C++ inheritance list; omit them from `R_FRIEND`.
 
-`GetFields()`, `GetFieldsMap()`, `GetFieldNumbers()`, and `GetField()` describe only direct fields in the generated specialization.
-Call a base specialization separately when tooling needs base metadata.
+`GetFields()`, `GetFieldsArray()`, `GetFieldsMap()`, `GetFieldNumbers()`, `GetField()`, `ForEachField()`, and `ForEachMember()` describe only direct fields in the generated specialization.
+When tooling needs base metadata, use `ForEachBase()` to reach each base listed in `R_FRIEND` and call that base's specialization; see xref:class-reflection.adoc[Walk reflected bases].
 
 == Control callbacks across a hierarchy
 
