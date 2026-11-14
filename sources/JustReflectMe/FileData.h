@@ -11,6 +11,7 @@
 #include "FileProcessor.h"
 #include "Scopes.h"
 
+#include <optional>
 #include <string>
 
 namespace JRM
@@ -86,6 +87,19 @@ namespace JRM
          * @return The original character literal, or an empty string when no token exists there.
          */
         [[nodiscard]] std::string getRealCharFromPlaceholderPos(std::size_t pos) const;
+
+        /**
+         * @brief Restores the string literal masked by the placeholder run containing `pos`.
+         *
+         * Unlike `getRealStringFromPlaceholderPos`, this does not depend on exact offsets: the
+         * n-th placeholder run in the content is the n-th string literal of the file, so offset
+         * shifts introduced by literal masking do not matter. Two literals written with nothing
+         * between them (`"a""b"`) form a single run and cannot be told apart.
+         * @param pos Any position inside a string-placeholder run of the preprocessed content.
+         * @return The literal's text without quotes, or `std::nullopt` when `pos` is not inside a
+         * string-placeholder run or no matching literal exists.
+         */
+        [[nodiscard]] std::optional<std::string> getStringLiteralAt(std::size_t pos) const;
 
     protected:
         PostProcessedFile _content;

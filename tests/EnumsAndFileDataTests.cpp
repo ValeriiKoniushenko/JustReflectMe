@@ -57,3 +57,28 @@ TEST(FileDataTests, StoresContentPathAndScopes)
         data.getScopes().getScopeAt(data.getContent().c_str() + data.getContent().find("Value")),
         nullptr);
 }
+
+TEST(FileDataTests, ResolvesStringLiteralByItsPlaceholderRunRegardlessOfOffsetDrift)
+{
+    // Preprocessing `a"x"b""c"yz"` masks every literal with a run of placeholders. Token keys are
+    // positions in the unmasked text, so they do not line up with the masked positions.
+    constexpr char p = JRM::PostProcessedFile::stringPlaceholder;
+    JRM::PostProcessedFile content;
+    content.content = std::string("a") + p + p + "b" + p + p + "c" + p + p + p + p;
+    content.stringTokens.emplace(1, "x");
+    content.stringTokens.emplace(5, "");
+    content.stringTokens.emplace(8, "yz");
+
+    JRM::FileData data;
+    data.setContent(std::move(content));
+
+    EXPECT_EQ(data.getStringLiteralAt(1), "x");
+    EXPECT_EQ(data.getStringLiteralAt(2), "x");
+    EXPECT_EQ(data.getStringLiteralAt(4), "");
+    EXPECT_EQ(data.getStringLiteralAt(5), "");
+    EXPECT_EQ(data.getStringLiteralAt(7), "yz");
+    EXPECT_EQ(data.getStringLiteralAt(10), "yz");
+    EXPECT_EQ(data.getStringLiteralAt(0), std::nullopt);
+    EXPECT_EQ(data.getStringLiteralAt(3), std::nullopt);
+    EXPECT_EQ(data.getStringLiteralAt(99), std::nullopt);
+}

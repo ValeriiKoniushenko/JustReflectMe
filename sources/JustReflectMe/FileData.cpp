@@ -9,6 +9,10 @@
 
 #include "FileData.h"
 
+#include <algorithm>
+#include <ranges>
+#include <vector>
+
 namespace JRM
 {
 
@@ -63,6 +67,43 @@ namespace JRM
     {
         const auto it = _content.charTokens.find(pos);
         return it != _content.charTokens.end() ? it->second : "";
+    }
+
+    std::optional<std::string> FileData::getStringLiteralAt(std::size_t pos) const
+    {
+        constexpr char placeholder = PostProcessedFile::stringPlaceholder;
+        const std::string& text = _content.content;
+
+        if (pos >= text.size() || text[pos] != placeholder)
+        {
+            return std::nullopt;
+        }
+
+        // Ordinal of the run containing `pos` = number of run starts at or before `pos`, minus 1.
+        std::size_t ordinal = 0;
+        for (std::size_t i = 0; i <= pos; ++i)
+        {
+            if (text[i] == placeholder && (i == 0 || text[i - 1] != placeholder))
+            {
+                ++ordinal;
+            }
+        }
+        --ordinal;
+
+        // Token keys grow with the literals' order of appearance.
+        std::vector<std::size_t> keys;
+        keys.reserve(_content.stringTokens.size());
+        for (const auto key : _content.stringTokens | std::views::keys)
+        {
+            keys.push_back(key);
+        }
+        if (ordinal >= keys.size())
+        {
+            return std::nullopt;
+        }
+        std::ranges::nth_element(keys, keys.begin() + static_cast<std::ptrdiff_t>(ordinal));
+
+        return _content.stringTokens.at(keys[ordinal]);
     }
 
 } // namespace JRM
