@@ -631,8 +631,7 @@ namespace JRM
                     else if (type.name == "R::Meta")
                     {
                         meta.flags |= RPoint::Meta;
-                        parseMetaGroup(it, fieldClose, fileData, data.name, meta.meta,
-                                       meta.setter);
+                        parseMetaGroup(it, fieldClose, fileData, data.name, meta.meta, meta.setter);
                     }
                     else
                     {
@@ -1226,7 +1225,8 @@ namespace JRM
                         data.fullNamePath(), memberPath, field.setter);
                 }
                 forEachMember += std::format(
-                    "\t\tvisitor(fields[{}], std::integral_constant<decltype(&{}), &{}>{{}}, {});\n",
+                    "\t\tvisitor(fields[{}], std::integral_constant<decltype(&{}), &{}>{{}}, "
+                    "{});\n",
                     i, memberPath, memberPath, setter);
             }
 

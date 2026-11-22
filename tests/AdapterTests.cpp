@@ -95,7 +95,7 @@ TEST(AdapterTests, AttributesAnswerFlagAndMetaQueries)
     EXPECT_EQ(field.attributes.getMeta("Missing"), std::nullopt);
 
     const auto byName = RInternal::GetClassFieldsAsMap({ field });
-    EXPECT_THAT(byName.at("speed").attributes.meta,
-                testing::ElementsAre(RMetaEntry{ "Hidden", "" },
-                                     RMetaEntry{ "DisplayName", "Speed" }));
+    EXPECT_THAT(
+        byName.at("speed").attributes.meta,
+        testing::ElementsAre(RMetaEntry{ "Hidden", "" }, RMetaEntry{ "DisplayName", "Speed" }));
 }

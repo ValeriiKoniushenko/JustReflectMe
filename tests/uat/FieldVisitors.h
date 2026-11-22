@@ -37,8 +37,7 @@ namespace UAT
 
     protected:
         FIELD(R::Min = 0.0, R::Max = 10.0, R::Step = 0.5,
-              R::Meta(DisplayName = "Light intensity", Category = Lighting,
-                      Setter = setIntensity));
+              R::Meta(DisplayName = "Light intensity", Category = Lighting, Setter = setIntensity));
         float _intensity = 1.f;
 
     public:

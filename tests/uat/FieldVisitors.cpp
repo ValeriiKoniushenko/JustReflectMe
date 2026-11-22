@@ -9,7 +9,6 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-
 #include <string>
 #include <type_traits>
 #include <typeindex>
@@ -44,8 +43,8 @@ namespace
                 using Base = typename decltype(tag)::type;
                 CollectFieldNamesOfWholeChain<Base>(static_cast<Base&>(obj), out);
             });
-        R<T>::ForEachField(obj, [&](const RClassField& field, auto&)
-                           { out.emplace_back(field.name); });
+        R<T>::ForEachField(obj,
+                           [&](const RClassField& field, auto&) { out.emplace_back(field.name); });
     }
 } // namespace
 
@@ -81,10 +80,10 @@ TEST(FieldVisitors, ForEachFieldVisitsInDeclarationOrderWithTypedReferences)
                            });
 
     EXPECT_THAT(names, ElementsAre("_intensity", "name", "id", "values"));
-    EXPECT_THAT(types, ElementsAre(std::type_index(typeid(float)),
-                                   std::type_index(typeid(std::string)),
-                                   std::type_index(typeid(int)),
-                                   std::type_index(typeid(std::vector<int>))));
+    EXPECT_THAT(types,
+                ElementsAre(std::type_index(typeid(float)), std::type_index(typeid(std::string)),
+                            std::type_index(typeid(int)),
+                            std::type_index(typeid(std::vector<int>))));
 }
 
 TEST(FieldVisitors, ForEachFieldPassesTheSameMetadataObjectsAsGetFieldsArray)
@@ -92,8 +91,8 @@ TEST(FieldVisitors, ForEachFieldPassesTheSameMetadataObjectsAsGetFieldsArray)
     Light light;
     std::vector<const RClassField*> visited;
 
-    R<Light>::ForEachField(light, [&](const RClassField& field, auto&)
-                           { visited.push_back(&field); });
+    R<Light>::ForEachField(light,
+                           [&](const RClassField& field, auto&) { visited.push_back(&field); });
 
     const auto& fields = R<Light>::GetFieldsArray();
     EXPECT_THAT(visited, ElementsAre(&fields[0], &fields[1], &fields[2], &fields[3]));
@@ -148,9 +147,9 @@ TEST(FieldVisitors, ForEachFieldKeepsConstFieldsConstOnMutableObject)
     Light light;
     std::vector<bool> constness;
 
-    R<Light>::ForEachField(light, [&](const RClassField&, auto& value)
-                           { constness.push_back(std::is_const_v<
-                                                 std::remove_reference_t<decltype(value)>>); });
+    R<Light>::ForEachField(
+        light, [&](const RClassField&, auto& value)
+        { constness.push_back(std::is_const_v<std::remove_reference_t<decltype(value)>>); });
 
     EXPECT_THAT(constness, ElementsAre(false, false, true, false));
 }

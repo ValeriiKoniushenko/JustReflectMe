@@ -52,8 +52,8 @@ namespace
 
     std::string ClassWithField(const std::string& fieldMarker)
     {
-        return "#pragma once\nCLASS();\nclass Model\n{\n    R_FRIEND(Model);\n    "
-               + fieldMarker + "\n    int value = 0;\n};\n";
+        return "#pragma once\nCLASS();\nclass Model\n{\n    R_FRIEND(Model);\n    " + fieldMarker
+               + "\n    int value = 0;\n};\n";
     }
 } // namespace
 
@@ -67,8 +67,9 @@ TEST(ClassReflectorMetaTests, EmitsTypedVisitorsCachedFieldsAndBaseVisitor)
     EXPECT_TRUE(result.generated.contains("ForEachMember("));
     EXPECT_TRUE(result.generated.contains("ForEachBase("));
     EXPECT_TRUE(result.generated.contains("GetBaseNumbers()"));
-    EXPECT_TRUE(result.generated.contains("std::integral_constant<decltype(&Model::value), "
-                                          "&Model::value>{}, RNoSetter{}"));
+    EXPECT_TRUE(
+        result.generated.contains("std::integral_constant<decltype(&Model::value), "
+                                  "&Model::value>{}, RNoSetter{}"));
     EXPECT_TRUE(result.generated.contains(".meta = {}"));
 }
 
@@ -85,8 +86,7 @@ TEST(ClassReflectorMetaTests, EmitsSetterThunkForSetterMeta)
 
 TEST(ClassReflectorMetaTests, ResolvesMetaStringWhenItIsTheFirstStringInTheFile)
 {
-    const auto result
-        = Generate(ClassWithField("FIELD(R::Meta(DisplayName = \"First string\"));"));
+    const auto result = Generate(ClassWithField("FIELD(R::Meta(DisplayName = \"First string\"));"));
 
     ASSERT_TRUE(result.succeeded);
     EXPECT_TRUE(result.generated.contains("RMetaEntry{ \"DisplayName\", \"First string\" }"));
